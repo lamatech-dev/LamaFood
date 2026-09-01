@@ -1,6 +1,26 @@
 # Changelog
 
-## Unreleased — Foundation
+## Unreleased — Denardi V1
+
+### Admin/CMS/Menu/Media completion
+
+- Completed Page and Block edit, safe delete/archive, reorder, enable/disable, authenticated preview and three-language publish workflow.
+- Completed Product and Category edit, reorder and safe delete/archive while keeping publication independent from branch price/availability.
+- Added branch selector for Admin price/availability management and primary Media assignment for Products.
+- Added original-preserving Media upload with optimized/thumbnail WebP derivatives, localized metadata, usage references and in-use deletion protection.
+- Added Media selection for CMS blocks and immutable Media metadata in published snapshots.
+- Reorganized the Admin shell into Overview, Products, Categories, Content, Media, QR/Analytics and Localization sections.
+- Expanded the idempotent local-only Denardi demo dataset to four categories and nine three-language products, including draft and sold-out examples.
+- Added focused CMS, Menu and Media management tests and browser smoke checks for Persian and Arabic public menus.
+- Added CI failure summaries/annotations so repository-controlled test failures remain visible and auditable without exposing stored GitHub credentials.
+
+### Verification
+
+- Local MySQL: 65 PHPUnit tests and 315 assertions pass.
+- PHPStan/Larastan, Pint, frontend tests, Vite production build, Composer validation and dependency audits pass locally.
+- Commit `63cbb4f` was pushed to `develop/denardi-v1`; GitHub Actions run `33553026988` failed in the PHP test step and is under repository-controlled diagnosis.
+
+## Foundation checkpoint
 
 ### Added
 
@@ -20,4 +40,4 @@
 - Denardi's required locales are `fa`, `en` and `ar`; direction comes exclusively from locale metadata and public fallback is disabled.
 - Module delivery is bundled/configured only. Runtime package installation and marketplace behavior remain deferred.
 - Instance/license metadata is informational only; no remote enforcement was added.
-- Local MySQL 8.4.11 is unavailable because the macOS binary crashes and the host has insufficient free disk for a safe isolated install. GitHub Actions run `33485577485` passed against the official MySQL 8.4.11 container with no SQLite fallback.
+- Local MySQL 8.4 is now available for application migrations, provisioning and behavioral tests. GitHub Actions continues to validate from-zero migrations against its disposable MySQL 8.4.11 service.

@@ -1,6 +1,6 @@
 # FOUNDATION IMPLEMENTATION REPORT
 
-**Date:** 2026-09-01
+**Date:** 2026-09-02
 **Result:** Foundation remains intact and the authorized Denardi V1 Admin/CMS/Menu/Media completion slice is implemented locally. GitHub Actions remains the MySQL 8.4 checkpoint gate for the resulting commit.
 
 ## Initial state
@@ -88,7 +88,7 @@ The current local environment now runs the application and behavioral tests agai
 - Composer and npm advisory audits: zero known vulnerabilities
 - Real-browser smoke check: Persian and Arabic public menus render localized categories/products, draft products remain hidden, sold-out state is visible, and the Admin login shell loads without console errors
 - Secret check: ignored `.env` remains untracked; tracked environment examples contain placeholders only
-- GitHub Actions MySQL 8.4 result: pending the completion-pass push
+- GitHub Actions MySQL 8.4 run `33553026988`: failed in the PHP test step; a follow-up workflow change records detailed failure summaries/annotations for safe repository-controlled diagnosis.
 
 ## Scope intentionally untouched
 
@@ -96,14 +96,14 @@ No visual redesign, advanced analytics, password-reset flow, staging/production 
 
 ## Remaining delivery items
 
-- Complete the full repository quality gate and confirm the resulting GitHub Actions run on MySQL 8.4.
+- Diagnose the CI-only PHP test failure and confirm a green GitHub Actions run on MySQL 8.4.
 - Perform real-browser acceptance testing with approved Denardi brand assets and final Persian/English/Arabic copy.
 - Prepare the separately requested staging environment before any production launch.
 
 ## Architectural deviations
 
 - No domain deviation was introduced. The two approved amendments—three-language Denardi V1 and Godfather access—were integrated into the existing Locale and RBAC/Gate boundaries.
-- Validation environment note only: local MySQL could not be safely executed on this host. SQLite is used solely for local behavioral feedback; GitHub CI has verified the committed MySQL 8.4.11 contract.
+- Validation environment note only: local MySQL is available and the complete suite passes locally. GitHub CI remains authoritative for from-zero validation against its disposable MySQL 8.4.11 service.
 
 ## Recommended next implementation stage
 
