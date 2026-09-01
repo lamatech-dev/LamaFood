@@ -1,10 +1,22 @@
 <?php
 
+use App\Core\Localization\LocaleRegistry;
+use App\Http\Controllers\PublicPageController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return response()->json([
-        'service' => 'LamaFood',
-        'status' => 'foundation',
-    ]);
+Route::get('/', function (Request $request, LocaleRegistry $locales) {
+    $supported = $locales->codes();
+    $preferred = $request->cookie('denardi_locale');
+
+    if (! in_array($preferred, $supported, true)) {
+        $preferred = $request->getPreferredLanguage($supported) ?: $locales->default();
+    }
+
+    return redirect('/'.$preferred);
+});
+
+Route::prefix('{locale}')->middleware('locale')->group(function (): void {
+    Route::get('/', fn (string $locale, PublicPageController $controller) => $controller($locale, 'home', app(LocaleRegistry::class)))->name('public.home');
+    Route::get('/{slug}', PublicPageController::class)->whereIn('slug', ['menu', 'about', 'contact', 'privacy'])->name('public.page');
 });

@@ -10,6 +10,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use LogicException;
 
+/**
+ * @property array<string, mixed> $snapshot_json
+ */
 #[Fillable(['page_id', 'revision', 'snapshot_json', 'published_by'])]
 class PageRevision extends Model
 {
