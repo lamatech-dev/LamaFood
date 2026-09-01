@@ -96,8 +96,11 @@ No visual redesign, advanced analytics, password-reset flow, staging/production 
 
 ## Remaining delivery items
 
+- Implement and test the V1 Password Reset flow after its mail/provider/recovery inputs are authorized.
 - Perform real-browser acceptance testing with approved Denardi brand assets and final Persian/English/Arabic copy.
 - Prepare the separately requested staging environment before any production launch.
+
+Detailed percentages, release gates and external blockers are maintained in `docs/DENARDI_V1_TRACKER.md`.
 
 ## Architectural deviations
 

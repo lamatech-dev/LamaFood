@@ -19,6 +19,7 @@ LamaFood is Lamatech's modular, single-tenant restaurant platform. The repositor
 
 ## Documents
 
+- [Denardi V1 delivery tracker](docs/DENARDI_V1_TRACKER.md)
 - [Specification index](docs/specifications/README.md)
 - [Foundation development](docs/FOUNDATION_DEVELOPMENT.md)
 - [Foundation implementation report](docs/FOUNDATION_IMPLEMENTATION_REPORT.md)

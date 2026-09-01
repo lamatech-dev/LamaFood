@@ -2,6 +2,8 @@
 
 This file records implementation checkpoints, verification evidence and remaining work. Meaningful implementation stages must be committed on `develop/denardi-v1`, pushed to GitHub and added here before the stage is treated as complete. Secrets and local credentials must never be recorded.
 
+The live checklist and percentage tracker is maintained in `docs/DENARDI_V1_TRACKER.md`; every future implementation checkpoint must update it in the same commit.
+
 ## 2026-09-02 — Admin/CMS/Menu/Media completion
 
 **Commit:** `63cbb4f` — `feat: complete Denardi admin CMS menu and media`
@@ -45,3 +47,9 @@ Remaining within this checkpoint: none. The Admin/CMS/Menu/Media completion pass
 - `cd48495`: secret-safe backup lifecycle.
 - `7d73f70`: runnable local Denardi instance and development provisioning.
 - `2b603e8`: real QR artwork downloads in SVG/PNG/PDF.
+
+## 2026-09-02 — Delivery tracker introduced
+
+- Added a single status tracker covering subsystems, `DEN-01` through `DEN-12`, release gates, external inputs and explicitly deferred work.
+- Baseline estimate recorded as 82% implementation and 55% Go-live readiness.
+- Future checkpoint rule: update the tracker, implementation log and Git commit together.

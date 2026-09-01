@@ -1,7 +1,7 @@
 # FINAL IMPLEMENTATION READINESS REPORT
 
 **Status:** Architecture-corrected; Foundation implementation started on 2026-09-01.
-**Scope of this report:** This was the pre-implementation readiness baseline. Current delivery evidence is maintained in `docs/FOUNDATION_IMPLEMENTATION_REPORT.md`.
+**Scope of this report:** This was the pre-implementation readiness baseline. Current delivery evidence is maintained in `docs/FOUNDATION_IMPLEMENTATION_REPORT.md`; live progress and remaining work are maintained in `docs/DENARDI_V1_TRACKER.md`.
 
 ## Blocking issues remaining
 
@@ -67,6 +67,6 @@ These items do not block Core Foundation work, but they block complete Denardi d
 
 ## Implementation status amendment
 
-The earlier documentation-only confirmation is superseded by the explicitly authorized Foundation implementation. Foundation code and migrations now exist; Denardi feature implementation (CMS, Menu, QR, public theme and Admin UI) has not started.
+The earlier documentation-only confirmation is superseded. Foundation, CMS, Menu, QR, public theme, Admin, Media, PWA/SEO foundations and backup lifecycle code now exist. The authoritative remaining-work checklist is `docs/DENARDI_V1_TRACKER.md`.
 
 Denardi V1 localization architecture supports `fa/en/ar`; Persian remains default, and direction is metadata-driven.

@@ -14,6 +14,7 @@
 - Added focused CMS, Menu and Media management tests and browser smoke checks for Persian and Arabic public menus.
 - Added CI failure summaries/annotations so repository-controlled test failures remain visible and auditable without exposing stored GitHub credentials.
 - Fixed CMS preview test isolation so clean CI checkouts do not depend on a locally generated Vite manifest.
+- Added a single Denardi V1 delivery tracker for subsystem progress, client requirement traceability, release gates and external blockers.
 
 ### Verification
 
