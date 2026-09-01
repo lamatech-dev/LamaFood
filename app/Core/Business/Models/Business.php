@@ -3,6 +3,8 @@
 namespace App\Core\Business\Models;
 
 use App\Core\Localization\Models\BusinessLocale;
+use App\Core\Cms\Models\Page;
+use App\Core\Media\Models\Media;
 use App\Models\User;
 use Database\Factories\Core\Business\Models\BusinessFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -32,6 +34,18 @@ class Business extends Model
     public function users(): HasMany
     {
         return $this->hasMany(User::class)->businessVisible();
+    }
+
+    /** @return HasMany<Page, $this> */
+    public function pages(): HasMany
+    {
+        return $this->hasMany(Page::class);
+    }
+
+    /** @return HasMany<Media, $this> */
+    public function media(): HasMany
+    {
+        return $this->hasMany(Media::class);
     }
 
     protected function casts(): array

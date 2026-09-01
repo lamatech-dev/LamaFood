@@ -28,6 +28,10 @@ class ProvisionFoundationRbac
             ->syncPermissions([
                 $permissions[FoundationPermission::SettingsView->value],
                 $permissions[FoundationPermission::ModulesView->value],
+                $permissions[FoundationPermission::CmsView->value],
+                $permissions[FoundationPermission::CmsEdit->value],
+                $permissions[FoundationPermission::MediaView->value],
+                $permissions[FoundationPermission::MediaManage->value],
             ]);
 
         app(PermissionRegistrar::class)->forgetCachedPermissions();

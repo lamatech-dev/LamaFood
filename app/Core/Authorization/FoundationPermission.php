@@ -11,4 +11,9 @@ enum FoundationPermission: string
     case SystemView = 'system.view';
     case ModulesView = 'modules.view';
     case ModulesManage = 'modules.manage';
+    case CmsView = 'cms.view';
+    case CmsEdit = 'cms.edit';
+    case CmsPublish = 'cms.publish';
+    case MediaView = 'media.view';
+    case MediaManage = 'media.manage';
 }
