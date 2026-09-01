@@ -6,8 +6,8 @@
     <meta name="theme-color" content="#071015">
     <title>{{ __('public.menu_title', locale: $locale) }}</title>
     <meta name="description" content="{{ __('public.menu_description', locale: $locale) }}">
-    <link rel="canonical" href="{{ url('/'.$locale.'/menu') }}">
-    @foreach($locales as $code => $metadata)<link rel="alternate" hreflang="{{ $code }}" href="{{ url('/'.$code.'/menu') }}">@endforeach
+    <link rel="canonical" href="{{ route('public.menu', ['locale' => $locale, ...$menuQuery]) }}">
+    @foreach($locales as $code => $metadata)<link rel="alternate" hreflang="{{ $code }}" href="{{ route('public.menu', ['locale' => $code, ...$menuQuery]) }}">@endforeach
     <link rel="alternate" hreflang="x-default" href="{{ url('/fa/menu') }}">
     @vite('resources/js/app.js')
 </head>
@@ -17,7 +17,7 @@
     <a class="brand" href="{{ url('/'.$locale) }}"><span class="brand-mark">D</span><span>DENARDI<small>ART · COFFEE · JUICE</small></span></a>
     <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-navigation">{{ __('public.menu_toggle', locale: $locale) }}</button>
     <nav id="site-navigation" class="site-nav"><a href="{{ url('/'.$locale) }}">{{ __('public.home', locale: $locale) }}</a><a href="{{ url('/'.$locale.'/menu') }}">{{ __('public.menu', locale: $locale) }}</a><a href="{{ url('/'.$locale.'/about') }}">{{ __('public.about', locale: $locale) }}</a><a href="{{ url('/'.$locale.'/contact') }}">{{ __('public.contact', locale: $locale) }}</a></nav>
-    <div class="language-switcher">@foreach($locales as $code => $metadata)<a href="{{ url('/'.$code.'/menu') }}" lang="{{ $code }}" dir="{{ $metadata['direction'] }}" @class(['active' => $code === $locale])>{{ $code === 'fa' ? 'فا' : ($code === 'ar' ? 'عر' : 'EN') }}</a>@endforeach</div>
+    <div class="language-switcher">@foreach($locales as $code => $metadata)<a href="{{ route('public.menu', ['locale' => $code, ...$menuQuery]) }}" lang="{{ $code }}" dir="{{ $metadata['direction'] }}" @class(['active' => $code === $locale])>{{ $code === 'fa' ? 'فا' : ($code === 'ar' ? 'عر' : 'EN') }}</a>@endforeach</div>
 </div></header>
 
 <main id="menu-content">

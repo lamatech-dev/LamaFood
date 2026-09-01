@@ -21,4 +21,7 @@ enum FoundationPermission: string
     case MenuPublish = 'menu.publish';
     case MenuPrice = 'menu.price';
     case MenuAvailability = 'menu.availability';
+    case QrView = 'qr.view';
+    case QrManage = 'qr.manage';
+    case AnalyticsView = 'analytics.view';
 }

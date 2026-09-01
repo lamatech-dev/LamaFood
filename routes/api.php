@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\Admin\V1\Analytics\AnalyticsSummaryController;
 use App\Http\Controllers\Api\Admin\V1\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Api\Admin\V1\Business\BusinessContextController;
 use App\Http\Controllers\Api\Admin\V1\Cms\BlockSchemaController;
@@ -11,6 +12,7 @@ use App\Http\Controllers\Api\Admin\V1\Menu\MenuCategoryController;
 use App\Http\Controllers\Api\Admin\V1\Menu\ProductBranchSettingController;
 use App\Http\Controllers\Api\Admin\V1\Menu\ProductController;
 use App\Http\Controllers\Api\Admin\V1\Menu\ProductPublicationController;
+use App\Http\Controllers\Api\Admin\V1\Qr\QrCodeController;
 use App\Http\Controllers\Api\Admin\V1\System\HealthController;
 use App\Http\Controllers\Api\Admin\V1\System\InstanceMetadataController;
 use Illuminate\Support\Facades\Route;
@@ -55,5 +57,10 @@ Route::prefix('admin/v1')->group(function (): void {
         Route::get('products/{product}', [ProductController::class, 'show'])->middleware('permission:menu.view');
         Route::patch('products/{product}/publication-state', [ProductPublicationController::class, 'update'])->middleware('permission:menu.publish');
         Route::put('products/{product}/branches/{branch}/settings', [ProductBranchSettingController::class, 'update'])->middleware('permission:menu.price,menu.availability');
+
+        Route::get('qr-codes', [QrCodeController::class, 'index'])->middleware('permission:qr.view');
+        Route::post('qr-codes', [QrCodeController::class, 'store'])->middleware('permission:qr.manage');
+        Route::patch('qr-codes/{qrCode}', [QrCodeController::class, 'update'])->middleware('permission:qr.manage');
+        Route::get('analytics/summary', AnalyticsSummaryController::class)->middleware('permission:analytics.view');
     });
 });

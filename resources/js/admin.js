@@ -1,5 +1,5 @@
 import '../css/admin.css';
-import { buildReadyBlockTranslations, buildReadyTranslations, nextAvailability, parseSchemaValue } from './admin-data.js';
+import { buildReadyBlockTranslations, buildReadyTranslations, nextAvailability, parseSchemaValue, requiresTableKey } from './admin-data.js';
 
 const tokenKey = 'denardi_admin_token';
 const token = localStorage.getItem(tokenKey);
@@ -42,7 +42,7 @@ const dashboard = document.querySelector('[data-dashboard]');
 if (dashboard) {
     if (!token) window.location.assign('/admin/login');
 
-    const state = { context: null, categories: [], products: [], pages: [], media: [], blockSchemas: {}, me: null };
+    const state = { context: null, categories: [], products: [], pages: [], media: [], qrCodes: [], analytics: {}, blockSchemas: {}, me: null };
     const toast = (message) => {
         const element = document.querySelector('[data-toast]');
         element.textContent = message;
@@ -122,6 +122,11 @@ if (dashboard) {
         document.querySelector('[data-product-count]').textContent = state.products.length;
         document.querySelector('[data-category-count]').textContent = state.categories.length;
         document.querySelector('[data-branch-count]').textContent = state.context.branches.length;
+        document.querySelector('[data-qr-count]').textContent = state.qrCodes.filter((qrCode) => qrCode.is_active).length;
+        document.querySelector('[data-scan-count]').textContent = state.analytics['30_days']?.scan || 0;
+        document.querySelector('[data-scans-today]').textContent = state.analytics.today?.scan || 0;
+        document.querySelector('[data-scans-week]').textContent = state.analytics['7_days']?.scan || 0;
+        document.querySelector('[data-scans-month]').textContent = state.analytics['30_days']?.scan || 0;
         document.querySelector('[data-business-name]').textContent = state.context.business.name;
         document.querySelector('[data-user-name]').textContent = state.me.name;
         const locale = state.context.business.default_locale;
@@ -217,6 +222,32 @@ if (dashboard) {
             card.append(image, copy);
             return card;
         }));
+        const qrList = document.querySelector('[data-qr-codes]');
+        qrList.replaceChildren(...state.qrCodes.map((qrCode) => {
+            const row = document.createElement('article');
+            row.className = 'admin-row';
+            const copy = document.createElement('div');
+            const label = document.createElement('strong');
+            label.textContent = qrCode.label;
+            const meta = document.createElement('small');
+            meta.textContent = `${qrCode.type === 'table' ? `میز ${qrCode.table_key}` : 'منوی عمومی'} · ${qrCode.branch.name}`;
+            copy.append(label, meta);
+            const path = document.createElement('b');
+            path.className = 'qr-path';
+            path.textContent = `/q/${qrCode.public_id}`;
+            const toggle = document.createElement('button');
+            toggle.className = qrCode.is_active ? 'status' : 'status sold';
+            toggle.textContent = qrCode.is_active ? 'فعال' : 'غیرفعال';
+            toggle.addEventListener('click', async () => {
+                try {
+                    await api(`/qr-codes/${qrCode.public_id}`, { method: 'PATCH', body: JSON.stringify({ is_active: !qrCode.is_active }) });
+                    await loadQrAnalytics();
+                    toast('وضعیت QR ذخیره شد.');
+                } catch (exception) { toast(exception.message); }
+            });
+            row.append(copy, path, toggle);
+            return row;
+        }));
     };
     async function loadProducts() {
         const products = await api('/products');
@@ -232,12 +263,18 @@ if (dashboard) {
         state.media = media.data;
         render();
     }
+    async function loadQrAnalytics() {
+        [state.qrCodes, state.analytics] = await Promise.all([api('/qr-codes'), api('/analytics/summary')]);
+        render();
+    }
     async function boot() {
         try {
             [state.me, state.context, state.categories, state.pages, state.blockSchemas] = await Promise.all([api('/me'), api('/business/context'), api('/categories'), api('/cms/pages'), api('/cms/block-schemas')]);
-            const [products, media] = await Promise.all([api('/products'), api('/media')]);
+            const [products, media, qrCodes, analytics] = await Promise.all([api('/products'), api('/media'), api('/qr-codes'), api('/analytics/summary')]);
             state.products = products.data;
             state.media = media.data;
+            state.qrCodes = qrCodes;
+            state.analytics = analytics;
             translationInputs(document.querySelector('[data-category-translations]'), [['name', 'نام دسته']]);
             translationInputs(document.querySelector('[data-product-translations]'), [['name', 'نام محصول'], ['description', 'توضیح']]);
             translationInputs(document.querySelector('[data-page-translations]'), [['title', 'عنوان'], ['meta_title', 'عنوان SEO'], ['meta_description', 'توضیح SEO']]);
@@ -250,6 +287,13 @@ if (dashboard) {
                 return option;
             }));
             typeSelect.addEventListener('change', renderBlockFields);
+            const qrBranch = document.querySelector('[data-qr-form] select[name="branch_id"]');
+            qrBranch.replaceChildren(...state.context.branches.map((branch) => {
+                const option = document.createElement('option');
+                option.value = branch.id;
+                option.textContent = branch.name;
+                return option;
+            }));
             render();
             document.querySelector('[data-loading]').hidden = true;
             dashboard.hidden = false;
@@ -332,6 +376,28 @@ if (dashboard) {
             form.reset();
             await loadMedia();
             toast('تصویر و اطلاعات سه‌زبانه بارگذاری شد.');
+        } catch (exception) { toast(exception.message); }
+    });
+    const qrForm = document.querySelector('[data-qr-form]');
+    qrForm.type.addEventListener('change', () => {
+        const tableField = qrForm.querySelector('[data-table-key]');
+        tableField.hidden = !requiresTableKey(qrForm.type.value);
+        qrForm.table_key.required = requiresTableKey(qrForm.type.value);
+        if (!requiresTableKey(qrForm.type.value)) qrForm.table_key.value = '';
+    });
+    qrForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        try {
+            await api('/qr-codes', { method: 'POST', body: JSON.stringify({
+                branch_id: Number(qrForm.branch_id.value),
+                type: qrForm.type.value,
+                label: qrForm.label.value,
+                table_key: requiresTableKey(qrForm.type.value) ? qrForm.table_key.value : null,
+            }) });
+            qrForm.reset();
+            qrForm.querySelector('[data-table-key]').hidden = true;
+            await loadQrAnalytics();
+            toast('مسیر پایدار QR ساخته شد.');
         } catch (exception) { toast(exception.message); }
     });
     boot();

@@ -9,6 +9,10 @@ export function nextAvailability(current) {
     return current === 'sold_out' ? 'available' : 'sold_out';
 }
 
+export function requiresTableKey(type) {
+    return type === 'table';
+}
+
 export function parseSchemaValue(value, type) {
     if (value === '') return null;
     const baseType = type.replace(/\?$/, '');

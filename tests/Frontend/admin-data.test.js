@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildReadyBlockTranslations, buildReadyTranslations, nextAvailability, parseSchemaValue } from '../../resources/js/admin-data.js';
+import { buildReadyBlockTranslations, buildReadyTranslations, nextAvailability, parseSchemaValue, requiresTableKey } from '../../resources/js/admin-data.js';
 
 test('builds locale-driven independent ready translations', () => {
     const result = buildReadyTranslations(
@@ -32,4 +32,10 @@ test('parses typed CMS structure values without locale JSON', () => {
     assert.equal(parseSchemaValue('12', 'integer?'), 12);
     assert.deepEqual(parseSchemaValue('2, 7', 'integer[]?'), [2, 7]);
     assert.equal(parseSchemaValue('', 'string?'), null);
+});
+
+test('only table QR requires a table key in V1', () => {
+    assert.equal(requiresTableKey('table'), true);
+    assert.equal(requiresTableKey('menu'), false);
+    assert.equal(requiresTableKey('campaign'), false);
 });

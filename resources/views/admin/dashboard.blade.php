@@ -4,18 +4,19 @@
 <body class="admin-app dashboard-screen">
 <aside class="admin-sidebar">
     <a class="admin-brand" href="/admin"><span>D</span><b>DENARDI</b></a>
-    <nav><button class="active">نمای کلی</button><button data-section-link="menu">منوی دیجیتال</button><button data-section-link="content">محتوا</button><button data-section-link="media">رسانه</button><button disabled>QR و آمار <small>مرحله بعد</small></button></nav>
+    <nav><button class="active">نمای کلی</button><button data-section-link="menu">منوی دیجیتال</button><button data-section-link="content">محتوا</button><button data-section-link="media">رسانه</button><button data-section-link="qr">QR و آمار</button></nav>
     <button class="logout-button" data-logout>خروج</button>
 </aside>
 <main class="admin-main">
     <header class="admin-topbar"><div><p class="admin-kicker">DENARDI · OPERATIONS</p><h1>پنل مدیریت</h1></div><div class="admin-identity"><span data-business-name>—</span><b data-user-name>—</b></div></header>
     <div class="admin-loading" data-loading>در حال بارگذاری پنل…</div>
     <div data-dashboard hidden>
-        <section class="metric-grid"><article><span>محصول‌ها</span><strong data-product-count>0</strong></article><article><span>دسته‌ها</span><strong data-category-count>0</strong></article><article><span>ترجمه‌ها</span><strong>FA · EN · AR</strong></article><article><span>شعبه فعال</span><strong data-branch-count>0</strong></article></section>
+        <section class="metric-grid"><article><span>محصول‌ها</span><strong data-product-count>0</strong></article><article><span>دسته‌ها</span><strong data-category-count>0</strong></article><article><span>ترجمه‌ها</span><strong>FA · EN · AR</strong></article><article><span>شعبه فعال</span><strong data-branch-count>0</strong></article><article><span>QR فعال</span><strong data-qr-count>0</strong></article><article><span>اسکن ۳۰ روز</span><strong data-scan-count>0</strong></article></section>
         <section class="admin-panel" id="menu"><div class="panel-title"><div><p class="admin-kicker">MENU CATALOG</p><h2>محصول‌ها و قیمت شعبه</h2></div><button class="admin-button small" data-open-product>محصول جدید</button></div><div class="admin-table" data-products></div></section>
         <section class="admin-panel compact"><div class="panel-title"><div><p class="admin-kicker">CATEGORY</p><h2>دستهٔ جدید</h2></div></div><form class="inline-form" data-category-form><label>شناسه URL<input name="slug" required placeholder="coffee"></label><div data-category-translations class="translation-fields"></div><button class="admin-button" type="submit">ساخت و انتشار</button></form></section>
         <section class="admin-panel" id="content"><div class="panel-title"><div><p class="admin-kicker">LOCALIZED CMS</p><h2>صفحه‌ها و بلوک‌های محتوا</h2></div><button class="admin-button small" data-open-page>صفحه جدید</button></div><div class="admin-table" data-pages></div></section>
         <section class="admin-panel" id="media"><div class="panel-title"><div><p class="admin-kicker">MEDIA LIBRARY</p><h2>رسانه</h2></div></div><form class="media-form" data-media-form><label>تصویر<input name="file" type="file" accept="image/jpeg,image/png,image/webp" required></label><div data-media-translations class="translation-fields"></div><button class="admin-button" type="submit">بارگذاری</button></form><div class="media-grid" data-media></div></section>
+        <section class="admin-panel" id="qr"><div class="panel-title"><div><p class="admin-kicker">QR · ANALYTICS</p><h2>QR منو و میز</h2></div></div><form class="qr-form" data-qr-form><label>شعبه<select name="branch_id" required></select></label><label>نوع<select name="type"><option value="menu">منوی عمومی</option><option value="table">میز</option></select></label><label>عنوان<input name="label" required placeholder="ورودی اصلی"></label><label data-table-key hidden>شناسه میز<input name="table_key" placeholder="table-12"></label><button class="admin-button" type="submit">ساخت مسیر پایدار QR</button></form><div class="analytics-strip"><div><span>امروز</span><b data-scans-today>0</b></div><div><span>۷ روز</span><b data-scans-week>0</b></div><div><span>۳۰ روز</span><b data-scans-month>0</b></div></div><div class="admin-table" data-qr-codes></div></section>
     </div>
 </main>
 

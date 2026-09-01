@@ -2,24 +2,33 @@
 
 namespace App\Http\Controllers;
 
+use App\Core\Analytics\Actions\RecordAnalyticsEvent;
+use App\Core\Analytics\AnalyticsEventType;
+use App\Core\Analytics\VisitorIdentity;
 use App\Core\Business\Models\Branch;
 use App\Core\Localization\LocaleRegistry;
 use App\Core\Localization\TranslationState;
 use App\Core\Menu\Models\MenuCategory;
 use App\Core\Menu\PublicationState;
-use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class PublicMenuController extends Controller
 {
-    public function __invoke(string $locale, LocaleRegistry $locales): View
+    public function __invoke(Request $request, string $locale, LocaleRegistry $locales, VisitorIdentity $visitors, RecordAnalyticsEvent $record): Response
     {
         $metadata = $locales->get($locale);
-        $branch = Branch::query()
+        $branchQuery = Branch::query()
+            ->with('business')
             ->whereHas('business', fn (Builder $query): Builder => $query->where('slug', config('denardi.business_slug'))->where('is_active', true))
-            ->where('is_default', true)
-            ->where('is_active', true)
-            ->firstOrFail();
+            ->where('is_active', true);
+        if ($request->filled('branch')) {
+            $branchQuery->where('slug', $request->string('branch')->toString());
+        } else {
+            $branchQuery->where('is_default', true);
+        }
+        $branch = $branchQuery->firstOrFail();
         $categories = MenuCategory::query()
             ->where('business_id', $branch->business_id)
             ->where('publication_state', PublicationState::Published)
@@ -39,11 +48,17 @@ class PublicMenuController extends Controller
             ->orderBy('position')
             ->get();
 
-        return view('public.menu', [
+        $identifier = $visitors->identifier($request);
+        if (! $visitors->isBot($request)) {
+            $record->execute($branch->business, AnalyticsEventType::MenuView, $visitors->hash($identifier), $visitors->deviceClass($request), $locale, subjectType: 'menu');
+        }
+
+        return response()->view('public.menu', [
             'locale' => $locale,
             'localeMetadata' => $metadata,
             'locales' => $locales->all(),
             'categories' => $categories,
-        ]);
+            'menuQuery' => array_filter(['branch' => $request->query('branch'), 'table' => $request->query('table')]),
+        ])->withCookie($visitors->cookie($identifier));
     }
 }
