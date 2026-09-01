@@ -1,12 +1,14 @@
 import '../css/admin.css';
-import { buildReadyTranslations, nextAvailability } from './admin-data.js';
+import { buildReadyBlockTranslations, buildReadyTranslations, nextAvailability, parseSchemaValue } from './admin-data.js';
 
 const tokenKey = 'denardi_admin_token';
 const token = localStorage.getItem(tokenKey);
-const headers = () => ({ Accept: 'application/json', 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem(tokenKey) || ''}` });
+const headers = () => ({ Accept: 'application/json', Authorization: `Bearer ${localStorage.getItem(tokenKey) || ''}` });
 
 async function api(path, options = {}) {
-    const response = await fetch(`/api/admin/v1${path}`, { ...options, headers: { ...headers(), ...(options.headers || {}) } });
+    const requestHeaders = { ...headers(), ...(options.headers || {}) };
+    if (options.body && !(options.body instanceof FormData)) requestHeaders['Content-Type'] = 'application/json';
+    const response = await fetch(`/api/admin/v1${path}`, { ...options, headers: requestHeaders });
     if (response.status === 401) {
         localStorage.removeItem(tokenKey);
         window.location.assign('/admin/login');
@@ -40,7 +42,7 @@ const dashboard = document.querySelector('[data-dashboard]');
 if (dashboard) {
     if (!token) window.location.assign('/admin/login');
 
-    const state = { context: null, categories: [], products: [], me: null };
+    const state = { context: null, categories: [], products: [], pages: [], media: [], blockSchemas: {}, me: null };
     const toast = (message) => {
         const element = document.querySelector('[data-toast]');
         element.textContent = message;
@@ -75,6 +77,46 @@ if (dashboard) {
             values[input.dataset.locale][input.dataset.field] = input.value;
         });
         return buildReadyTranslations(state.context.locales, values);
+    };
+    const inputForSchema = (field, type, locale = null) => {
+        const wrapper = document.createElement('label');
+        wrapper.textContent = field;
+        const input = document.createElement(type.replace(/\?$/, '') === 'string' && ['body', 'caption', 'intro'].includes(field) ? 'textarea' : 'input');
+        input.dataset.field = field;
+        input.dataset.schemaType = type;
+        if (locale) input.dataset.locale = locale;
+        if (!type.endsWith('?')) input.required = true;
+        if (type.replace(/\?$/, '') === 'integer' || type.replace(/\?$/, '') === 'numeric') input.type = 'number';
+        if (type.includes('[]')) input.placeholder = 'با ویرگول جدا کنید';
+        wrapper.append(input);
+        return wrapper;
+    };
+    const renderBlockFields = () => {
+        const form = document.querySelector('[data-block-form]');
+        const schema = state.blockSchemas[form.type.value];
+        const structureRoot = form.querySelector('[data-block-structure]');
+        const translationsRoot = form.querySelector('[data-block-translations]');
+        structureRoot.replaceChildren(...Object.entries(schema.structure).map(([field, type]) => inputForSchema(field, type)));
+        translationsRoot.replaceChildren(...state.context.locales.map((metadata) => {
+            const group = document.createElement('fieldset');
+            group.dir = metadata.direction.value || metadata.direction;
+            const legend = document.createElement('legend');
+            legend.textContent = metadata.native_name;
+            group.append(legend, ...Object.entries(schema.content).map(([field, type]) => inputForSchema(field, type, metadata.locale)));
+            return group;
+        }));
+    };
+    const readSchemaFields = (root) => Object.fromEntries([...root.querySelectorAll('[data-schema-type]')]
+        .map((input) => [input.dataset.field, parseSchemaValue(input.value, input.dataset.schemaType)])
+        .filter(([, value]) => value !== null));
+    const readBlockTranslations = (root) => {
+        const values = {};
+        root.querySelectorAll('[data-locale]').forEach((input) => {
+            values[input.dataset.locale] ||= {};
+            const value = parseSchemaValue(input.value, input.dataset.schemaType);
+            if (value !== null) values[input.dataset.locale][input.dataset.field] = value;
+        });
+        return buildReadyBlockTranslations(state.context.locales, values);
     };
     const render = () => {
         document.querySelector('[data-product-count]').textContent = state.products.length;
@@ -119,19 +161,95 @@ if (dashboard) {
             option.textContent = category.translations.find((item) => item.locale === locale)?.name || category.slug;
             return option;
         }));
+        const pagesList = document.querySelector('[data-pages]');
+        pagesList.replaceChildren();
+        state.pages.forEach((page) => {
+            const row = document.createElement('article');
+            row.className = 'admin-row';
+            const copy = document.createElement('div');
+            const title = document.createElement('strong');
+            title.textContent = page.translations.find((item) => item.locale === locale)?.title || page.slug;
+            const meta = document.createElement('small');
+            meta.textContent = `${page.status} · ${page.blocks.length} بلوک · ویرایش ${page.revision}`;
+            copy.append(title, meta);
+            const readiness = document.createElement('b');
+            readiness.textContent = page.readiness.ready ? 'سه‌زبانه آماده' : 'ترجمه ناقص';
+            const actions = document.createElement('div');
+            actions.className = 'row-actions';
+            const blockButton = document.createElement('button');
+            blockButton.className = 'status';
+            blockButton.textContent = 'بلوک جدید';
+            blockButton.addEventListener('click', () => {
+                const form = document.querySelector('[data-block-form]');
+                form.page_id.value = page.public_id;
+                form.position.value = page.blocks.length;
+                renderBlockFields();
+                document.querySelector('[data-block-dialog]').showModal();
+            });
+            const publishButton = document.createElement('button');
+            publishButton.className = 'status';
+            publishButton.textContent = 'انتشار';
+            publishButton.disabled = !page.readiness.ready;
+            publishButton.addEventListener('click', async () => {
+                try {
+                    await api(`/cms/pages/${page.public_id}/publish`, { method: 'POST', body: JSON.stringify({ expected_revision: page.revision }) });
+                    await loadPages();
+                    toast('نسخهٔ سه‌زبانه صفحه منتشر شد.');
+                } catch (exception) { toast(exception.message); }
+            });
+            actions.append(blockButton, publishButton);
+            row.append(copy, readiness, actions);
+            pagesList.append(row);
+        });
+        const mediaList = document.querySelector('[data-media]');
+        mediaList.replaceChildren(...state.media.map((item) => {
+            const card = document.createElement('article');
+            card.className = 'media-card';
+            const image = document.createElement('img');
+            image.src = `/storage/${item.path}`;
+            image.alt = item.translations.find((translation) => translation.locale === locale)?.alt || '';
+            const copy = document.createElement('div');
+            const name = document.createElement('strong');
+            name.textContent = item.translations.find((translation) => translation.locale === locale)?.title || item.public_id;
+            const details = document.createElement('small');
+            details.textContent = `${item.width || '—'}×${item.height || '—'}`;
+            copy.append(name, details);
+            card.append(image, copy);
+            return card;
+        }));
     };
     async function loadProducts() {
         const products = await api('/products');
         state.products = products.data;
         render();
     }
+    async function loadPages() {
+        state.pages = await api('/cms/pages');
+        render();
+    }
+    async function loadMedia() {
+        const media = await api('/media');
+        state.media = media.data;
+        render();
+    }
     async function boot() {
         try {
-            [state.me, state.context, state.categories] = await Promise.all([api('/me'), api('/business/context'), api('/categories')]);
-            const products = await api('/products');
+            [state.me, state.context, state.categories, state.pages, state.blockSchemas] = await Promise.all([api('/me'), api('/business/context'), api('/categories'), api('/cms/pages'), api('/cms/block-schemas')]);
+            const [products, media] = await Promise.all([api('/products'), api('/media')]);
             state.products = products.data;
+            state.media = media.data;
             translationInputs(document.querySelector('[data-category-translations]'), [['name', 'نام دسته']]);
             translationInputs(document.querySelector('[data-product-translations]'), [['name', 'نام محصول'], ['description', 'توضیح']]);
+            translationInputs(document.querySelector('[data-page-translations]'), [['title', 'عنوان'], ['meta_title', 'عنوان SEO'], ['meta_description', 'توضیح SEO']]);
+            translationInputs(document.querySelector('[data-media-translations]'), [['alt', 'متن جایگزین'], ['title', 'عنوان']]);
+            const typeSelect = document.querySelector('[data-block-form] select[name="type"]');
+            typeSelect.replaceChildren(...Object.keys(state.blockSchemas).map((type) => {
+                const option = document.createElement('option');
+                option.value = type;
+                option.textContent = type;
+                return option;
+            }));
+            typeSelect.addEventListener('change', renderBlockFields);
             render();
             document.querySelector('[data-loading]').hidden = true;
             dashboard.hidden = false;
@@ -140,6 +258,8 @@ if (dashboard) {
         }
     }
     document.querySelector('[data-open-product]').addEventListener('click', () => document.querySelector('[data-product-dialog]').showModal());
+    document.querySelector('[data-open-page]').addEventListener('click', () => document.querySelector('[data-page-dialog]').showModal());
+    document.querySelectorAll('[data-section-link]').forEach((link) => link.addEventListener('click', () => document.getElementById(link.dataset.sectionLink)?.scrollIntoView({ behavior: 'smooth' })));
     document.querySelector('[data-logout]').addEventListener('click', async () => {
         try { await api('/logout', { method: 'POST' }); } finally { localStorage.removeItem(tokenKey); window.location.assign('/admin/login'); }
     });
@@ -168,6 +288,51 @@ if (dashboard) {
             await loadProducts();
             toast('محصول ساخته، قیمت‌گذاری و منتشر شد.');
         } catch (exception) { error.textContent = exception.message; error.hidden = false; }
+    });
+    document.querySelector('[data-page-form]').addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const form = event.currentTarget;
+        const error = form.querySelector('[data-page-error]');
+        try {
+            await api('/cms/pages', { method: 'POST', body: JSON.stringify({ slug: form.slug.value, template: form.template.value, translations: readTranslations(form) }) });
+            form.reset();
+            document.querySelector('[data-page-dialog]').close();
+            await loadPages();
+            toast('صفحهٔ سه‌زبانه ساخته شد؛ بلوک‌ها را اضافه کنید.');
+        } catch (exception) { error.textContent = exception.message; error.hidden = false; }
+    });
+    document.querySelector('[data-block-form]').addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const form = event.currentTarget;
+        const error = form.querySelector('[data-block-error]');
+        try {
+            await api(`/cms/pages/${form.page_id.value}/blocks`, { method: 'POST', body: JSON.stringify({
+                type: form.type.value,
+                position: Number(form.position.value),
+                structure: readSchemaFields(form.querySelector('[data-block-structure]')),
+                translations: readBlockTranslations(form.querySelector('[data-block-translations]')),
+            }) });
+            form.reset();
+            document.querySelector('[data-block-dialog]').close();
+            await loadPages();
+            toast('بلوک با محتوای مستقل FA/EN/AR اضافه شد.');
+        } catch (exception) { error.textContent = exception.message; error.hidden = false; }
+    });
+    document.querySelector('[data-media-form]').addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const form = event.currentTarget;
+        const payload = new FormData();
+        payload.append('file', form.file.files[0]);
+        const translations = readTranslations(form);
+        Object.entries(translations).forEach(([locale, fields]) => Object.entries(fields).forEach(([field, value]) => {
+            if (field !== 'translation_state') payload.append(`translations[${locale}][${field}]`, value);
+        }));
+        try {
+            await api('/media', { method: 'POST', body: payload });
+            form.reset();
+            await loadMedia();
+            toast('تصویر و اطلاعات سه‌زبانه بارگذاری شد.');
+        } catch (exception) { toast(exception.message); }
     });
     boot();
 }

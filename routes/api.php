@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\Admin\V1\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Api\Admin\V1\Business\BusinessContextController;
+use App\Http\Controllers\Api\Admin\V1\Cms\BlockSchemaController;
 use App\Http\Controllers\Api\Admin\V1\Cms\PageBlockController;
 use App\Http\Controllers\Api\Admin\V1\Cms\PageController;
 use App\Http\Controllers\Api\Admin\V1\Cms\PublishedPageController;
@@ -34,6 +35,7 @@ Route::prefix('admin/v1')->group(function (): void {
             ->middleware('permission:system.view')
             ->name('api.admin.v1.system.instance-metadata');
 
+        Route::get('cms/block-schemas', BlockSchemaController::class)->middleware('permission:cms.view');
         Route::get('cms/pages', [PageController::class, 'index'])->middleware('permission:cms.view');
         Route::post('cms/pages', [PageController::class, 'store'])->middleware('permission:cms.edit');
         Route::get('cms/pages/{page}', [PageController::class, 'show'])->middleware('permission:cms.view');

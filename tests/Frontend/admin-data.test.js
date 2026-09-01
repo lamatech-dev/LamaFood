@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildReadyTranslations, nextAvailability } from '../../resources/js/admin-data.js';
+import { buildReadyBlockTranslations, buildReadyTranslations, nextAvailability, parseSchemaValue } from '../../resources/js/admin-data.js';
 
 test('builds locale-driven independent ready translations', () => {
     const result = buildReadyTranslations(
@@ -16,4 +16,20 @@ test('builds locale-driven independent ready translations', () => {
 test('availability toggle never changes publication state', () => {
     assert.equal(nextAvailability('available'), 'sold_out');
     assert.equal(nextAvailability('sold_out'), 'available');
+});
+
+test('builds explicit locale-separated CMS block content', () => {
+    const result = buildReadyBlockTranslations(
+        [{ locale: 'fa' }, { locale: 'en' }, { locale: 'ar' }],
+        { fa: { title: 'دناردی' }, en: { title: 'Denardi' }, ar: { title: 'ديناردي' } },
+    );
+
+    assert.deepEqual(result.ar.content, { title: 'ديناردي' });
+    assert.equal(result.fa.translation_state, 'ready');
+});
+
+test('parses typed CMS structure values without locale JSON', () => {
+    assert.equal(parseSchemaValue('12', 'integer?'), 12);
+    assert.deepEqual(parseSchemaValue('2, 7', 'integer[]?'), [2, 7]);
+    assert.equal(parseSchemaValue('', 'string?'), null);
 });
