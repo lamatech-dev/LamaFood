@@ -137,7 +137,7 @@ class CreateBackup
         $archive = new PharData($tarPath);
         $archive->addFile($databaseDump, 'database.sql');
         $archive->addFile($workingDirectory.'/manifest.json', 'manifest.json');
-        $mediaRoot = storage_path('app/public');
+        $mediaRoot = Storage::disk('public')->path('');
         if (File::isDirectory($mediaRoot)) {
             foreach (File::allFiles($mediaRoot) as $file) {
                 if (! $file->isLink()) {
