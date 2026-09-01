@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Admin\V1\Qr;
 
 use App\Core\Audit\AuditRecorder;
+use App\Core\Business\BusinessContextResolver;
 use App\Core\Business\Models\Branch;
 use App\Core\Qr\Actions\CreateQrCode;
 use App\Core\Qr\Models\QrCode;
@@ -28,13 +29,13 @@ class QrCodeController extends Controller
         return response()->json(['data' => $qrCodes]);
     }
 
-    public function store(StoreQrCodeRequest $request, CreateQrCode $create): JsonResponse
+    public function store(StoreQrCodeRequest $request, CreateQrCode $create, BusinessContextResolver $contexts): JsonResponse
     {
         /** @var User $user */
         $user = $request->user();
-        abort_if($user->business_id === null, 422, 'A business context is required.');
+        $business = $contexts->forUser($user);
         $branch = Branch::query()
-            ->where('business_id', $user->business_id)
+            ->whereBelongsTo($business)
             ->whereKey($request->integer('branch_id'))
             ->firstOrFail();
         $qrCode = $create->execute(

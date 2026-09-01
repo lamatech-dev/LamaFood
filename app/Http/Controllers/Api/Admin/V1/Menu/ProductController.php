@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Admin\V1\Menu;
 
+use App\Core\Business\BusinessContextResolver;
 use App\Core\Menu\Actions\CreateProduct;
 use App\Core\Menu\Models\MenuCategory;
 use App\Core\Menu\Models\Product;
@@ -19,12 +20,12 @@ class ProductController extends Controller
         return response()->json(['data' => $this->query($request)->with(['translations', 'category.translations', 'branchSettings'])->orderBy('position')->paginate(50)]);
     }
 
-    public function store(StoreProductRequest $request, CreateProduct $create): JsonResponse
+    public function store(StoreProductRequest $request, CreateProduct $create, BusinessContextResolver $contexts): JsonResponse
     {
         /** @var User $user */
         $user = $request->user();
-        abort_if($user->business_id === null, 422, 'A business context is required.');
-        $category = MenuCategory::query()->where('business_id', $user->business_id)->where('public_id', $request->string('category_id'))->firstOrFail();
+        $business = $contexts->forUser($user);
+        $category = MenuCategory::query()->whereBelongsTo($business)->where('public_id', $request->string('category_id'))->firstOrFail();
         $flags = $request->only(['is_featured', 'is_new', 'is_best_seller']);
         /** @var array<string, bool> $flags */
         $product = $create->execute($category, $user, $request->string('slug')->toString(), $request->integer('position'), $request->array('translations'), $flags);

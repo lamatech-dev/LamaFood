@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Admin\V1\Media;
 
 use App\Core\Audit\AuditRecorder;
+use App\Core\Business\BusinessContextResolver;
 use App\Core\Localization\LocaleRegistry;
 use App\Core\Media\MediaStatus;
 use App\Core\Media\Models\Media;
@@ -25,22 +26,22 @@ class MediaController extends Controller
         return response()->json(['data' => $this->query($request)->with('translations')->latest()->paginate(30)]);
     }
 
-    public function store(StoreMediaRequest $request, LocaleRegistry $locales, AuditRecorder $audit): JsonResponse
+    public function store(StoreMediaRequest $request, LocaleRegistry $locales, AuditRecorder $audit, BusinessContextResolver $contexts): JsonResponse
     {
         /** @var User $user */
         $user = $request->user();
-        abort_if($user->business_id === null, 422, 'A business context is required to upload media.');
+        $business = $contexts->forUser($user);
         $file = $request->file('file');
         abort_if($file === null, 422, 'A file is required.');
         $dimensions = @getimagesize($file->getRealPath());
         $checksum = hash_file('sha256', $file->getRealPath());
-        $path = $file->store("businesses/{$user->business_id}/media", 'public');
+        $path = $file->store("businesses/{$business->id}/media", 'public');
         abort_if($path === false, 500, 'Media storage failed.');
 
-        $media = DB::transaction(function () use ($request, $locales, $audit, $user, $file, $dimensions, $checksum, $path): Media {
+        $media = DB::transaction(function () use ($request, $locales, $audit, $user, $business, $file, $dimensions, $checksum, $path): Media {
             $media = Media::query()->create([
                 'public_id' => (string) Str::ulid(),
-                'business_id' => $user->business_id,
+                'business_id' => $business->id,
                 'disk' => 'public',
                 'path' => $path,
                 'mime' => $file->getMimeType() ?? 'application/octet-stream',
@@ -56,7 +57,7 @@ class MediaController extends Controller
                 $translation = $request->array("translations.{$locale}");
                 $media->translations()->create(['locale' => $locale, ...$translation]);
             }
-            $audit->record('media.uploaded', $user, $media, $user->business_id, after: $media->toArray());
+            $audit->record('media.uploaded', $user, $media, $business->id, after: $media->toArray());
 
             return $media->load('translations');
         });

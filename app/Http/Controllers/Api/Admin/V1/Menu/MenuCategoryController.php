@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Admin\V1\Menu;
 
+use App\Core\Business\BusinessContextResolver;
 use App\Core\Menu\Actions\ChangeCategoryPublicationState;
 use App\Core\Menu\Actions\CreateMenuCategory;
 use App\Core\Menu\Models\MenuCategory;
@@ -27,12 +28,11 @@ class MenuCategoryController extends Controller
         return response()->json(['data' => $query->get()]);
     }
 
-    public function store(StoreMenuCategoryRequest $request, CreateMenuCategory $create): JsonResponse
+    public function store(StoreMenuCategoryRequest $request, CreateMenuCategory $create, BusinessContextResolver $contexts): JsonResponse
     {
         /** @var User $user */
         $user = $request->user();
-        abort_if($user->business === null, 422, 'A business context is required.');
-        $category = $create->execute($user->business, $user, $request->string('slug')->toString(), $request->integer('position'), $request->array('translations'));
+        $category = $create->execute($contexts->forUser($user), $user, $request->string('slug')->toString(), $request->integer('position'), $request->array('translations'));
 
         return response()->json(['data' => $category], 201);
     }

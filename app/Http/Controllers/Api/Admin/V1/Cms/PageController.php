@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Admin\V1\Cms;
 
+use App\Core\Business\BusinessContextResolver;
 use App\Core\Cms\Actions\CreatePage;
 use App\Core\Cms\Models\Page;
 use App\Core\Cms\PageReadiness;
@@ -24,12 +25,11 @@ class PageController extends Controller
         ])]);
     }
 
-    public function store(StorePageRequest $request, CreatePage $create): JsonResponse
+    public function store(StorePageRequest $request, CreatePage $create, BusinessContextResolver $contexts): JsonResponse
     {
         /** @var User $user */
         $user = $request->user();
-        abort_if($user->business === null, 422, 'A business context is required to create a page.');
-        $page = $create->execute($user->business, $user, $request->string('slug')->toString(), $request->string('template', 'standard')->toString(), $request->array('translations'));
+        $page = $create->execute($contexts->forUser($user), $user, $request->string('slug')->toString(), $request->string('template', 'standard')->toString(), $request->array('translations'));
 
         return response()->json(['data' => $page], 201);
     }
