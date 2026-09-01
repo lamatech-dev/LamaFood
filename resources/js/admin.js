@@ -22,6 +22,29 @@ async function api(path, options = {}) {
     return payload.data;
 }
 
+async function downloadArtwork(path) {
+    const response = await fetch(`/api/admin/v1${path}`, { headers: headers() });
+    if (response.status === 401) {
+        localStorage.removeItem(tokenKey);
+        window.location.assign('/admin/login');
+        throw new Error('نشست شما پایان یافته است.');
+    }
+    if (!response.ok) {
+        const payload = await response.json();
+        throw new Error(payload.message || 'دریافت فایل انجام نشد.');
+    }
+    const disposition = response.headers.get('Content-Disposition') || '';
+    const filename = disposition.match(/filename="([^"]+)"/)?.[1] || 'qr-artwork';
+    const href = URL.createObjectURL(await response.blob());
+    const link = document.createElement('a');
+    link.href = href;
+    link.download = filename;
+    document.body.append(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(href);
+}
+
 const loginForm = document.querySelector('[data-login-form]');
 if (loginForm) {
     if (token) window.location.assign('/admin');
@@ -249,7 +272,22 @@ if (dashboard) {
                     toast('وضعیت QR ذخیره شد.');
                 } catch (exception) { toast(exception.message); }
             });
-            row.append(copy, path, toggle);
+            const actions = document.createElement('div');
+            actions.className = 'row-actions';
+            ['svg', 'png', 'pdf'].forEach((format) => {
+                const download = document.createElement('button');
+                download.className = 'status';
+                download.textContent = format.toUpperCase();
+                download.addEventListener('click', async () => {
+                    try {
+                        await downloadArtwork(`/qr-codes/${qrCode.public_id}/artwork/${format}`);
+                        toast(`فایل ${format.toUpperCase()} آماده شد.`);
+                    } catch (exception) { toast(exception.message); }
+                });
+                actions.append(download);
+            });
+            actions.append(toggle);
+            row.append(copy, path, actions);
             return row;
         }));
     };

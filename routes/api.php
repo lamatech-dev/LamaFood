@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\Admin\V1\Menu\MenuCategoryController;
 use App\Http\Controllers\Api\Admin\V1\Menu\ProductBranchSettingController;
 use App\Http\Controllers\Api\Admin\V1\Menu\ProductController;
 use App\Http\Controllers\Api\Admin\V1\Menu\ProductPublicationController;
+use App\Http\Controllers\Api\Admin\V1\Qr\QrCodeArtworkController;
 use App\Http\Controllers\Api\Admin\V1\Qr\QrCodeController;
 use App\Http\Controllers\Api\Admin\V1\System\HealthController;
 use App\Http\Controllers\Api\Admin\V1\System\InstanceMetadataController;
@@ -62,6 +63,10 @@ Route::prefix('admin/v1')->group(function (): void {
         Route::get('qr-codes', [QrCodeController::class, 'index'])->middleware('permission:qr.view');
         Route::post('qr-codes', [QrCodeController::class, 'store'])->middleware('permission:qr.manage');
         Route::patch('qr-codes/{qrCode}', [QrCodeController::class, 'update'])->middleware('permission:qr.manage');
+        Route::get('qr-codes/{qrCode}/artwork/{format}', QrCodeArtworkController::class)
+            ->whereIn('format', ['svg', 'png', 'pdf'])
+            ->middleware('permission:qr.view')
+            ->name('api.admin.v1.qr-codes.artwork');
         Route::get('analytics/summary', AnalyticsSummaryController::class)->middleware('permission:analytics.view');
         Route::get('backups', [BackupController::class, 'index'])->middleware('permission:backup.view');
     });
