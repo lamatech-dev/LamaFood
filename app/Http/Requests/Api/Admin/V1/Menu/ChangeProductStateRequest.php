@@ -11,6 +11,7 @@ class ChangeProductStateRequest extends FormRequest
         return true;
     }
 
+    /** @return array<string, list<string>> */
     public function rules(): array
     {
         return ['publication_state' => ['required', 'in:draft,published,inactive,archived']];

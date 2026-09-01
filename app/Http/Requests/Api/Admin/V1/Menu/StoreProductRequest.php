@@ -4,6 +4,7 @@ namespace App\Http\Requests\Api\Admin\V1\Menu;
 
 class StoreProductRequest extends LocalizedMenuRequest
 {
+    /** @return array<string, list<string>> */
     public function rules(): array
     {
         return [
