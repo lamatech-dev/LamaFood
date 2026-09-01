@@ -9,6 +9,10 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property array<string, mixed> $content_json
+ * @property TranslationState $translation_state
+ */
 #[Fillable(['block_id', 'locale', 'content_json', 'translation_state', 'validated_at'])]
 class BlockTranslation extends Model
 {

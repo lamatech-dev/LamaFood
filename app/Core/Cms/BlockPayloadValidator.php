@@ -27,7 +27,10 @@ class BlockPayloadValidator
         $this->validate($payload, $schema, 'content');
     }
 
-    /** @param array<string, mixed> $payload @param array<string, string> $schema */
+    /**
+     * @param  array<string, mixed>  $payload
+     * @param  array<string, string>  $schema
+     */
     private function validate(array $payload, array $schema, string $prefix): void
     {
         $unknown = array_diff(array_keys($payload), array_keys($schema));

@@ -22,7 +22,10 @@ class CreateBlock
         private readonly SyncBlockMediaUsages $mediaUsages,
     ) {}
 
-    /** @param array<string, mixed> $structure @param array<string, array<string, mixed>> $translations */
+    /**
+     * @param  array<string, mixed>  $structure
+     * @param  array<string, array<string, mixed>>  $translations
+     */
     public function execute(Page $page, User $actor, string $type, int $position, array $structure, array $translations): Block
     {
         $this->validator->validateStructure($type, $structure);

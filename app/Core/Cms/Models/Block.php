@@ -12,6 +12,9 @@ use App\Core\Media\Models\MediaUsage;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 
+/**
+ * @property array<string, mixed> $structure_json
+ */
 #[Fillable(['public_id', 'page_id', 'type', 'position', 'is_enabled', 'structure_json', 'schema_version', 'created_by', 'updated_by'])]
 class Block extends Model
 {
