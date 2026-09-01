@@ -2,8 +2,8 @@
 
 namespace App\Core\Business\Models;
 
-use App\Core\Localization\Models\BusinessLocale;
 use App\Core\Cms\Models\Page;
+use App\Core\Localization\Models\BusinessLocale;
 use App\Core\Media\Models\Media;
 use App\Models\User;
 use Database\Factories\Core\Business\Models\BusinessFactory;

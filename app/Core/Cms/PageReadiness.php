@@ -30,14 +30,17 @@ class PageReadiness
                 $translation = $block->translations->firstWhere('locale', $locale);
                 if ($translation === null || $translation->translation_state !== TranslationState::Ready) {
                     $issues[] = "block_{$block->public_id}_translation_incomplete";
+
                     continue;
                 }
+
                 try {
                     $this->validator->validateContent($block->type, $translation->content_json, true);
                 } catch (\Throwable) {
                     $issues[] = "block_{$block->public_id}_translation_invalid";
                 }
             }
+
             $report[$locale] = ['ready' => $issues === [], 'issues' => $issues];
         }
 

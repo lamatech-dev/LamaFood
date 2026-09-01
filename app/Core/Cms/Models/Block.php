@@ -2,13 +2,13 @@
 
 namespace App\Core\Cms\Models;
 
+use App\Core\Media\Models\MediaUsage;
 use App\Models\User;
 use Database\Factories\Core\Cms\Models\BlockFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use App\Core\Media\Models\MediaUsage;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 

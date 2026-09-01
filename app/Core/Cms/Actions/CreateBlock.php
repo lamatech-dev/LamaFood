@@ -8,8 +8,8 @@ use App\Core\Cms\Models\Block;
 use App\Core\Cms\Models\Page;
 use App\Core\Localization\LocaleRegistry;
 use App\Core\Localization\TranslationState;
-use App\Models\User;
 use App\Core\Media\SyncBlockMediaUsages;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
