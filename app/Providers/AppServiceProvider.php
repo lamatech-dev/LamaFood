@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Core\Backup\Contracts\DatabaseDumper;
+use App\Core\Backup\MySqlDatabaseDumper;
 use App\Core\Localization\LocaleRegistry;
 use App\Models\User;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -19,7 +21,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->bind(DatabaseDumper::class, MySqlDatabaseDumper::class);
     }
 
     /**

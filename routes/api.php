@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\Admin\V1\Analytics\AnalyticsSummaryController;
 use App\Http\Controllers\Api\Admin\V1\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Api\Admin\V1\Backup\BackupController;
 use App\Http\Controllers\Api\Admin\V1\Business\BusinessContextController;
 use App\Http\Controllers\Api\Admin\V1\Cms\BlockSchemaController;
 use App\Http\Controllers\Api\Admin\V1\Cms\PageBlockController;
@@ -62,5 +63,6 @@ Route::prefix('admin/v1')->group(function (): void {
         Route::post('qr-codes', [QrCodeController::class, 'store'])->middleware('permission:qr.manage');
         Route::patch('qr-codes/{qrCode}', [QrCodeController::class, 'update'])->middleware('permission:qr.manage');
         Route::get('analytics/summary', AnalyticsSummaryController::class)->middleware('permission:analytics.view');
+        Route::get('backups', [BackupController::class, 'index'])->middleware('permission:backup.view');
     });
 });

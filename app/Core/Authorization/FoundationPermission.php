@@ -24,4 +24,7 @@ enum FoundationPermission: string
     case QrView = 'qr.view';
     case QrManage = 'qr.manage';
     case AnalyticsView = 'analytics.view';
+    case BackupView = 'backup.view';
+    case BackupCreate = 'backup.create';
+    case BackupRestore = 'backup.restore';
 }

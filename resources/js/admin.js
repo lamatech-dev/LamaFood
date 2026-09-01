@@ -44,7 +44,7 @@ const dashboard = document.querySelector('[data-dashboard]');
 if (dashboard) {
     if (!token) window.location.assign('/admin/login');
 
-    const state = { context: null, categories: [], products: [], pages: [], media: [], qrCodes: [], analytics: {}, blockSchemas: {}, me: null };
+    const state = { context: null, categories: [], products: [], pages: [], media: [], qrCodes: [], backups: [], analytics: {}, blockSchemas: {}, me: null };
     const toast = (message) => {
         const element = document.querySelector('[data-toast]');
         element.textContent = message;
@@ -129,6 +129,8 @@ if (dashboard) {
         document.querySelector('[data-scans-today]').textContent = state.analytics.today?.scan || 0;
         document.querySelector('[data-scans-week]').textContent = state.analytics['7_days']?.scan || 0;
         document.querySelector('[data-scans-month]').textContent = state.analytics['30_days']?.scan || 0;
+        const lastBackup = state.backups[0];
+        document.querySelector('[data-backup-status]').textContent = lastBackup ? `${lastBackup.status} · ${lastBackup.type}` : 'ثبت نشده';
         document.querySelector('[data-business-name]').textContent = state.context.business.name;
         document.querySelector('[data-user-name]').textContent = state.me.name;
         const locale = state.context.business.default_locale;
@@ -272,11 +274,12 @@ if (dashboard) {
     async function boot() {
         try {
             [state.me, state.context, state.categories, state.pages, state.blockSchemas] = await Promise.all([api('/me'), api('/business/context'), api('/categories'), api('/cms/pages'), api('/cms/block-schemas')]);
-            const [products, media, qrCodes, analytics] = await Promise.all([api('/products'), api('/media'), api('/qr-codes'), api('/analytics/summary')]);
+            const [products, media, qrCodes, analytics, backups] = await Promise.all([api('/products'), api('/media'), api('/qr-codes'), api('/analytics/summary'), api('/backups').catch(() => [])]);
             state.products = products.data;
             state.media = media.data;
             state.qrCodes = qrCodes;
             state.analytics = analytics;
+            state.backups = backups;
             translationInputs(document.querySelector('[data-category-translations]'), [['name', 'نام دسته']]);
             translationInputs(document.querySelector('[data-product-translations]'), [['name', 'نام محصول'], ['description', 'توضیح']]);
             translationInputs(document.querySelector('[data-page-translations]'), [['title', 'عنوان'], ['meta_title', 'عنوان SEO'], ['meta_description', 'توضیح SEO']]);
