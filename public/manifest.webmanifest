@@ -1,0 +1,16 @@
+{
+    "name": "Denardi · Art Coffee Juice",
+    "short_name": "Denardi",
+    "description": "Denardi public website and digital menu",
+    "id": "/fa/",
+    "start_url": "/fa/",
+    "scope": "/",
+    "display": "standalone",
+    "background_color": "#071015",
+    "theme_color": "#071015",
+    "lang": "fa",
+    "dir": "rtl",
+    "icons": [
+        { "src": "/denardi-icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+    ]
+}

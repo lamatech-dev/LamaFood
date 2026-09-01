@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="fa" dir="rtl">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>ورود · Denardi Admin</title>@vite('resources/js/admin.js')</head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#071015"><meta name="robots" content="noindex,nofollow"><link rel="manifest" href="/admin.webmanifest"><link rel="icon" href="/denardi-icon.svg" type="image/svg+xml"><title>ورود · Denardi Admin</title>@vite('resources/js/admin.js')</head>
 <body class="admin-app login-screen">
 <main class="login-card">
     <a class="admin-brand" href="/fa"><span>D</span><b>DENARDI</b></a>

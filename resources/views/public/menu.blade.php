@@ -4,8 +4,15 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#071015">
+    <link rel="manifest" href="/manifest.webmanifest">
+    <link rel="icon" href="/denardi-icon.svg" type="image/svg+xml">
     <title>{{ __('public.menu_title', locale: $locale) }}</title>
     <meta name="description" content="{{ __('public.menu_description', locale: $locale) }}">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="{{ __('public.menu_title', locale: $locale) }}">
+    <meta property="og:description" content="{{ __('public.menu_description', locale: $locale) }}">
+    <meta property="og:url" content="{{ route('public.menu', ['locale' => $locale, ...$menuQuery]) }}">
+    <meta property="og:locale" content="{{ $locale }}">
     <link rel="canonical" href="{{ route('public.menu', ['locale' => $locale, ...$menuQuery]) }}">
     @foreach($locales as $code => $metadata)<link rel="alternate" hreflang="{{ $code }}" href="{{ route('public.menu', ['locale' => $code, ...$menuQuery]) }}">@endforeach
     <link rel="alternate" hreflang="x-default" href="{{ url('/fa/menu') }}">

@@ -1,6 +1,8 @@
 import '../css/admin.css';
 import { buildReadyBlockTranslations, buildReadyTranslations, nextAvailability, parseSchemaValue, requiresTableKey } from './admin-data.js';
 
+if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js'));
+
 const tokenKey = 'denardi_admin_token';
 const token = localStorage.getItem(tokenKey);
 const headers = () => ({ Accept: 'application/json', Authorization: `Bearer ${localStorage.getItem(tokenKey) || ''}` });

@@ -1,0 +1,16 @@
+{
+    "name": "Denardi Admin",
+    "short_name": "D Admin",
+    "description": "Denardi content and menu administration",
+    "id": "/admin",
+    "start_url": "/admin",
+    "scope": "/admin",
+    "display": "standalone",
+    "background_color": "#071015",
+    "theme_color": "#071015",
+    "lang": "fa",
+    "dir": "rtl",
+    "icons": [
+        { "src": "/denardi-icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+    ]
+}

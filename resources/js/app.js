@@ -1,5 +1,7 @@
 import '../css/app.css';
 
+if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js'));
+
 const toggle = document.querySelector('.nav-toggle');
 const navigation = document.querySelector('.site-nav');
 

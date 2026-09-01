@@ -4,8 +4,15 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#071015">
+    <link rel="manifest" href="/manifest.webmanifest">
+    <link rel="icon" href="/denardi-icon.svg" type="image/svg+xml">
     <title>{{ $translation['meta_title'] ?: $translation['title'].' · Denardi' }}</title>
     @if($translation['meta_description'])<meta name="description" content="{{ $translation['meta_description'] }}">@endif
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="{{ $translation['og_title'] ?: ($translation['meta_title'] ?: $translation['title'].' · Denardi') }}">
+    @if($translation['og_description'] ?: $translation['meta_description'])<meta property="og:description" content="{{ $translation['og_description'] ?: $translation['meta_description'] }}">@endif
+    <meta property="og:url" content="{{ url('/'.$locale.($slug === 'home' ? '' : '/'.$slug)) }}">
+    <meta property="og:locale" content="{{ $locale }}">
     <link rel="canonical" href="{{ url('/'.$locale.($slug === 'home' ? '' : '/'.$slug)) }}">
     @foreach($locales as $code => $metadata)
         <link rel="alternate" hreflang="{{ $code }}" href="{{ url('/'.$code.($slug === 'home' ? '' : '/'.$slug)) }}">

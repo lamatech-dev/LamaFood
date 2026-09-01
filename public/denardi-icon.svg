@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Denardi">
+    <rect width="512" height="512" rx="112" fill="#071015"/>
+    <rect x="66" y="66" width="380" height="380" rx="94" fill="none" stroke="#28d6d1" stroke-width="22"/>
+    <path d="M176 146h77c93 0 139 40 139 110s-46 110-139 110h-77V146Zm75 169c50 0 76-19 76-59s-26-59-76-59h-12v118h12Z" fill="#f5f8f8"/>
+    <circle cx="392" cy="120" r="18" fill="#4169ff"/>
+</svg>
