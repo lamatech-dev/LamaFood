@@ -100,7 +100,7 @@ No visual redesign, advanced analytics, password-reset flow, staging/production 
 - Perform real-browser acceptance testing with approved Denardi brand assets and final Persian/English/Arabic copy.
 - Prepare the separately requested staging environment before any production launch.
 
-Detailed percentages, release gates and external blockers are maintained in `docs/DENARDI_V1_TRACKER.md`.
+Detailed percentages, release gates and external blockers are maintained in `docs/DENARDI_V1_TRACKER.md` and mirrored in the self-contained `docs/DENARDI_V1_TRACKER.html` dashboard.
 
 ## Architectural deviations
 

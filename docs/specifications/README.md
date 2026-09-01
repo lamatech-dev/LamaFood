@@ -11,6 +11,7 @@
 ## فهرست اسناد
 
 - `../DENARDI_V1_TRACKER.md` — وضعیت اجرایی، درصد پیشرفت، Release Gateها و کارهای باقی‌مانده
+- `../DENARDI_V1_TRACKER.html` — داشبورد تصویری مستقل و فیلترپذیر همان Tracker
 - `00-decisions-and-assumptions.md` — تصمیم‌های قطعی و فرض‌های پایه
 - `00-denardi-client-requirements.md` — استخراج نیازمندی‌های Proposal تحویلی به Denardi
 - `01-denardi-v1-scope.md` — محدوده، خروجی و معیار پذیرش V1

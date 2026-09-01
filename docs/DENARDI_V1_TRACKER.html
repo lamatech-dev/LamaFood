@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Denardi V1 implementation and go-live readiness dashboard">
+  <title>Denardi V1 — Delivery Dashboard</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #071014;
+      --panel: #0d1a1f;
+      --panel-2: #112329;
+      --line: #21404a;
+      --text: #e9f5f3;
+      --muted: #8eaaa9;
+      --teal: #31d4b3;
+      --blue: #5aa9ff;
+      --done: #47d68b;
+      --partial: #f4c65d;
+      --pending: #8ea8bd;
+      --blocked: #ff6f7d;
+      --out: #938ba6;
+      --shadow: 0 20px 55px rgba(0, 0, 0, .28);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font: 14px/1.55 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 12% 0%, rgba(49, 212, 179, .13), transparent 28rem),
+        radial-gradient(circle at 90% 10%, rgba(90, 169, 255, .11), transparent 32rem),
+        var(--bg);
+    }
+    a { color: var(--teal); }
+    button { font: inherit; }
+    .shell { width: min(1440px, calc(100% - 32px)); margin: 0 auto; padding: 32px 0 64px; }
+    .masthead {
+      display: grid;
+      grid-template-columns: 1.6fr 1fr;
+      gap: 24px;
+      padding: 34px;
+      border: 1px solid rgba(49, 212, 179, .24);
+      border-radius: 24px;
+      background: linear-gradient(135deg, rgba(17, 35, 41, .98), rgba(9, 20, 25, .94));
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      position: relative;
+    }
+    .masthead::after {
+      content: "";
+      position: absolute;
+      width: 280px;
+      height: 280px;
+      border-radius: 50%;
+      right: -90px;
+      top: -130px;
+      background: rgba(49, 212, 179, .08);
+      border: 1px solid rgba(49, 212, 179, .12);
+    }
+    .eyebrow { color: var(--teal); font-size: 12px; font-weight: 800; letter-spacing: .18em; text-transform: uppercase; }
+    h1 { margin: 8px 0 10px; font-size: clamp(34px, 5vw, 64px); line-height: 1; letter-spacing: -.045em; }
+    .lede { max-width: 760px; margin: 0; color: #b7cdca; font-size: 16px; }
+    .meta { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; align-self: end; z-index: 1; }
+    .meta div { padding: 12px 14px; border-radius: 12px; background: rgba(5, 15, 18, .52); border: 1px solid var(--line); }
+    .meta span { display: block; color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; }
+    .meta strong { display: block; margin-top: 3px; overflow-wrap: anywhere; }
+    .status-green { color: var(--done); }
+    .grid { display: grid; gap: 16px; }
+    .kpis { grid-template-columns: repeat(6, minmax(0, 1fr)); margin-top: 18px; }
+    .card { background: rgba(13, 26, 31, .93); border: 1px solid var(--line); border-radius: 18px; box-shadow: 0 12px 30px rgba(0,0,0,.18); }
+    .kpi { padding: 20px; min-height: 142px; display: flex; flex-direction: column; justify-content: space-between; }
+    .kpi .label { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .08em; }
+    .kpi .value { margin: 10px 0 2px; font-size: 34px; line-height: 1; font-weight: 800; letter-spacing: -.035em; }
+    .kpi small { color: #9ab1af; }
+    .kpi.primary { border-color: rgba(49, 212, 179, .45); background: linear-gradient(145deg, rgba(22, 55, 55, .95), rgba(13,26,31,.95)); }
+    .kpi.secondary { border-color: rgba(90, 169, 255, .4); }
+    section { margin-top: 34px; }
+    .section-head { display: flex; align-items: end; justify-content: space-between; gap: 18px; margin-bottom: 14px; }
+    h2 { margin: 0; font-size: 24px; letter-spacing: -.025em; }
+    .section-head p { margin: 4px 0 0; color: var(--muted); }
+    .progress-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .progress-card { padding: 18px; }
+    .progress-top { display: flex; justify-content: space-between; margin-bottom: 12px; }
+    .progress-top strong:last-child { color: var(--teal); }
+    .bar { height: 8px; border-radius: 20px; background: #091216; overflow: hidden; }
+    .bar span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--blue), var(--teal)); }
+    .filters { display: flex; flex-wrap: wrap; gap: 8px; }
+    .filter {
+      border: 1px solid var(--line); color: #b7cdca; background: var(--panel); padding: 8px 12px; border-radius: 999px; cursor: pointer;
+    }
+    .filter:hover, .filter.active { color: #041412; background: var(--teal); border-color: var(--teal); }
+    .areas { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .area { padding: 20px; position: relative; overflow: hidden; }
+    .area[hidden] { display: none; }
+    .area-top { display: flex; justify-content: space-between; align-items: start; gap: 12px; }
+    .area h3 { margin: 0; font-size: 19px; }
+    .priority { padding: 3px 8px; border-radius: 999px; color: var(--teal); background: rgba(49,212,179,.1); border: 1px solid rgba(49,212,179,.2); font-size: 11px; }
+    .area-score { margin: 16px 0 12px; display: flex; align-items: center; justify-content: space-between; }
+    .area-score b { font-size: 25px; }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0; }
+    .chip { padding: 4px 8px; border-radius: 7px; font-size: 11px; border: 1px solid; }
+    .done { color: var(--done); border-color: rgba(71,214,139,.35); background: rgba(71,214,139,.08); }
+    .partial { color: var(--partial); border-color: rgba(244,198,93,.35); background: rgba(244,198,93,.08); }
+    .pending { color: var(--pending); border-color: rgba(142,168,189,.35); background: rgba(142,168,189,.08); }
+    .blocked { color: var(--blocked); border-color: rgba(255,111,125,.35); background: rgba(255,111,125,.08); }
+    .out { color: var(--out); border-color: rgba(147,139,166,.35); background: rgba(147,139,166,.08); }
+    .area p { margin: 8px 0; color: #a9bfbd; }
+    .area p strong { color: var(--text); }
+    .wide-grid { grid-template-columns: 1.1fr .9fr; }
+    .panel { padding: 24px; }
+    .panel h3 { margin: 0 0 14px; }
+    .checklist, .blocker-list, .roadmap { margin: 0; padding: 0; list-style: none; }
+    .checklist li, .blocker-list li { position: relative; padding: 10px 0 10px 28px; border-bottom: 1px solid rgba(33,64,74,.6); }
+    .checklist li:last-child, .blocker-list li:last-child { border-bottom: 0; }
+    .checklist li::before { content: "→"; position: absolute; left: 3px; color: var(--teal); font-weight: 800; }
+    .blocker-list { counter-reset: blockers; }
+    .blocker-list li { padding-left: 44px; }
+    .blocker-list li::before { counter-increment: blockers; content: counter(blockers); position: absolute; left: 0; top: 9px; width: 26px; height: 26px; display: grid; place-items: center; border-radius: 50%; color: var(--blocked); border: 1px solid rgba(255,111,125,.45); }
+    .roadmap { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0; }
+    .roadmap li { min-height: 165px; padding: 18px; border-top: 2px solid var(--line); position: relative; background: rgba(13,26,31,.6); }
+    .roadmap li::before { content: ""; position: absolute; width: 10px; height: 10px; border-radius: 50%; background: var(--teal); top: -6px; left: 18px; box-shadow: 0 0 0 5px rgba(49,212,179,.12); }
+    .roadmap b { display: block; margin-bottom: 8px; color: var(--teal); }
+    .roadmap span { color: #a4b9b7; }
+    .evidence { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .evidence div { padding: 15px; border-radius: 12px; border: 1px solid var(--line); background: rgba(5,15,18,.4); }
+    .evidence span { display: block; color: var(--muted); font-size: 11px; text-transform: uppercase; }
+    .evidence strong { display: block; margin-top: 5px; }
+    .legend { display: flex; flex-wrap: wrap; gap: 12px; color: var(--muted); }
+    .legend span { display: inline-flex; align-items: center; gap: 7px; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+    footer { margin-top: 34px; color: var(--muted); text-align: center; }
+    @media (max-width: 1100px) { .kpis { grid-template-columns: repeat(3, 1fr); } .areas { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 760px) {
+      .shell { width: min(100% - 20px, 1440px); padding-top: 10px; }
+      .masthead { grid-template-columns: 1fr; padding: 24px; }
+      .meta, .progress-grid, .wide-grid, .evidence { grid-template-columns: 1fr 1fr; }
+      .areas { grid-template-columns: 1fr; }
+      .roadmap { grid-template-columns: 1fr; gap: 10px; }
+      .roadmap li { min-height: auto; border-top: 0; border-left: 2px solid var(--line); }
+      .roadmap li::before { left: -6px; top: 22px; }
+    }
+    @media (max-width: 520px) { .kpis, .meta, .progress-grid, .evidence { grid-template-columns: 1fr; } .section-head { align-items: start; flex-direction: column; } }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="masthead">
+      <div>
+        <div class="eyebrow">Lamatech delivery control</div>
+        <h1>Denardi V1</h1>
+        <p class="lede">Executive implementation and go-live readiness dashboard. The Markdown tracker is canonical; this view mirrors its verified 159 control items.</p>
+      </div>
+      <div class="meta">
+        <div><span>Branch</span><strong>develop/denardi-v1</strong></div>
+        <div><span>Last update</span><strong>2026-09-02</strong></div>
+        <div><span>Reviewed commit</span><strong>247596c</strong></div>
+        <div><span>GitHub CI</span><strong class="status-green">✓ Run 33568053762</strong></div>
+      </div>
+    </header>
+
+    <section class="grid kpis" aria-label="Headline metrics">
+      <article class="card kpi primary"><span class="label">V1 completion</span><strong class="value">82%</strong><small>Functional delivery estimate</small></article>
+      <article class="card kpi secondary"><span class="label">Go-live readiness</span><strong class="value">55%</strong><small>Includes content and operations</small></article>
+      <article class="card kpi"><span class="label">Completed</span><strong class="value status-green">99</strong><small>Verified control items</small></article>
+      <article class="card kpi"><span class="label">Partial</span><strong class="value" style="color:var(--partial)">14</strong><small>Useful work exists</small></article>
+      <article class="card kpi"><span class="label">Open V1 lines</span><strong class="value">48</strong><small>14 partial + 18 pending + 16 blocked</small></article>
+      <article class="card kpi"><span class="label">Blocker groups</span><strong class="value" style="color:var(--blocked)">3</strong><small>16 lines consolidated</small></article>
+    </section>
+
+    <section>
+      <div class="section-head"><div><h2>Readiness profile</h2><p>Evidence-based planning estimates, not false mathematical precision.</p></div></div>
+      <div class="grid progress-grid">
+        <article class="card progress-card"><div class="progress-top"><strong>Foundation</strong><strong>100%</strong></div><div class="bar"><span style="width:100%">&nbsp;</span></div></article>
+        <article class="card progress-card"><div class="progress-top"><strong>Functional V1</strong><strong>86%</strong></div><div class="bar"><span style="width:86%">&nbsp;</span></div></article>
+        <article class="card progress-card"><div class="progress-top"><strong>UI / UX</strong><strong>75%</strong></div><div class="bar"><span style="width:75%">&nbsp;</span></div></article>
+        <article class="card progress-card"><div class="progress-top"><strong>QA</strong><strong>62%</strong></div><div class="bar"><span style="width:62%">&nbsp;</span></div></article>
+        <article class="card progress-card"><div class="progress-top"><strong>Deployment / Production</strong><strong>30%</strong></div><div class="bar"><span style="width:30%">&nbsp;</span></div></article>
+        <article class="card progress-card"><div class="progress-top"><strong>Overall go-live</strong><strong>55%</strong></div><div class="bar"><span style="width:55%">&nbsp;</span></div></article>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div><h2>Subsystem tracker</h2><p>Counts match the canonical Markdown control rows.</p></div>
+        <div class="filters" role="group" aria-label="Filter subsystem cards">
+          <button class="filter active" data-filter="all">All</button>
+          <button class="filter" data-filter="done">Done</button>
+          <button class="filter" data-filter="partial">Partial</button>
+          <button class="filter" data-filter="pending">Not started</button>
+          <button class="filter" data-filter="blocked">Blocked</button>
+          <button class="filter" data-filter="out">Out of V1</button>
+        </div>
+      </div>
+      <div class="grid areas" id="areas">
+        <article class="card area" data-status="done"><div class="area-top"><h3>Foundation / Core</h3><span class="priority">P0 · Complete</span></div><div class="area-score"><span>Delivery</span><b>100%</b></div><div class="chips"><span class="chip done">11 done</span></div><p><strong>Complete:</strong> runtime, MySQL, Business/Branch, Auth, RBAC, Godfather, audit, instance, modules and events.</p><p><strong>Remaining:</strong> operational custody/retention decisions only.</p></article>
+        <article class="card area" data-status="done"><div class="area-top"><h3>Localization</h3><span class="priority">P0 · Content UAT</span></div><div class="area-score"><span>Architecture</span><b>100%</b></div><div class="chips"><span class="chip done">6 done</span></div><p><strong>Complete:</strong> fa/en/ar, metadata RTL/LTR, validation and explicit fallback.</p><p><strong>Remaining:</strong> approved real three-language copy.</p></article>
+        <article class="card area" data-status="partial blocked"><div class="area-top"><h3>Public Website</h3><span class="priority">P0 · Content / QA</span></div><div class="area-score"><span>Implementation</span><b>70%</b></div><div class="chips"><span class="chip partial">6 partial</span><span class="chip blocked">1 blocked</span></div><p><strong>Complete:</strong> localized page routes, responsive shell and Denardi visual direction.</p><p><strong>Remaining:</strong> final copy, assets, contact data and device matrix.</p></article>
+        <article class="card area" data-status="done"><div class="area-top"><h3>CMS</h3><span class="priority">P0 · Complete</span></div><div class="area-score"><span>Delivery</span><b>100%</b></div><div class="chips"><span class="chip done">11 done</span></div><p><strong>Complete:</strong> pages, typed blocks, CRUD, reorder, preview, draft/publish and localization.</p><p><strong>Remaining:</strong> final content population only.</p></article>
+        <article class="card area" data-status="done"><div class="area-top"><h3>Media</h3><span class="priority">P0 · Content UAT</span></div><div class="area-score"><span>Delivery</span><b>100%</b></div><div class="chips"><span class="chip done">8 done</span></div><p><strong>Complete:</strong> secure uploads, thumbnails, WebP, assignment, locale metadata and usage protection.</p><p><strong>Remaining:</strong> final licensed assets and crop QA.</p></article>
+        <article class="card area" data-status="done out"><div class="area-top"><h3>Digital Menu</h3><span class="priority">P0 · Content UAT</span></div><div class="area-score"><span>Delivery</span><b>96%</b></div><div class="chips"><span class="chip done">10 done</span><span class="chip out">1 out of V1</span></div><p><strong>Complete:</strong> catalog, branch price/availability, sold-out, search, ordering, images and lifecycle.</p><p><strong>Remaining:</strong> real menu import. Variants/add-ons UI is deferred.</p></article>
+        <article class="card area" data-status="done"><div class="area-top"><h3>QR</h3><span class="priority">P0 · Physical QA</span></div><div class="area-score"><span>Delivery</span><b>100%</b></div><div class="chips"><span class="chip done">8 done</span></div><p><strong>Complete:</strong> General/Table QR, scan attribution, SVG/PNG/PDF and campaign rejection.</p><p><strong>Remaining:</strong> final table list and printed scan proof.</p></article>
+        <article class="card area" data-status="done partial pending"><div class="area-top"><h3>Analytics</h3><span class="priority">P1 · Current</span></div><div class="area-score"><span>Delivery</span><b>67%</b></div><div class="chips"><span class="chip done">4 done</span><span class="chip partial">1 partial</span><span class="chip pending">2 not started</span></div><p><strong>Complete:</strong> scan/page-view foundations, counters, deduplication and Admin summary.</p><p><strong>Remaining:</strong> emit Category View and Product View events.</p></article>
+        <article class="card area" data-status="done partial"><div class="area-top"><h3>Admin</h3><span class="priority">P1 · Release QA</span></div><div class="area-score"><span>Delivery</span><b>92%</b></div><div class="chips"><span class="chip done">8 done</span><span class="chip partial">1 partial</span></div><p><strong>Complete:</strong> auth, dashboard, Menu, CMS, Media, QR, Analytics and Translation status.</p><p><strong>Remaining:</strong> mobile/error-state refinement.</p></article>
+        <article class="card area" data-status="done partial pending"><div class="area-top"><h3>SEO</h3><span class="priority">P1 · Before Staging</span></div><div class="area-score"><span>Delivery</span><b>72%</b></div><div class="chips"><span class="chip done">5 done</span><span class="chip partial">1 partial</span><span class="chip pending">2 not started</span></div><p><strong>Complete:</strong> localized meta, canonical, hreflang, sitemap and robots.</p><p><strong>Remaining:</strong> real-data structured data, final OG assets and validation.</p></article>
+        <article class="card area" data-status="done partial pending"><div class="area-top"><h3>PWA</h3><span class="priority">P1 · Device QA</span></div><div class="area-score"><span>Delivery</span><b>75%</b></div><div class="chips"><span class="chip done">4 done</span><span class="chip partial">2 partial</span><span class="chip pending">1 not started</span></div><p><strong>Complete:</strong> manifest, service worker, online-first behavior and offline shell.</p><p><strong>Remaining:</strong> production icons, installability and device tests.</p></article>
+        <article class="card area" data-status="done partial pending out"><div class="area-top"><h3>Security</h3><span class="priority">P0 · Current</span></div><div class="area-score"><span>Delivery</span><b>78%</b></div><div class="chips"><span class="chip done">7 done</span><span class="chip partial">1 partial</span><span class="chip pending">1 not started</span><span class="chip out">1 out</span></div><p><strong>Complete:</strong> auth, RBAC/Godfather isolation, audit redaction, CSRF/rate-limit and secret hygiene.</p><p><strong>Remaining:</strong> Password Reset and release security review.</p></article>
+        <article class="card area" data-status="done pending blocked"><div class="area-top"><h3>Backup / Operations</h3><span class="priority">P0 · Pre-Staging</span></div><div class="area-score"><span>Delivery</span><b>62%</b></div><div class="chips"><span class="chip done">5 done</span><span class="chip pending">2 not started</span><span class="chip blocked">1 blocked</span></div><p><strong>Complete:</strong> DB/full backup creation, exclusions, checksum, schedule and audit.</p><p><strong>Remaining:</strong> restore implementation/drill and encrypted offsite target.</p></article>
+        <article class="card area" data-status="done pending"><div class="area-top"><h3>Health / Monitoring</h3><span class="priority">P0 · Pre-Staging</span></div><div class="area-score"><span>Delivery</span><b>43%</b></div><div class="chips"><span class="chip done">3 done</span><span class="chip pending">4 not started</span></div><p><strong>Complete:</strong> application, database and backup freshness checks.</p><p><strong>Remaining:</strong> storage, queue, scheduler and external alerting.</p></article>
+        <article class="card area" data-status="done partial pending"><div class="area-top"><h3>QA</h3><span class="priority">P0 · Release QA</span></div><div class="area-score"><span>Readiness</span><b>62%</b></div><div class="chips"><span class="chip done">7 done</span><span class="chip partial">1 partial</span><span class="chip pending">4 not started</span></div><p><strong>Complete:</strong> PHPUnit, frontend, PHPStan, Pint, build, dependency audits and CI.</p><p><strong>Remaining:</strong> full responsive, accessibility, Lighthouse and device matrix.</p></article>
+        <article class="card area" data-status="done partial pending blocked"><div class="area-top"><h3>Deployment</h3><span class="priority">P0 · External access</span></div><div class="area-score"><span>Readiness</span><b>30%</b></div><div class="chips"><span class="chip done">2 done</span><span class="chip partial">1 partial</span><span class="chip pending">2 not started</span><span class="chip blocked">3 blocked</span></div><p><strong>Complete:</strong> local build/run and CI; runbooks exist.</p><p><strong>Remaining:</strong> Staging, Production, TLS/DNS, rollback and environment access.</p></article>
+        <article class="card area" data-status="blocked"><div class="area-top"><h3>Real Denardi Content</h3><span class="priority">P0 · Denardi</span></div><div class="area-score"><span>Ready to populate</span><b>0%</b></div><div class="chips"><span class="chip blocked">11 blocked</span></div><p><strong>Platform:</strong> content workflows are ready.</p><p><strong>Waiting for:</strong> brand, images, menu/prices, translations, contact/map/social, table list and approver.</p></article>
+        <article class="card area" data-status="out"><div class="area-top"><h3>Future / Deferred</h3><span class="priority">Not V1</span></div><div class="area-score"><span>Excluded correctly</span><b>10</b></div><div class="chips"><span class="chip out">10 out of V1</span></div><p><strong>Deferred:</strong> Campaign QR, ordering, payment, reservation, CRM, loyalty, inventory, operational AI, Control Plane and SaaS.</p><p><strong>Rule:</strong> requires separate authorization or signed change request.</p></article>
+      </div>
+    </section>
+
+    <section class="grid wide-grid">
+      <article class="card panel">
+        <h3>What remains before Denardi can go live</h3>
+        <ul class="checklist">
+          <li>Password Reset, missing analytics events, structured data and complete health checks.</li>
+          <li>Production PWA icons plus mobile Admin/error-state polish.</li>
+          <li>Release-grade responsive, accessibility, Lighthouse, iOS Safari and Android QA.</li>
+          <li>Approved fa/en/ar copy, brand assets, menu/prices/images and table list.</li>
+          <li>Production-like Staging, encrypted offsite backup, restore and rollback drills.</li>
+          <li>External monitoring, UAT sign-off, physical QR proof, training and Production access.</li>
+        </ul>
+      </article>
+      <article class="card panel">
+        <h3>Current blocker groups</h3>
+        <ol class="blocker-list">
+          <li><strong>Denardi input and approval</strong><br>Final content, assets, table data and named approver.</li>
+          <li><strong>Production infrastructure and access</strong><br>Hosting, DNS/SSL, secrets owner, offsite backup and monitoring.</li>
+          <li><strong>Commercial and scope confirmation</strong><br>Signed QR scope, UAT, SLA/retention and ownership decisions.</li>
+        </ol>
+      </article>
+    </section>
+
+    <section>
+      <div class="section-head"><div><h2>Execution roadmap</h2><p>Infrastructure-ready, feature-light: close required V1 gaps before deployment expansion.</p></div></div>
+      <ol class="roadmap">
+        <li><b>Current phase</b><span>Password Reset, analytics emission, health checks, structured data and production PWA assets.</span></li>
+        <li><b>Next phase</b><span>Mobile/error polish, automated responsive/accessibility/security/performance QA.</span></li>
+        <li><b>Pre-Staging</b><span>Import approved Denardi content; receive access; configure offsite backup and monitoring.</span></li>
+        <li><b>Staging / UAT</b><span>Restore drill, physical QR proof, browser/device matrix, client UAT and training.</span></li>
+        <li><b>Production</b><span>Deploy, DNS/SSL, smoke checks, rollback readiness and observation window.</span></li>
+      </ol>
+    </section>
+
+    <section class="card panel">
+      <div class="section-head"><div><h2>Git / CI evidence</h2><p>Last reviewed checkpoint before this dashboard revision.</p></div></div>
+      <div class="evidence">
+        <div><span>Branch</span><strong>develop/denardi-v1</strong></div>
+        <div><span>Green CI</span><strong>33568053762 · MySQL 8.4.11</strong></div>
+        <div><span>Backend</span><strong>65 tests · 315 assertions</strong></div>
+        <div><span>Frontend</span><strong>6 tests · production build</strong></div>
+        <div><span>Static quality</span><strong>PHPStan 0 errors · Pint pass</strong></div>
+        <div><span>Security checks</span><strong>Composer/npm audits pass</strong></div>
+        <div><span>Feature checkpoint</span><strong>63cbb4f</strong></div>
+        <div><span>Tracker baseline</span><strong>247596c</strong></div>
+      </div>
+    </section>
+
+    <section>
+      <div class="legend" aria-label="Status legend">
+        <span class="done"><b class="dot" aria-hidden="true">&nbsp;</b>Done</span>
+        <span class="partial"><b class="dot" aria-hidden="true">&nbsp;</b>Partial</span>
+        <span class="pending"><b class="dot" aria-hidden="true">&nbsp;</b>Not started</span>
+        <span class="blocked"><b class="dot" aria-hidden="true">&nbsp;</b>Blocked</span>
+        <span class="out"><b class="dot" aria-hidden="true">&nbsp;</b>Out of V1</span>
+      </div>
+    </section>
+
+    <footer>
+      Canonical source: <a href="DENARDI_V1_TRACKER.md">DENARDI_V1_TRACKER.md</a> · Update both tracker files after every major checkpoint. Never record secrets.
+    </footer>
+  </main>
+  <script>
+    const buttons = document.querySelectorAll('[data-filter]');
+    const areaCards = document.querySelectorAll('.area[data-status]');
+
+    buttons.forEach((button) => {
+      button.addEventListener('click', () => {
+        const filter = button.dataset.filter;
+        buttons.forEach((item) => item.classList.toggle('active', item === button));
+        areaCards.forEach((card) => {
+          const statuses = card.dataset.status.split(' ');
+          card.hidden = filter !== 'all' && !statuses.includes(filter);
+        });
+      });
+    });
+  </script>
+</body>
+</html>

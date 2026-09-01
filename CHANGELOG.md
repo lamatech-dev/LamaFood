@@ -15,6 +15,7 @@
 - Added CI failure summaries/annotations so repository-controlled test failures remain visible and auditable without exposing stored GitHub credentials.
 - Fixed CMS preview test isolation so clean CI checkouts do not depend on a locally generated Vite manifest.
 - Added a single Denardi V1 delivery tracker for subsystem progress, client requirement traceability, release gates and external blockers.
+- Expanded the tracker into a persistent 159-item canonical checklist plus a self-contained visual HTML delivery dashboard.
 
 ### Verification
 

@@ -2,7 +2,7 @@
 
 This file records implementation checkpoints, verification evidence and remaining work. Meaningful implementation stages must be committed on `develop/denardi-v1`, pushed to GitHub and added here before the stage is treated as complete. Secrets and local credentials must never be recorded.
 
-The live checklist and percentage tracker is maintained in `docs/DENARDI_V1_TRACKER.md`; every future implementation checkpoint must update it in the same commit.
+The canonical checklist is maintained in `docs/DENARDI_V1_TRACKER.md` and mirrored by the visual `docs/DENARDI_V1_TRACKER.html` dashboard; every future implementation checkpoint must update both in the same commit.
 
 ## 2026-09-02 — Admin/CMS/Menu/Media completion
 
@@ -53,3 +53,9 @@ Remaining within this checkpoint: none. The Admin/CMS/Menu/Media completion pass
 - Added a single status tracker covering subsystems, `DEN-01` through `DEN-12`, release gates, external inputs and explicitly deferred work.
 - Baseline estimate recorded as 82% implementation and 55% Go-live readiness.
 - Future checkpoint rule: update the tracker, implementation log and Git commit together.
+
+## 2026-09-02 — Persistent tracker and visual dashboard expanded
+
+- Expanded the canonical tracker to 159 evidence-backed control items across all delivery, operations, content and explicitly deferred areas.
+- Added a self-contained responsive HTML dashboard with matching counts, status filters, readiness metrics, roadmap, blocker groups and Git/CI evidence.
+- Confirmed this checkpoint is project tracking only and changes no application behavior.
