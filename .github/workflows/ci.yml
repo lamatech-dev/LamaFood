@@ -1,0 +1,90 @@
+name: Foundation CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.4.11
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: yes
+          MYSQL_DATABASE: lamafood_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+
+    env:
+      APP_ENV: testing
+      APP_LOCALE: fa
+      APP_FALLBACK_LOCALE: fa
+      DB_CONNECTION: mysql
+      DB_HOST: 127.0.0.1
+      DB_PORT: 3306
+      DB_DATABASE: lamafood_test
+      DB_USERNAME: root
+      DB_PASSWORD: ""
+      CACHE_STORE: array
+      QUEUE_CONNECTION: sync
+      SESSION_DRIVER: array
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.4.25
+          extensions: mbstring, pdo_mysql
+          coverage: none
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.20.0
+          cache: npm
+
+      - name: Install PHP dependencies
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Prepare application key
+        run: |
+          cp .env.testing.example .env
+          php artisan key:generate
+
+      - name: Install frontend dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Verify MySQL runtime
+        run: mysql --host=127.0.0.1 --user=root --execute="SELECT VERSION();"
+
+      - name: Verify application bootstrap
+        run: php artisan about --only=environment
+
+      - name: Run migrations from zero
+        run: php artisan migrate:fresh --force
+
+      - name: Run PHP/Laravel tests
+        run: php artisan test --compact
+
+      - name: Run static analysis
+        run: php vendor/bin/phpstan analyse --memory-limit=1G --no-progress
+
+      - name: Verify formatting
+        run: php vendor/bin/pint --test
+
+      - name: Build foundation assets
+        run: npm run build
+
+      # No frontend test runner exists in the Foundation because no Admin/public
+      # frontend application has been implemented. Add its test command with that stage.
+
+      - name: Audit dependencies
+        run: |
+          composer audit
+          npm audit --audit-level=high
