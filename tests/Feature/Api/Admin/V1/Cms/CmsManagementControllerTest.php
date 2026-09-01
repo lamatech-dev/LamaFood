@@ -68,6 +68,7 @@ class CmsManagementControllerTest extends TestCase
 
     public function test_preview_shows_current_draft_but_publish_snapshot_excludes_disabled_blocks(): void
     {
+        $this->withoutVite();
         [$page, $actor] = $this->page('contact');
         $media = Media::query()->create([
             'public_id' => (string) Str::ulid(),

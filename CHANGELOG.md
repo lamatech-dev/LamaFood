@@ -13,12 +13,13 @@
 - Expanded the idempotent local-only Denardi demo dataset to four categories and nine three-language products, including draft and sold-out examples.
 - Added focused CMS, Menu and Media management tests and browser smoke checks for Persian and Arabic public menus.
 - Added CI failure summaries/annotations so repository-controlled test failures remain visible and auditable without exposing stored GitHub credentials.
+- Fixed CMS preview test isolation so clean CI checkouts do not depend on a locally generated Vite manifest.
 
 ### Verification
 
 - Local MySQL: 65 PHPUnit tests and 315 assertions pass.
 - PHPStan/Larastan, Pint, frontend tests, Vite production build, Composer validation and dependency audits pass locally.
-- Commit `63cbb4f` was pushed to `develop/denardi-v1`; GitHub Actions run `33553026988` failed in the PHP test step and is under repository-controlled diagnosis.
+- Commit `63cbb4f` was pushed to `develop/denardi-v1`; CI observability run `33567196552` identified a clean-checkout Vite test-isolation issue, now fixed pending the next run.
 
 ## Foundation checkpoint
 

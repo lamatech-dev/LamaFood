@@ -88,7 +88,7 @@ The current local environment now runs the application and behavioral tests agai
 - Composer and npm advisory audits: zero known vulnerabilities
 - Real-browser smoke check: Persian and Arabic public menus render localized categories/products, draft products remain hidden, sold-out state is visible, and the Admin login shell loads without console errors
 - Secret check: ignored `.env` remains untracked; tracked environment examples contain placeholders only
-- GitHub Actions MySQL 8.4 run `33553026988`: failed in the PHP test step; a follow-up workflow change records detailed failure summaries/annotations for safe repository-controlled diagnosis.
+- GitHub Actions runs `33553026988` and `33567196552`: the added CI annotation identified a clean-checkout-only Vite manifest dependency in the CMS preview test. The test-isolation fix is pending final CI confirmation.
 
 ## Scope intentionally untouched
 
@@ -96,7 +96,7 @@ No visual redesign, advanced analytics, password-reset flow, staging/production 
 
 ## Remaining delivery items
 
-- Diagnose the CI-only PHP test failure and confirm a green GitHub Actions run on MySQL 8.4.
+- Confirm the CMS preview test-isolation fix in a green GitHub Actions run on MySQL 8.4.
 - Perform real-browser acceptance testing with approved Denardi brand assets and final Persian/English/Arabic copy.
 - Prepare the separately requested staging environment before any production launch.
 
