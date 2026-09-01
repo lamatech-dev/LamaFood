@@ -1,8 +1,8 @@
 <?php
 
 use App\Core\Localization\LocaleRegistry;
-use App\Http\Controllers\PublicPageController;
 use App\Http\Controllers\PublicMenuController;
+use App\Http\Controllers\PublicPageController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 

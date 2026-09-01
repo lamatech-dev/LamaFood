@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Api\Admin\V1\Menu;
 
-use App\Core\Menu\Actions\CreateMenuCategory;
 use App\Core\Menu\Actions\ChangeCategoryPublicationState;
+use App\Core\Menu\Actions\CreateMenuCategory;
 use App\Core\Menu\Models\MenuCategory;
 use App\Core\Menu\PublicationState;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Api\Admin\V1\Menu\StoreMenuCategoryRequest;
 use App\Http\Requests\Api\Admin\V1\Menu\ChangeProductStateRequest;
+use App\Http\Requests\Api\Admin\V1\Menu\StoreMenuCategoryRequest;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
