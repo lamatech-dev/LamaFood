@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/** @property QrCodeType $type */
 #[Fillable(['public_id', 'business_id', 'branch_id', 'type', 'label', 'table_key', 'is_active', 'created_by'])]
 class QrCode extends Model
 {
