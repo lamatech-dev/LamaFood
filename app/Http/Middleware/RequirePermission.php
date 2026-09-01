@@ -13,9 +13,9 @@ class RequirePermission
      *
      * @param  Closure(Request): (Response)  $next
      */
-    public function handle(Request $request, Closure $next, string $permission): Response
+    public function handle(Request $request, Closure $next, string ...$permissions): Response
     {
-        abort_unless($request->user()?->can($permission), 403);
+        abort_unless(collect($permissions)->contains(fn (string $permission): bool => $request->user()?->can($permission) === true), 403);
 
         return $next($request);
     }

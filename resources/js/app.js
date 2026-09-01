@@ -14,3 +14,16 @@ document.querySelectorAll('.language-switcher a').forEach((link) => {
         document.cookie = `denardi_locale=${link.getAttribute('lang')}; path=/; max-age=31536000; samesite=lax`;
     });
 });
+
+const menuSearch = document.querySelector('[data-menu-search]');
+menuSearch?.addEventListener('input', () => {
+    const query = menuSearch.value.trim().toLocaleLowerCase(document.documentElement.lang);
+    let visible = 0;
+    document.querySelectorAll('[data-product-name]').forEach((card) => {
+        const matches = card.dataset.productName.includes(query);
+        card.hidden = !matches;
+        visible += matches ? 1 : 0;
+    });
+    const empty = document.querySelector('.search-empty');
+    if (empty) empty.hidden = visible > 0;
+});

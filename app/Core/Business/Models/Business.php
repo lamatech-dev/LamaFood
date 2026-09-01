@@ -5,6 +5,8 @@ namespace App\Core\Business\Models;
 use App\Core\Cms\Models\Page;
 use App\Core\Localization\Models\BusinessLocale;
 use App\Core\Media\Models\Media;
+use App\Core\Menu\Models\MenuCategory;
+use App\Core\Menu\Models\Product;
 use App\Models\User;
 use Database\Factories\Core\Business\Models\BusinessFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -46,6 +48,18 @@ class Business extends Model
     public function media(): HasMany
     {
         return $this->hasMany(Media::class);
+    }
+
+    /** @return HasMany<MenuCategory, $this> */
+    public function menuCategories(): HasMany
+    {
+        return $this->hasMany(MenuCategory::class);
+    }
+
+    /** @return HasMany<Product, $this> */
+    public function products(): HasMany
+    {
+        return $this->hasMany(Product::class);
     }
 
     protected function casts(): array

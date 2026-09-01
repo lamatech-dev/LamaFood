@@ -32,6 +32,9 @@ class ProvisionFoundationRbac
                 $permissions[FoundationPermission::CmsEdit->value],
                 $permissions[FoundationPermission::MediaView->value],
                 $permissions[FoundationPermission::MediaManage->value],
+                $permissions[FoundationPermission::MenuView->value],
+                $permissions[FoundationPermission::MenuEdit->value],
+                $permissions[FoundationPermission::MenuPublish->value],
             ]);
 
         app(PermissionRegistrar::class)->forgetCachedPermissions();

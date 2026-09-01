@@ -2,11 +2,13 @@
 
 namespace App\Http\Requests\Api\Admin\V1\Cms;
 
+use App\Http\Requests\Concerns\ValidatesConfiguredLocales;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StorePageRequest extends FormRequest
 {
+    use ValidatesConfiguredLocales;
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -25,7 +27,7 @@ class StorePageRequest extends FormRequest
         return [
             'slug' => ['required', 'string', 'max:160', 'alpha_dash:ascii'],
             'template' => ['sometimes', 'string', 'max:64'],
-            'translations' => ['required', 'array:fa,en,ar'],
+            'translations' => ['required', 'array'],
             'translations.*' => ['array'],
             'translations.*.title' => ['nullable', 'string', 'max:255'],
             'translations.*.meta_title' => ['nullable', 'string', 'max:255'],

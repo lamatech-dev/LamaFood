@@ -16,4 +16,9 @@ enum FoundationPermission: string
     case CmsPublish = 'cms.publish';
     case MediaView = 'media.view';
     case MediaManage = 'media.manage';
+    case MenuView = 'menu.view';
+    case MenuEdit = 'menu.edit';
+    case MenuPublish = 'menu.publish';
+    case MenuPrice = 'menu.price';
+    case MenuAvailability = 'menu.availability';
 }
