@@ -3,6 +3,7 @@
 namespace App\Core\Cms\Actions;
 
 use App\Core\Audit\AuditRecorder;
+use App\Core\Cms\BlockSnapshotBuilder;
 use App\Core\Cms\Models\Page;
 use App\Core\Cms\Models\PageRevision;
 use App\Core\Cms\PageReadiness;
@@ -17,6 +18,7 @@ class PublishPage
     public function __construct(
         private readonly PageReadiness $readiness,
         private readonly AuditRecorder $audit,
+        private readonly BlockSnapshotBuilder $blocks,
     ) {}
 
     public function execute(Page $page, User $actor, int $expectedRevision): PageRevision
@@ -39,13 +41,7 @@ class PublishPage
                 'slug' => $locked->slug,
                 'template' => $locked->template,
                 'translations' => $locked->translations->keyBy('locale')->map->only(['title', 'meta_title', 'meta_description', 'og_title', 'og_description'])->all(),
-                'blocks' => $locked->blocks->map(fn ($block): array => [
-                    'public_id' => $block->public_id,
-                    'type' => $block->type,
-                    'position' => $block->position,
-                    'structure' => $block->structure_json,
-                    'translations' => $block->translations->keyBy('locale')->map->only(['content_json'])->all(),
-                ])->values()->all(),
+                'blocks' => $locked->blocks->where('is_enabled', true)->map($this->blocks->build(...))->values()->all(),
             ];
 
             $revision = $locked->revisions()->create([

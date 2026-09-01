@@ -28,3 +28,11 @@ export function buildReadyBlockTranslations(locales, values) {
         translation_state: 'ready',
     }]));
 }
+
+export function swapOrder(items, index, direction) {
+    const target = index + direction;
+    if (index < 0 || target < 0 || target >= items.length) return [...items];
+    const reordered = [...items];
+    [reordered[index], reordered[target]] = [reordered[target], reordered[index]];
+    return reordered;
+}

@@ -40,6 +40,9 @@
                         @php($translation = $product->translations->first())
                         @php($setting = $product->branchSettings->first())
                         <article class="product-card" data-product-name="{{ mb_strtolower($translation?->name ?? '') }}">
+                            @if($product->primaryMedia)
+                                <img class="product-image" src="{{ asset('storage/'.($product->primaryMedia->optimized_path ?: $product->primaryMedia->path)) }}" alt="{{ $product->primaryMedia->translations->first()?->alt ?? $translation?->name }}" loading="lazy" width="720" height="480">
+                            @endif
                             <div class="product-copy"><div class="product-title"><h3>{{ $translation?->name }}</h3><span>{{ number_format(intdiv($setting?->price_amount ?? 0, 10)) }} {{ __('public.toman', locale: $locale) }}</span></div><p>{{ $translation?->description }}</p>@if($translation?->allergen_notice)<small>{{ $translation->allergen_notice }}</small>@endif</div>
                             <div class="product-badges">@if($product->is_new)<b>{{ __('public.new', locale: $locale) }}</b>@endif @if($product->is_best_seller)<b>{{ __('public.best_seller', locale: $locale) }}</b>@endif @if($setting?->availability_state->value === 'sold_out')<b class="sold-out">{{ __('public.sold_out', locale: $locale) }}</b>@endif</div>
                         </article>

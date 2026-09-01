@@ -3,6 +3,7 @@
 namespace Tests\Feature\Console;
 
 use App\Core\Cms\Models\Page;
+use App\Core\Menu\Models\MenuCategory;
 use App\Core\Menu\Models\Product;
 use App\Models\User;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
@@ -23,10 +24,13 @@ class ProvisionDenardiDevelopmentTest extends TestCase
 
             $this->assertSame(4, Page::query()->count());
             $this->assertSame(12, Page::query()->withCount('translations')->get()->sum('translations_count'));
-            $this->assertSame(1, Product::query()->count());
+            $this->assertSame(4, MenuCategory::query()->count());
+            $this->assertSame(9, Product::query()->count());
+            $this->assertSame(27, Product::query()->withCount('translations')->get()->sum('translations_count'));
             $this->withoutVite();
             $this->get('/fa')->assertOk()->assertSee('دناردی؛ هنر، قهوه و آبمیوه');
-            $this->get('/ar/menu')->assertOk()->assertSee('إسبريسو');
+            $this->get('/ar/menu')->assertOk()->assertSee('إسبريسو')->assertSee('غير متوفر');
+            $this->get('/en/menu')->assertOk()->assertSee('Butter Croissant')->assertDontSee('Seasonal Mix');
         } finally {
             $this->app->detectEnvironment(fn (): string => 'testing');
         }

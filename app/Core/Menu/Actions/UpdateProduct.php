@@ -10,10 +10,9 @@ use App\Core\Menu\Models\MenuCategory;
 use App\Core\Menu\Models\Product;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
-class CreateProduct
+final class UpdateProduct
 {
     public function __construct(private readonly LocaleRegistry $locales, private readonly AuditRecorder $audit) {}
 
@@ -21,16 +20,18 @@ class CreateProduct
      * @param  array<string, array<string, mixed>>  $translations
      * @param  array<string, bool>  $flags
      */
-    public function execute(MenuCategory $category, User $actor, string $slug, int $position, array $translations, array $flags = [], ?Media $primaryMedia = null): Product
+    public function execute(Product $product, MenuCategory $category, User $actor, string $slug, int $position, array $translations, array $flags, ?Media $primaryMedia): Product
     {
-        if ($primaryMedia !== null && $primaryMedia->business_id !== $category->business_id) {
-            throw ValidationException::withMessages(['primary_media_id' => ['Media must belong to the same business.']]);
+        if ($product->business_id !== $category->business_id || ($primaryMedia !== null && $primaryMedia->business_id !== $product->business_id)) {
+            throw ValidationException::withMessages(['product' => ['Category and media must belong to the same business.']]);
+        }
+        if (Product::query()->where('business_id', $product->business_id)->where('slug', $slug)->whereKeyNot($product->id)->exists()) {
+            throw ValidationException::withMessages(['slug' => ['The slug is already used by another product.']]);
         }
 
-        return DB::transaction(function () use ($category, $actor, $slug, $position, $translations, $flags, $primaryMedia): Product {
-            $product = Product::query()->create([
-                'public_id' => (string) Str::ulid(),
-                'business_id' => $category->business_id,
+        return DB::transaction(function () use ($product, $category, $actor, $slug, $position, $translations, $flags, $primaryMedia): Product {
+            $before = $product->load('translations')->toArray();
+            $product->update([
                 'category_id' => $category->id,
                 'primary_media_id' => $primaryMedia?->id,
                 'slug' => $slug,
@@ -41,8 +42,7 @@ class CreateProduct
             ]);
             foreach ($this->locales->codes() as $locale) {
                 $translation = $translations[$locale] ?? [];
-                $product->translations()->create([
-                    'locale' => $locale,
+                $product->translations()->updateOrCreate(['locale' => $locale], [
                     'name' => $translation['name'] ?? null,
                     'description' => $translation['description'] ?? null,
                     'ingredients' => $translation['ingredients'] ?? null,
@@ -50,9 +50,9 @@ class CreateProduct
                     'translation_state' => $translation['translation_state'] ?? TranslationState::Draft,
                 ]);
             }
-            $this->audit->record('menu.product.created', $actor, $product, $category->business_id, after: $product->toArray());
+            $this->audit->record('menu.product.updated', $actor, $product, $product->business_id, before: $before, after: $product->fresh('translations')->toArray());
 
-            return $product->load(['translations', 'category']);
+            return $product->fresh(['translations', 'category.translations', 'branchSettings', 'primaryMedia']);
         });
     }
 }

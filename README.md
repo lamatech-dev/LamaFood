@@ -1,6 +1,6 @@
 # LamaFood
 
-LamaFood is Lamatech's modular, single-tenant restaurant platform. The repository currently contains the approved Core Foundation only; Denardi feature implementation has not started.
+LamaFood is Lamatech's modular, single-tenant restaurant platform. The repository contains the approved Core Foundation plus the functional Denardi V1 Admin/CMS/Menu/Media slice for local development and review.
 
 ## Foundation baseline
 
@@ -12,6 +12,10 @@ LamaFood is Lamatech's modular, single-tenant restaurant platform. The repositor
 - Canonical integer IRR money handling
 - Data-driven Denardi locales: Persian (`fa`, RTL, default), English (`en`, LTR) and Arabic (`ar`, RTL)
 - Env-bootstrapped Lamatech Godfather account, invisible to Business user-management surfaces
+- Structured Admin workspaces for products, categories, CMS pages/blocks, Media and mandatory V1 QR types
+- Three-language CMS publishing readiness, authenticated draft preview and immutable published snapshots
+- Business-level products with branch-specific IRR price and availability settings
+- Original image preservation with optimized and thumbnail WebP derivatives
 
 ## Documents
 
@@ -24,10 +28,12 @@ LamaFood is Lamatech's modular, single-tenant restaurant platform. The repositor
 ```bash
 php artisan test
 composer analyse
-vendor/bin/pint --test
+vendor/bin/pint --format agent
 npm run build
 composer audit
 npm audit --audit-level=high
 ```
 
 See `docs/FOUNDATION_DEVELOPMENT.md` for MySQL setup and the safe Godfather bootstrap/rotation procedure.
+
+Campaign QR, staging/production deployment, real Denardi content population, password reset and visual redesign remain outside this completion slice.

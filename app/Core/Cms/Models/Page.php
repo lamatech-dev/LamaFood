@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/** @property PageStatus $status */
 #[Fillable(['public_id', 'business_id', 'slug', 'template', 'status', 'revision', 'published_revision_id', 'published_at', 'sort_order', 'created_by', 'updated_by'])]
 class Page extends Model
 {

@@ -20,7 +20,14 @@ class AdminShellTest extends TestCase
         $this->withoutVite();
 
         $this->get('/admin/login')->assertOk()->assertSee('noindex,nofollow')->assertDontSee('LAMATECH_GODFATHER_PASSWORD');
-        $this->get('/admin')->assertOk()->assertSee('noindex,nofollow')->assertDontSee('godfather@instance.invalid');
+        $this->get('/admin')
+            ->assertOk()
+            ->assertSee('noindex,nofollow')
+            ->assertSee('data-admin-view="products"', false)
+            ->assertSee('data-admin-view="categories"', false)
+            ->assertSee('data-admin-view="content"', false)
+            ->assertSee('data-admin-view="media"', false)
+            ->assertDontSee('godfather@instance.invalid');
     }
 
     public function test_business_context_is_locale_driven_and_excludes_instance_credentials(): void

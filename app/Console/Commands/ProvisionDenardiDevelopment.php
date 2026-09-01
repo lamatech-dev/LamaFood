@@ -132,24 +132,57 @@ class ProvisionDenardiDevelopment extends Command
         ChangeProductPublicationState $publishProduct,
         UpdateProductBranchSetting $updateSetting,
     ): void {
-        $category = MenuCategory::query()->whereBelongsTo($business)->where('slug', 'coffee')->first();
-        if ($category === null) {
-            $category = $createCategory->execute($business, $actor, 'coffee', 0, [
-                'fa' => ['name' => 'قهوه', 'description' => 'قهوه‌های کلاسیک دناردی', 'translation_state' => 'ready'],
-                'en' => ['name' => 'Coffee', 'description' => 'Denardi classic coffees', 'translation_state' => 'ready'],
-                'ar' => ['name' => 'القهوة', 'description' => 'قهوة ديناردي الكلاسيكية', 'translation_state' => 'ready'],
-            ]);
-            $publishCategory->execute($category, $actor, PublicationState::Published);
+        $categories = [
+            'coffee' => [0, ['قهوه', 'Coffee', 'القهوة'], ['قهوه‌های کلاسیک و تخصصی دناردی', 'Classic and specialty Denardi coffee', 'قهوة ديناردي الكلاسيكية والمختصة']],
+            'cold-drinks' => [1, ['نوشیدنی سرد', 'Cold Drinks', 'المشروبات الباردة'], ['خنک، تازه و مناسب هر ساعت', 'Fresh and chilled for any time', 'منعشة وباردة في كل وقت']],
+            'fresh-juice' => [2, ['آبمیوه طبیعی', 'Fresh Juice', 'العصائر الطازجة'], ['آبمیوه تازه با میوه روز', 'Freshly pressed seasonal fruit', 'عصائر فواكه موسمية طازجة']],
+            'pastry' => [3, ['شیرینی و دسر', 'Pastry & Dessert', 'الحلويات'], ['همراه تازه برای نوشیدنی شما', 'A fresh companion for your drink', 'مرافقة طازجة لمشروبك']],
+        ];
+        $categoryModels = [];
+        foreach ($categories as $slug => [$position, $names, $descriptions]) {
+            $category = MenuCategory::query()->whereBelongsTo($business)->where('slug', $slug)->first();
+            if ($category === null) {
+                $category = $createCategory->execute($business, $actor, $slug, $position, $this->menuTranslations($names, $descriptions), isFeatured: $position < 2);
+                $publishCategory->execute($category, $actor, PublicationState::Published);
+            }
+            $categoryModels[$slug] = $category;
         }
-        $product = Product::query()->whereBelongsTo($business)->where('slug', 'espresso')->first();
-        if ($product === null) {
-            $product = $createProduct->execute($category, $actor, 'espresso', 0, [
-                'fa' => ['name' => 'اسپرسو', 'description' => 'عصاره‌ای متعادل و خوش‌عطر', 'translation_state' => 'ready'],
-                'en' => ['name' => 'Espresso', 'description' => 'A balanced and aromatic shot', 'translation_state' => 'ready'],
-                'ar' => ['name' => 'إسبريسو', 'description' => 'جرعة متوازنة وغنية بالعطر', 'translation_state' => 'ready'],
-            ], ['is_best_seller' => true]);
-            $publishProduct->execute($product, $actor, PublicationState::Published);
-            $updateSetting->execute($product, $branch, $actor, 1_200_000, AvailabilityState::Available, 0);
+
+        $products = [
+            ['coffee', 'espresso', 0, 1_200_000, AvailabilityState::Available, PublicationState::Published, ['اسپرسو', 'Espresso', 'إسبريسو'], ['عصاره‌ای متعادل و خوش‌عطر', 'A balanced and aromatic shot', 'جرعة متوازنة وغنية بالعطر'], ['is_best_seller' => true]],
+            ['coffee', 'cappuccino', 1, 1_850_000, AvailabilityState::Available, PublicationState::Published, ['کاپوچینو', 'Cappuccino', 'كابتشينو'], ['اسپرسو، شیر و فوم لطیف', 'Espresso with milk and silky foam', 'إسبريسو مع الحليب ورغوة ناعمة'], ['is_featured' => true]],
+            ['coffee', 'flat-white', 2, 1_950_000, AvailabilityState::SoldOut, PublicationState::Published, ['فلت وایت', 'Flat White', 'فلات وايت'], ['دبل اسپرسو با شیر میکروفوم', 'Double espresso with microfoam milk', 'إسبريسو مزدوج مع حليب ناعم'], []],
+            ['cold-drinks', 'iced-latte', 0, 2_050_000, AvailabilityState::Available, PublicationState::Published, ['آیس لاته', 'Iced Latte', 'آيس لاتيه'], ['اسپرسو و شیر روی یخ', 'Espresso and milk over ice', 'إسبريسو وحليب مع الثلج'], ['is_new' => true]],
+            ['cold-drinks', 'lemonade', 1, 1_650_000, AvailabilityState::Available, PublicationState::Published, ['لیموناد', 'Lemonade', 'ليمونادة'], ['لیمو تازه و طعمی متعادل', 'Fresh lemon with a balanced finish', 'ليمون طازج بطعم متوازن'], []],
+            ['fresh-juice', 'orange-juice', 0, 2_200_000, AvailabilityState::Available, PublicationState::Published, ['آب پرتقال', 'Orange Juice', 'عصير البرتقال'], ['پرتقال تازه، بدون شکر افزوده', 'Fresh orange with no added sugar', 'برتقال طازج دون سكر مضاف'], ['is_best_seller' => true]],
+            ['fresh-juice', 'seasonal-mix', 1, 2_400_000, AvailabilityState::Available, PublicationState::Draft, ['ترکیب فصل', 'Seasonal Mix', 'مزيج الموسم'], ['ترکیب آزمایشی میوه‌های فصل', 'A draft blend of seasonal fruit', 'مزيج تجريبي من فواكه الموسم'], []],
+            ['pastry', 'croissant', 0, 1_100_000, AvailabilityState::Available, PublicationState::Published, ['کروسان کره‌ای', 'Butter Croissant', 'كرواسون بالزبدة'], ['کروسان تازه پخت روز', 'Freshly baked every day', 'مخبوز طازج يومياً'], ['is_featured' => true]],
+            ['pastry', 'chocolate-cake', 1, 1_750_000, AvailabilityState::SoldOut, PublicationState::Published, ['کیک شکلاتی', 'Chocolate Cake', 'كعكة الشوكولاتة'], ['برش کیک شکلات تلخ', 'A slice of dark chocolate cake', 'شريحة من كعكة الشوكولاتة الداكنة'], []],
+        ];
+
+        foreach ($products as [$categorySlug, $slug, $position, $price, $availability, $publication, $names, $descriptions, $flags]) {
+            if (Product::query()->whereBelongsTo($business)->where('slug', $slug)->exists()) {
+                continue;
+            }
+            $product = $createProduct->execute($categoryModels[$categorySlug], $actor, $slug, $position, $this->menuTranslations($names, $descriptions), $flags);
+            if ($publication !== PublicationState::Draft) {
+                $publishProduct->execute($product, $actor, $publication);
+            }
+            $updateSetting->execute($product, $branch, $actor, $price, $availability, 0);
         }
+    }
+
+    /**
+     * @param  array{string, string, string}  $names
+     * @param  array{string, string, string}  $descriptions
+     * @return array<string, array<string, string>>
+     */
+    private function menuTranslations(array $names, array $descriptions): array
+    {
+        return [
+            'fa' => ['name' => $names[0], 'description' => $descriptions[0], 'translation_state' => 'ready'],
+            'en' => ['name' => $names[1], 'description' => $descriptions[1], 'translation_state' => 'ready'],
+            'ar' => ['name' => $names[2], 'description' => $descriptions[2], 'translation_state' => 'ready'],
+        ];
     }
 }

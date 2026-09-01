@@ -1,7 +1,7 @@
 # FOUNDATION IMPLEMENTATION REPORT
 
 **Date:** 2026-09-01
-**Result:** Foundation implemented and verified by GitHub Actions on MySQL 8.4.11; Denardi feature work intentionally not started at this checkpoint.
+**Result:** Foundation remains intact and the authorized Denardi V1 Admin/CMS/Menu/Media completion slice is implemented locally. GitHub Actions remains the MySQL 8.4 checkpoint gate for the resulting commit.
 
 ## Initial state
 
@@ -24,7 +24,7 @@ The workspace began as a documentation-only directory with no Git repository, La
 - Integer IRR Money value object with exact toman/thousand-toman boundary conversion
 - Liveness endpoint plus authenticated database health and instance metadata endpoints
 
-## Verification evidence
+## Foundation checkpoint verification evidence
 
 - PHPUnit: 23 tests, 85 assertions, all passing
 - Larastan level 6: zero errors
@@ -33,9 +33,9 @@ The workspace began as a documentation-only directory with no Git repository, La
 - Composer validation: passing
 - Composer advisory audit: zero advisories
 - npm audit: zero vulnerabilities
-- Routes: login, logout, me, system health and instance metadata only
+- The original Foundation checkpoint was green in GitHub Actions on MySQL 8.4.11.
 
-Local behavioral tests use SQLite only as an environment fallback because the available MySQL 8.4.11 macOS binary crashes during initialization and Homebrew installation is blocked by a root-owned `/usr/local/share/man/man8`. GitHub Actions run `33485577485` verified application bootstrap, migrations from zero, the complete test suite, static analysis, formatting, build and dependency audits against the official MySQL 8.4.11 service with no SQLite fallback.
+The current local environment now runs the application and behavioral tests against local MySQL. CI continues to migrate a disposable MySQL 8.4 service from zero and does not depend on local Homebrew state or production credentials.
 
 ## Migrations added
 
@@ -66,14 +66,39 @@ Local behavioral tests use SQLite only as an environment fallback because the av
 - Quality/operations: `.github/workflows/ci.yml`, `phpstan.neon`, PHPUnit tests, development guide and changelog
 - Specifications: localization and Godfather amendments synchronized across affected specification files
 
+## Denardi V1 functional slice now implemented
+
+- Structured Admin navigation and functional management flows for categories, products, pages, blocks, Media and General/Table QR
+- Category and Product create/edit/reorder/delete-or-archive flows with audit records and Business isolation
+- Product publication lifecycle kept independent from branch price/availability lifecycle
+- Three-language CMS page/block editing, explicit schema validation, readiness reporting, draft preview, enable/disable, reorder, deletion and publishing
+- Media upload with original preservation, optimized WebP, WebP thumbnail, localized metadata, usage references and protected deletion
+- Product primary-image assignment and CMS block Media selection; published CMS snapshots include the referenced Media paths and localized metadata
+- Realistic, idempotent local demo content across `fa/en/ar`, including draft and sold-out states
+- Mandatory V1 General Menu and Table QR artwork downloads remain supported as SVG/PNG/PDF
+
+## Current completion-pass verification
+
+- PHPUnit on local MySQL: 65 tests, 315 assertions, all passing
+- PHPStan/Larastan: zero errors
+- Pint agent format: passing
+- Frontend unit checks: 6 tests, all passing
+- Vite production Admin/public build: passing
+- Composer validation: passing
+- Composer and npm advisory audits: zero known vulnerabilities
+- Real-browser smoke check: Persian and Arabic public menus render localized categories/products, draft products remain hidden, sold-out state is visible, and the Admin login shell loads without console errors
+- Secret check: ignored `.env` remains untracked; tracked environment examples contain placeholders only
+- GitHub Actions MySQL 8.4 result: pending the completion-pass push
+
 ## Scope intentionally untouched
 
-No CMS, Menu/product feature, public Denardi theme, Admin UI, QR, analytics dashboard, PWA UI, ordering, payment, reservation, CRM, inventory, runtime plugin installer, Control Plane, central license enforcement, OTP/TOTP or future module was implemented.
+No visual redesign, advanced analytics, password-reset flow, staging/production deployment, real Denardi content population, Campaign QR, ordering, payment, reservation, CRM, inventory, runtime plugin installer, Control Plane, central license enforcement, OTP/TOTP or future module was added in this slice.
 
-## Remaining items
+## Remaining delivery items
 
-- After a working local MySQL service is available, run `php artisan migrate --seed` followed by `php artisan lamatech:bootstrap-godfather`; the local ignored `.env` already contains a generated credential and the repository contains only placeholders.
-- Denardi content/brand/menu/UAT and production operations inputs remain feature-phase dependencies, not Foundation blockers.
+- Complete the full repository quality gate and confirm the resulting GitHub Actions run on MySQL 8.4.
+- Perform real-browser acceptance testing with approved Denardi brand assets and final Persian/English/Arabic copy.
+- Prepare the separately requested staging environment before any production launch.
 
 ## Architectural deviations
 
@@ -82,7 +107,7 @@ No CMS, Menu/product feature, public Denardi theme, Admin UI, QR, analytics dash
 
 ## Recommended next implementation stage
 
-After explicit approval and a green MySQL CI run, proceed with the Media/CMS slice: explicit block structure versus per-locale translations, `fa/en/ar` readiness validation and revision/publish contracts. Do not start Menu, QR or public Denardi UI in the same approval unless separately authorized.
+After the repository quality gate and green CI checkpoint, stop this completion slice for review. The next authorized step should be browser/UAT stabilization and final content population; do not add Campaign QR or future modules implicitly.
 
 ## Localization confirmation
 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Admin\V1\Media;
 use App\Core\Audit\AuditRecorder;
 use App\Core\Business\BusinessContextResolver;
 use App\Core\Localization\LocaleRegistry;
+use App\Core\Media\MediaDerivativeGenerator;
 use App\Core\Media\MediaStatus;
 use App\Core\Media\Models\Media;
 use App\Http\Controllers\Controller;
@@ -23,10 +24,20 @@ class MediaController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        return response()->json(['data' => $this->query($request)->with('translations')->latest()->paginate(30)]);
+        $media = $this->query($request)
+            ->with([
+                'translations',
+                'usages:id,media_id,subject_type,subject_id,field',
+                'products:id,public_id,primary_media_id,slug',
+            ])
+            ->withCount(['usages', 'products'])
+            ->latest('id')
+            ->paginate(30);
+
+        return response()->json(['data' => $media]);
     }
 
-    public function store(StoreMediaRequest $request, LocaleRegistry $locales, AuditRecorder $audit, BusinessContextResolver $contexts): JsonResponse
+    public function store(StoreMediaRequest $request, LocaleRegistry $locales, AuditRecorder $audit, BusinessContextResolver $contexts, MediaDerivativeGenerator $derivatives): JsonResponse
     {
         /** @var User $user */
         $user = $request->user();
@@ -37,30 +48,45 @@ class MediaController extends Controller
         $checksum = hash_file('sha256', $file->getRealPath());
         $path = $file->store("businesses/{$business->id}/media", 'public');
         abort_if($path === false, 500, 'Media storage failed.');
+        try {
+            $generated = $derivatives->execute('public', $path);
+        } catch (\Throwable $exception) {
+            Storage::disk('public')->delete($path);
 
-        $media = DB::transaction(function () use ($request, $locales, $audit, $user, $business, $file, $dimensions, $checksum, $path): Media {
-            $media = Media::query()->create([
-                'public_id' => (string) Str::ulid(),
-                'business_id' => $business->id,
-                'disk' => 'public',
-                'path' => $path,
-                'mime' => $file->getMimeType() ?? 'application/octet-stream',
-                'size' => $file->getSize(),
-                'width' => is_array($dimensions) ? $dimensions[0] : null,
-                'height' => is_array($dimensions) ? $dimensions[1] : null,
-                'checksum' => $checksum,
-                'status' => MediaStatus::Ready,
-                'uploaded_by' => $user->id,
-            ]);
+            throw $exception;
+        }
 
-            foreach ($locales->codes() as $locale) {
-                $translation = $request->array("translations.{$locale}");
-                $media->translations()->create(['locale' => $locale, ...$translation]);
-            }
-            $audit->record('media.uploaded', $user, $media, $business->id, after: $media->toArray());
+        try {
+            $media = DB::transaction(function () use ($request, $locales, $audit, $user, $business, $file, $dimensions, $checksum, $path, $generated): Media {
+                $media = Media::query()->create([
+                    'public_id' => (string) Str::ulid(),
+                    'business_id' => $business->id,
+                    'disk' => 'public',
+                    'path' => $path,
+                    'optimized_path' => $generated['optimized_path'],
+                    'thumbnail_path' => $generated['thumbnail_path'],
+                    'mime' => $file->getMimeType() ?? 'application/octet-stream',
+                    'size' => $file->getSize(),
+                    'width' => is_array($dimensions) ? $dimensions[0] : null,
+                    'height' => is_array($dimensions) ? $dimensions[1] : null,
+                    'checksum' => $checksum,
+                    'status' => MediaStatus::Ready,
+                    'uploaded_by' => $user->id,
+                ]);
 
-            return $media->load('translations');
-        });
+                foreach ($locales->codes() as $locale) {
+                    $translation = $request->array("translations.{$locale}");
+                    $media->translations()->create(['locale' => $locale, ...$translation]);
+                }
+                $audit->record('media.uploaded', $user, $media, $business->id, after: $media->toArray());
+
+                return $media->load('translations');
+            });
+        } catch (\Throwable $exception) {
+            Storage::disk('public')->delete([$path, ...array_values($generated)]);
+
+            throw $exception;
+        }
 
         return response()->json(['data' => $media], 201);
     }
@@ -89,13 +115,13 @@ class MediaController extends Controller
     public function destroy(Request $request, string $media, AuditRecorder $audit): JsonResponse
     {
         $model = $this->find($request, $media);
-        if ($model->usages()->exists()) {
+        if ($model->usages()->exists() || $model->products()->exists()) {
             throw new ConflictHttpException('Media with active usages cannot be deleted; archive it instead.');
         }
         /** @var User $user */
         $user = $request->user();
         $audit->record('media.deleted', $user, $model, $model->business_id, before: $model->toArray());
-        Storage::disk($model->disk)->delete($model->path);
+        Storage::disk($model->disk)->delete(array_filter([$model->path, $model->optimized_path, $model->thumbnail_path]));
         $model->delete();
 
         return response()->json(status: 204);

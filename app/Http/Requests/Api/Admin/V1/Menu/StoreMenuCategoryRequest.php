@@ -9,7 +9,9 @@ class StoreMenuCategoryRequest extends LocalizedMenuRequest
     {
         return [
             'slug' => ['required', 'string', 'max:160', 'alpha_dash:ascii'],
+            'parent_id' => ['nullable', 'string'],
             'position' => ['sometimes', 'integer', 'min:0'],
+            'is_featured' => ['sometimes', 'boolean'],
             'translations' => ['required', 'array'],
             'translations.*' => ['array'],
             'translations.*.name' => ['nullable', 'string', 'max:255'],

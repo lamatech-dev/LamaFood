@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#071015">
+    @if($isPreview ?? false)<meta name="robots" content="noindex,nofollow">@endif
     <link rel="manifest" href="/manifest.webmanifest">
     <link rel="icon" href="/denardi-icon.svg" type="image/svg+xml">
     <title>{{ $translation['meta_title'] ?: $translation['title'].' · Denardi' }}</title>
@@ -21,6 +22,7 @@
     @vite('resources/js/app.js')
 </head>
 <body class="public-site">
+@if($isPreview ?? false)<div class="preview-banner">PREVIEW · {{ strtoupper($locale) }} · {{ $translation['title'] }}</div>@endif
 <a class="skip-link" href="#content">{{ __('public.skip', locale: $locale) }}</a>
 <header class="site-header">
     <div class="shell nav-shell">

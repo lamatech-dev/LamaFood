@@ -25,6 +25,12 @@ class MenuCategory extends Model
         return $this->belongsTo(self::class, 'parent_id');
     }
 
+    /** @return HasMany<MenuCategory, $this> */
+    public function children(): HasMany
+    {
+        return $this->hasMany(self::class, 'parent_id');
+    }
+
     /** @return HasMany<MenuCategoryTranslation, $this> */
     public function translations(): HasMany
     {

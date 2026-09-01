@@ -1,6 +1,7 @@
 @php($type = $block['type'])
+@php($heroMedia = data_get($block, 'media.'.data_get($block, 'structure.mediaId')))
 @if($type === 'hero')
-    <section class="hero-block">
+    <section class="hero-block" @if($heroMedia) style="--hero-image: url('{{ asset('storage/'.($heroMedia['optimized_path'] ?: $heroMedia['path'])) }}')" @endif>
         <div class="hero-glow" aria-hidden="true"></div>
         <div class="shell hero-content">
             @if($content['eyebrow'] ?? null)<p class="eyebrow">{{ $content['eyebrow'] }}</p>@endif
@@ -12,7 +13,8 @@
 @elseif($type === 'about')
     <section class="content-section"><div class="shell split"><p class="section-number">01</p><div><h2>{{ $content['heading'] }}</h2><p class="large-copy">{{ $content['body'] }}</p></div></div></section>
 @elseif($type === 'gallery')
-    <section class="content-section gallery-section"><div class="shell"><h2>{{ $content['heading'] ?? '' }}</h2><div class="gallery-grid"><div></div><div></div><div></div></div>@if($content['caption'] ?? null)<p>{{ $content['caption'] }}</p>@endif</div></section>
+    @php($galleryMedia = collect(data_get($block, 'structure.mediaIds', []))->map(fn ($id) => data_get($block, 'media.'.$id))->filter()->values())
+    <section class="content-section gallery-section"><div class="shell"><h2>{{ $content['heading'] ?? '' }}</h2><div class="gallery-grid">@forelse($galleryMedia as $media)<img src="{{ asset('storage/'.($media['optimized_path'] ?: $media['path'])) }}" alt="{{ data_get($media, 'translations.'.$locale.'.alt', '') }}" loading="lazy">@empty<div></div><div></div><div></div>@endforelse</div>@if($content['caption'] ?? null)<p>{{ $content['caption'] }}</p>@endif</div></section>
 @elseif($type === 'menu_preview')
     <section class="content-section menu-preview"><div class="shell split"><div><p class="eyebrow">DENARDI MENU</p><h2>{{ $content['heading'] }}</h2><p>{{ $content['intro'] ?? '' }}</p><a class="button" href="{{ url('/'.app()->getLocale().'/menu') }}">{{ $content['ctaLabel'] }}</a></div><div class="menu-art" aria-hidden="true"><span>COFFEE</span><span>JUICE</span><span>ART</span></div></div></section>
 @elseif(in_array($type, ['location', 'contact'], true))

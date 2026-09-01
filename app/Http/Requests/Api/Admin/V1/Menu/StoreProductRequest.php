@@ -9,6 +9,7 @@ class StoreProductRequest extends LocalizedMenuRequest
     {
         return [
             'category_id' => ['required', 'string'],
+            'primary_media_id' => ['nullable', 'string'],
             'slug' => ['required', 'string', 'max:160', 'alpha_dash:ascii'],
             'position' => ['sometimes', 'integer', 'min:0'],
             'is_featured' => ['sometimes', 'boolean'],

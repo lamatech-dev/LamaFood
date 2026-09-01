@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildReadyBlockTranslations, buildReadyTranslations, nextAvailability, parseSchemaValue, requiresTableKey } from '../../resources/js/admin-data.js';
+import { buildReadyBlockTranslations, buildReadyTranslations, nextAvailability, parseSchemaValue, requiresTableKey, swapOrder } from '../../resources/js/admin-data.js';
 
 test('builds locale-driven independent ready translations', () => {
     const result = buildReadyTranslations(
@@ -38,4 +38,10 @@ test('only table QR requires a table key in V1', () => {
     assert.equal(requiresTableKey('table'), true);
     assert.equal(requiresTableKey('menu'), false);
     assert.equal(requiresTableKey('campaign'), false);
+});
+
+test('reorders management rows within safe boundaries', () => {
+    assert.deepEqual(swapOrder(['a', 'b', 'c'], 1, -1), ['b', 'a', 'c']);
+    assert.deepEqual(swapOrder(['a', 'b', 'c'], 0, -1), ['a', 'b', 'c']);
+    assert.deepEqual(swapOrder(['a', 'b', 'c'], 2, 1), ['a', 'b', 'c']);
 });

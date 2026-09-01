@@ -42,7 +42,7 @@ class PublicMenuController extends Controller
                     ->with([
                         'translations' => fn ($translation) => $translation->where('locale', $locale),
                         'branchSettings' => fn ($setting) => $setting->where('branch_id', $branch->id),
-                        'primaryMedia',
+                        'primaryMedia.translations' => fn ($translation) => $translation->where('locale', $locale),
                     ])->orderBy('position'),
             ])
             ->orderBy('position')

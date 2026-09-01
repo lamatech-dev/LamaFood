@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\Admin\V1\Business\BusinessContextController;
 use App\Http\Controllers\Api\Admin\V1\Cms\BlockSchemaController;
 use App\Http\Controllers\Api\Admin\V1\Cms\PageBlockController;
 use App\Http\Controllers\Api\Admin\V1\Cms\PageController;
+use App\Http\Controllers\Api\Admin\V1\Cms\PagePreviewController;
 use App\Http\Controllers\Api\Admin\V1\Cms\PublishedPageController;
 use App\Http\Controllers\Api\Admin\V1\Media\MediaController;
 use App\Http\Controllers\Api\Admin\V1\Menu\MenuCategoryController;
@@ -43,7 +44,13 @@ Route::prefix('admin/v1')->group(function (): void {
         Route::get('cms/pages', [PageController::class, 'index'])->middleware('permission:cms.view');
         Route::post('cms/pages', [PageController::class, 'store'])->middleware('permission:cms.edit');
         Route::get('cms/pages/{page}', [PageController::class, 'show'])->middleware('permission:cms.view');
+        Route::put('cms/pages/{page}', [PageController::class, 'update'])->middleware('permission:cms.edit');
+        Route::delete('cms/pages/{page}', [PageController::class, 'destroy'])->middleware('permission:cms.edit');
+        Route::get('cms/pages/{page}/preview/{locale}', PagePreviewController::class)->middleware('permission:cms.view');
         Route::post('cms/pages/{page}/blocks', [PageBlockController::class, 'store'])->middleware('permission:cms.edit');
+        Route::put('cms/pages/{page}/blocks/order', [PageBlockController::class, 'reorder'])->middleware('permission:cms.edit');
+        Route::put('cms/pages/{page}/blocks/{block}', [PageBlockController::class, 'update'])->middleware('permission:cms.edit');
+        Route::delete('cms/pages/{page}/blocks/{block}', [PageBlockController::class, 'destroy'])->middleware('permission:cms.edit');
         Route::post('cms/pages/{page}/publish', [PublishedPageController::class, 'store'])->middleware('permission:cms.publish');
 
         Route::get('media', [MediaController::class, 'index'])->middleware('permission:media.view');
@@ -53,10 +60,16 @@ Route::prefix('admin/v1')->group(function (): void {
 
         Route::get('categories', [MenuCategoryController::class, 'index'])->middleware('permission:menu.view');
         Route::post('categories', [MenuCategoryController::class, 'store'])->middleware('permission:menu.edit');
+        Route::put('categories/order', [MenuCategoryController::class, 'reorder'])->middleware('permission:menu.edit');
+        Route::put('categories/{category}', [MenuCategoryController::class, 'update'])->middleware('permission:menu.edit');
+        Route::delete('categories/{category}', [MenuCategoryController::class, 'destroy'])->middleware('permission:menu.edit');
         Route::patch('categories/{category}/publication-state', [MenuCategoryController::class, 'updatePublication'])->middleware('permission:menu.publish');
         Route::get('products', [ProductController::class, 'index'])->middleware('permission:menu.view');
         Route::post('products', [ProductController::class, 'store'])->middleware('permission:menu.edit');
+        Route::put('products/order', [ProductController::class, 'reorder'])->middleware('permission:menu.edit');
         Route::get('products/{product}', [ProductController::class, 'show'])->middleware('permission:menu.view');
+        Route::put('products/{product}', [ProductController::class, 'update'])->middleware('permission:menu.edit');
+        Route::delete('products/{product}', [ProductController::class, 'destroy'])->middleware('permission:menu.edit');
         Route::patch('products/{product}/publication-state', [ProductPublicationController::class, 'update'])->middleware('permission:menu.publish');
         Route::put('products/{product}/branches/{branch}/settings', [ProductBranchSettingController::class, 'update'])->middleware('permission:menu.price,menu.availability');
 
