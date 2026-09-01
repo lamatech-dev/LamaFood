@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\Admin\V1\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Api\Admin\V1\Business\BusinessContextController;
 use App\Http\Controllers\Api\Admin\V1\Cms\PageBlockController;
 use App\Http\Controllers\Api\Admin\V1\Cms\PageController;
 use App\Http\Controllers\Api\Admin\V1\Cms\PublishedPageController;
@@ -23,6 +24,8 @@ Route::prefix('admin/v1')->group(function (): void {
             ->name('api.admin.v1.auth.logout');
         Route::get('me', [AuthenticatedSessionController::class, 'show'])
             ->name('api.admin.v1.auth.me');
+        Route::get('business/context', BusinessContextController::class)
+            ->middleware('permission:settings.view');
 
         Route::get('system/health', HealthController::class)
             ->middleware('permission:system.view')

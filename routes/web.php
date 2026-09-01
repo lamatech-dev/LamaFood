@@ -6,6 +6,9 @@ use App\Http\Controllers\PublicPageController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+Route::view('/admin/login', 'admin.login')->name('admin.login');
+Route::view('/admin', 'admin.dashboard')->name('admin.dashboard');
+
 Route::get('/', function (Request $request, LocaleRegistry $locales) {
     $supported = $locales->codes();
     $preferred = $request->cookie('denardi_locale');
