@@ -18,7 +18,7 @@ class VerifyBackup
             throw new RuntimeException('Only completed backups can be verified.');
         }
         $stream = Storage::disk($record->disk)->readStream((string) $record->path);
-        if ($stream === false) {
+        if ($stream === null) {
             throw new RuntimeException('The backup artifact is unavailable.');
         }
         $context = hash_init('sha256');
