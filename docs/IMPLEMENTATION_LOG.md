@@ -31,12 +31,10 @@ GitHub CI:
 - Run `33553026988`: failed in `Run PHP/Laravel tests`; detailed public log was unavailable through the unauthenticated API.
 - Run `33567196552`: the new annotation exposed a clean-checkout-only `ViteException` while rendering the authenticated CMS preview test before the frontend build step.
 - Root cause: the local ignored Vite manifest masked a missing `withoutVite()` test isolation call; application behavior was not dependent on this local artifact.
-- Fix: the CMS preview feature test now disables Vite integration explicitly, matching the repository's other Blade view tests.
+- Fix commit `047830a`: the CMS preview feature test now disables Vite integration explicitly, matching the repository's other Blade view tests.
+- Run `33567423994`: **passed** on the disposable MySQL 8.4.11 service, including migrations from zero, all PHP tests, PHPStan, Pint, frontend tests/build and dependency audits.
 
-Remaining within this checkpoint:
-
-- Obtain a green MySQL 8.4 GitHub Actions run for the test-isolation fix.
-- Update this log and the implementation report with the final run URL/result.
+Remaining within this checkpoint: none. The Admin/CMS/Menu/Media completion pass is closed and must not expand into the deferred scopes without a new authorization.
 
 ## Earlier checkpoints
 

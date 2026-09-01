@@ -19,7 +19,7 @@
 
 - Local MySQL: 65 PHPUnit tests and 315 assertions pass.
 - PHPStan/Larastan, Pint, frontend tests, Vite production build, Composer validation and dependency audits pass locally.
-- Commit `63cbb4f` was pushed to `develop/denardi-v1`; CI observability run `33567196552` identified a clean-checkout Vite test-isolation issue, now fixed pending the next run.
+- Fix commit `047830a` passed GitHub Actions run `33567423994` on disposable MySQL 8.4.11, including migrations from zero, PHP tests, PHPStan, Pint, frontend build/tests and dependency audits.
 
 ## Foundation checkpoint
 

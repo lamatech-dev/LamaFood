@@ -1,7 +1,7 @@
 # FOUNDATION IMPLEMENTATION REPORT
 
 **Date:** 2026-09-02
-**Result:** Foundation remains intact and the authorized Denardi V1 Admin/CMS/Menu/Media completion slice is implemented locally. GitHub Actions remains the MySQL 8.4 checkpoint gate for the resulting commit.
+**Result:** Foundation remains intact and the authorized Denardi V1 Admin/CMS/Menu/Media completion slice is implemented, locally verified and green in GitHub Actions on MySQL 8.4.11.
 
 ## Initial state
 
@@ -88,7 +88,7 @@ The current local environment now runs the application and behavioral tests agai
 - Composer and npm advisory audits: zero known vulnerabilities
 - Real-browser smoke check: Persian and Arabic public menus render localized categories/products, draft products remain hidden, sold-out state is visible, and the Admin login shell loads without console errors
 - Secret check: ignored `.env` remains untracked; tracked environment examples contain placeholders only
-- GitHub Actions runs `33553026988` and `33567196552`: the added CI annotation identified a clean-checkout-only Vite manifest dependency in the CMS preview test. The test-isolation fix is pending final CI confirmation.
+- GitHub Actions run `33567423994`: passed on disposable MySQL 8.4.11 after the clean-checkout CMS preview test-isolation fix (`047830a`).
 
 ## Scope intentionally untouched
 
@@ -96,7 +96,6 @@ No visual redesign, advanced analytics, password-reset flow, staging/production 
 
 ## Remaining delivery items
 
-- Confirm the CMS preview test-isolation fix in a green GitHub Actions run on MySQL 8.4.
 - Perform real-browser acceptance testing with approved Denardi brand assets and final Persian/English/Arabic copy.
 - Prepare the separately requested staging environment before any production launch.
 
