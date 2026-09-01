@@ -1,7 +1,7 @@
 # FOUNDATION IMPLEMENTATION REPORT
 
 **Date:** 2026-09-01
-**Result:** Foundation implemented; Denardi feature work intentionally not started.
+**Result:** Foundation implemented and verified by GitHub Actions on MySQL 8.4.11; Denardi feature work intentionally not started at this checkpoint.
 
 ## Initial state
 
@@ -35,7 +35,7 @@ The workspace began as a documentation-only directory with no Git repository, La
 - npm audit: zero vulnerabilities
 - Routes: login, logout, me, system health and instance metadata only
 
-The local tests were executed through the same Laravel migrations with SQLite as an environment fallback because the available MySQL 8.4.11 macOS binary crashes during initialization and Homebrew installation is blocked by a root-owned `/usr/local/share/man/man8`. The committed CI workflow is the authoritative MySQL 8.4.11 validation gate and contains no SQLite fallback.
+Local behavioral tests use SQLite only as an environment fallback because the available MySQL 8.4.11 macOS binary crashes during initialization and Homebrew installation is blocked by a root-owned `/usr/local/share/man/man8`. GitHub Actions run `33485577485` verified application bootstrap, migrations from zero, the complete test suite, static analysis, formatting, build and dependency audits against the official MySQL 8.4.11 service with no SQLite fallback.
 
 ## Migrations added
 
@@ -72,14 +72,13 @@ No CMS, Menu/product feature, public Denardi theme, Admin UI, QR, analytics dash
 
 ## Remaining items
 
-- Run the committed CI workflow on a Git remote to obtain the first real MySQL 8.4.11 green run.
 - After a working local MySQL service is available, run `php artisan migrate --seed` followed by `php artisan lamatech:bootstrap-godfather`; the local ignored `.env` already contains a generated credential and the repository contains only placeholders.
 - Denardi content/brand/menu/UAT and production operations inputs remain feature-phase dependencies, not Foundation blockers.
 
 ## Architectural deviations
 
 - No domain deviation was introduced. The two approved amendments—three-language Denardi V1 and Godfather access—were integrated into the existing Locale and RBAC/Gate boundaries.
-- Validation deviation only: local MySQL could not be safely executed on this host. SQLite was used solely for local behavioral feedback; it is not the committed database contract or CI fallback.
+- Validation environment note only: local MySQL could not be safely executed on this host. SQLite is used solely for local behavioral feedback; GitHub CI has verified the committed MySQL 8.4.11 contract.
 
 ## Recommended next implementation stage
 

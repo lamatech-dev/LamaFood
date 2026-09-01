@@ -20,4 +20,4 @@
 - Denardi's required locales are `fa`, `en` and `ar`; direction comes exclusively from locale metadata and public fallback is disabled.
 - Module delivery is bundled/configured only. Runtime package installation and marketplace behavior remain deferred.
 - Instance/license metadata is informational only; no remote enforcement was added.
-- Local MySQL 8.4.11 validation is pending because the available macOS binary crashes and the host has insufficient free disk for a safe isolated install. CI remains pinned to the official MySQL 8.4.11 container and has no SQLite fallback.
+- Local MySQL 8.4.11 is unavailable because the macOS binary crashes and the host has insufficient free disk for a safe isolated install. GitHub Actions run `33485577485` passed against the official MySQL 8.4.11 container with no SQLite fallback.
