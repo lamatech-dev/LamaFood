@@ -16,6 +16,7 @@ class LocalizedPublicPagesTest extends TestCase
 
     public function test_public_page_renders_each_locale_with_metadata_direction_and_no_fallback_mixing(): void
     {
+        $this->withoutVite();
         $this->publishHome();
 
         $this->get('/fa')->assertOk()->assertSee('dir="rtl"', false)->assertSee('دناردی')->assertDontSee('ديناردي');
