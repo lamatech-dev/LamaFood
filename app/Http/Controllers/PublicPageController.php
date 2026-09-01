@@ -24,6 +24,9 @@ class PublicPageController extends Controller
         abort_if(! is_array($snapshot), 404);
         $translation = Arr::get($snapshot, "translations.{$locale}");
         abort_if(! is_array($translation), 404);
+        $snapshotBlocks = $snapshot['blocks'] ?? [];
+        $snapshotBlocks = is_array($snapshotBlocks) ? array_values($snapshotBlocks) : [];
+        /** @var list<mixed> $snapshotBlocks */
 
         return view('public.page', [
             'locale' => $locale,
@@ -31,7 +34,7 @@ class PublicPageController extends Controller
             'locales' => $locales->all(),
             'slug' => $slug,
             'translation' => $translation,
-            'blocks' => collect($snapshot['blocks'] ?? [])->filter(
+            'blocks' => collect($snapshotBlocks)->filter(
                 fn (mixed $block): bool => is_array($block) && is_array(Arr::get($block, "translations.{$locale}.content_json")),
             )->values(),
         ]);
