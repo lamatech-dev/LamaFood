@@ -42,7 +42,7 @@ class ProductBranchSettingsTest extends TestCase
         $this->assertDatabaseCount('products', 1);
         $this->assertDatabaseCount('product_branch_settings', 2);
         $this->assertSame(2_500_000, $product->branchSettings()->whereBelongsTo($main)->value('price_amount'));
-        $this->assertSame('sold_out', $product->branchSettings()->whereBelongsTo($second)->value('availability_state'));
+        $this->assertSame(AvailabilityState::SoldOut, $product->branchSettings()->whereBelongsTo($second)->firstOrFail()->availability_state);
         $this->assertSame(PublicationState::Published, Product::query()->findOrFail($product->id)->publication_state);
     }
 

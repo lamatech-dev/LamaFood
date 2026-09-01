@@ -25,14 +25,14 @@ class PublicMenuController extends Controller
             ->where('publication_state', PublicationState::Published)
             ->whereHas('translations', fn (Builder $query): Builder => $query->where('locale', $locale)->where('translation_state', TranslationState::Ready)->whereNotNull('name'))
             ->with([
-                'translations' => fn (Builder $query): Builder => $query->where('locale', $locale),
-                'products' => fn (Builder $query): Builder => $query
+                'translations' => fn ($query) => $query->where('locale', $locale),
+                'products' => fn ($query) => $query
                     ->where('publication_state', PublicationState::Published)
                     ->whereHas('translations', fn (Builder $translation): Builder => $translation->where('locale', $locale)->where('translation_state', TranslationState::Ready)->whereNotNull('name'))
                     ->whereHas('branchSettings', fn (Builder $setting): Builder => $setting->where('branch_id', $branch->id))
                     ->with([
-                        'translations' => fn (Builder $translation): Builder => $translation->where('locale', $locale),
-                        'branchSettings' => fn (Builder $setting): Builder => $setting->where('branch_id', $branch->id),
+                        'translations' => fn ($translation) => $translation->where('locale', $locale),
+                        'branchSettings' => fn ($setting) => $setting->where('branch_id', $branch->id),
                         'primaryMedia',
                     ])->orderBy('position'),
             ])
