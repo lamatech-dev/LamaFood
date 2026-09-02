@@ -27,6 +27,10 @@ Verification:
 - Browser QA: 320/375/390/430/768/1440 public and Admin views, FA/EN/AR direction/content, single-H1 content pages and menu search/empty states passed without horizontal overflow.
 - Physical iOS/Android devices, automated axe/screen-reader checks and Production-like Lighthouse were not claimed or performed.
 
+GitHub CI:
+
+- Run `33610458788`: **passed** on the disposable MySQL 8.4 service, including clean migrations, PHPUnit, PHPStan, Pint, frontend tests/build and dependency audits.
+
 No content import, Staging, Production, restore drill, UAT or future modules were started.
 
 ## 2026-09-02 — Current Phase readiness gaps closed
