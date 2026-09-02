@@ -6,7 +6,7 @@ The canonical checklist is maintained in `docs/DENARDI_V1_TRACKER.md` and mirror
 
 ## 2026-09-02 — Final responsive UI/UX and release polish
 
-**Commit:** pending checkpoint
+**Commit:** `12659c9` — `feat: polish Denardi V1 responsive UI`
 
 Completed:
 
