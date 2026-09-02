@@ -10,13 +10,14 @@ use App\Core\Localization\LocaleRegistry;
 use App\Core\Localization\TranslationState;
 use App\Core\Menu\Models\MenuCategory;
 use App\Core\Menu\PublicationState;
+use App\Core\Seo\BusinessStructuredData;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 class PublicMenuController extends Controller
 {
-    public function __invoke(Request $request, string $locale, LocaleRegistry $locales, VisitorIdentity $visitors, RecordAnalyticsEvent $record): Response
+    public function __invoke(Request $request, string $locale, LocaleRegistry $locales, VisitorIdentity $visitors, RecordAnalyticsEvent $record, BusinessStructuredData $structuredData): Response
     {
         $metadata = $locales->get($locale);
         $branchQuery = Branch::query()
@@ -50,7 +51,7 @@ class PublicMenuController extends Controller
 
         $identifier = $visitors->identifier($request);
         if (! $visitors->isBot($request)) {
-            $record->execute($branch->business, AnalyticsEventType::MenuView, $visitors->hash($identifier), $visitors->deviceClass($request), $locale, subjectType: 'menu');
+            $record->execute($branch->business, AnalyticsEventType::MenuView, $visitors->hash($identifier), $visitors->deviceClass($request), $locale, subjectType: 'menu', branch: $branch);
         }
 
         return response()->view('public.menu', [
@@ -58,7 +59,9 @@ class PublicMenuController extends Controller
             'localeMetadata' => $metadata,
             'locales' => $locales->all(),
             'categories' => $categories,
+            'branchSlug' => $branch->slug,
             'menuQuery' => array_filter(['branch' => $request->query('branch'), 'table' => $request->query('table')]),
+            'structuredData' => $structuredData->forBusiness($branch->business, $locale),
         ])->withCookie($visitors->cookie($identifier));
     }
 }

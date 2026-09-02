@@ -1,5 +1,5 @@
-const cacheName = 'denardi-shell-v1';
-const shell = ['/offline', '/manifest.webmanifest', '/admin.webmanifest', '/denardi-icon.svg'];
+const cacheName = 'denardi-shell-v2';
+const shell = ['/offline', '/manifest.webmanifest', '/admin.webmanifest', '/denardi-icon.svg', '/icons/icon-192.png', '/icons/icon-512.png', '/icons/maskable-512.png', '/icons/apple-touch-icon.png'];
 
 self.addEventListener('install', (event) => {
     event.waitUntil(caches.open(cacheName).then((cache) => cache.addAll(shell)));
@@ -12,7 +12,8 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-    if (event.request.method !== 'GET' || event.request.mode !== 'navigate') return;
+    const url = new URL(event.request.url);
+    if (event.request.method !== 'GET' || url.origin !== self.location.origin || url.pathname.startsWith('/api/') || event.request.mode !== 'navigate') return;
     event.respondWith(fetch(event.request)
         .then((response) => {
             const copy = response.clone();

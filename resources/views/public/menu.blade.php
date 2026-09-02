@@ -3,9 +3,11 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="theme-color" content="#071015">
     <link rel="manifest" href="/manifest.webmanifest">
     <link rel="icon" href="/denardi-icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
     <title>{{ __('public.menu_title', locale: $locale) }}</title>
     <meta name="description" content="{{ __('public.menu_description', locale: $locale) }}">
     <meta property="og:type" content="website">
@@ -16,6 +18,7 @@
     <link rel="canonical" href="{{ route('public.menu', ['locale' => $locale, ...$menuQuery]) }}">
     @foreach($locales as $code => $metadata)<link rel="alternate" hreflang="{{ $code }}" href="{{ route('public.menu', ['locale' => $code, ...$menuQuery]) }}">@endforeach
     <link rel="alternate" hreflang="x-default" href="{{ url('/fa/menu') }}">
+    <script type="application/ld+json">{!! \Illuminate\Support\Js::encode($structuredData) !!}</script>
     @vite('resources/js/app.js')
 </head>
 <body class="public-site menu-page">
@@ -27,19 +30,19 @@
     <div class="language-switcher">@foreach($locales as $code => $metadata)<a href="{{ route('public.menu', ['locale' => $code, ...$menuQuery]) }}" lang="{{ $code }}" dir="{{ $metadata['direction'] }}" @class(['active' => $code === $locale])>{{ $code === 'fa' ? 'فا' : ($code === 'ar' ? 'عر' : 'EN') }}</a>@endforeach</div>
 </div></header>
 
-<main id="menu-content">
+<main id="menu-content" data-menu-analytics data-analytics-endpoint="{{ route('public.analytics.views') }}" data-analytics-locale="{{ $locale }}" data-analytics-branch="{{ $branchSlug }}">
     <section class="menu-hero shell"><p class="eyebrow">ART · COFFEE · JUICE</p><h1>{{ __('public.menu_heading', locale: $locale) }}</h1><p>{{ __('public.menu_intro', locale: $locale) }}</p></section>
     <div class="category-bar"><div class="shell category-scroll">@foreach($categories as $category)<a href="#category-{{ $category->public_id }}">{{ $category->translations->first()?->name }}</a>@endforeach</div></div>
     <div class="shell menu-layout">
         <label class="menu-search"><span>{{ __('public.search', locale: $locale) }}</span><input type="search" data-menu-search placeholder="{{ __('public.search_placeholder', locale: $locale) }}"></label>
         @forelse($categories as $category)
-            <section id="category-{{ $category->public_id }}" class="menu-category">
+            <section id="category-{{ $category->public_id }}" class="menu-category" data-analytics-type="category_view" data-analytics-subject="{{ $category->public_id }}">
                 <header><p class="eyebrow">{{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</p><h2>{{ $category->translations->first()?->name }}</h2><p>{{ $category->translations->first()?->description }}</p></header>
                 <div class="product-grid">
                     @foreach($category->products as $product)
                         @php($translation = $product->translations->first())
                         @php($setting = $product->branchSettings->first())
-                        <article class="product-card" data-product-name="{{ mb_strtolower($translation?->name ?? '') }}">
+                        <article class="product-card" data-product-name="{{ mb_strtolower($translation?->name ?? '') }}" data-analytics-type="product_view" data-analytics-subject="{{ $product->public_id }}">
                             @if($product->primaryMedia)
                                 <img class="product-image" src="{{ asset('storage/'.($product->primaryMedia->optimized_path ?: $product->primaryMedia->path)) }}" alt="{{ $product->primaryMedia->translations->first()?->alt ?? $translation?->name }}" loading="lazy" width="720" height="480">
                             @endif

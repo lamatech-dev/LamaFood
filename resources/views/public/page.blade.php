@@ -7,6 +7,7 @@
     @if($isPreview ?? false)<meta name="robots" content="noindex,nofollow">@endif
     <link rel="manifest" href="/manifest.webmanifest">
     <link rel="icon" href="/denardi-icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
     <title>{{ $translation['meta_title'] ?: $translation['title'].' · Denardi' }}</title>
     @if($translation['meta_description'])<meta name="description" content="{{ $translation['meta_description'] }}">@endif
     <meta property="og:type" content="website">
@@ -19,6 +20,7 @@
         <link rel="alternate" hreflang="{{ $code }}" href="{{ url('/'.$code.($slug === 'home' ? '' : '/'.$slug)) }}">
     @endforeach
     <link rel="alternate" hreflang="x-default" href="{{ url('/fa'.($slug === 'home' ? '' : '/'.$slug)) }}">
+    @isset($structuredData)<script type="application/ld+json">{!! \Illuminate\Support\Js::encode($structuredData) !!}</script>@endisset
     @vite('resources/js/app.js')
 </head>
 <body class="public-site">

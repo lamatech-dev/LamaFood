@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Core\Analytics\VisitorIdentity;
 use App\Core\Backup\Contracts\DatabaseDumper;
 use App\Core\Backup\MySqlDatabaseDumper;
 use App\Core\Localization\LocaleRegistry;
@@ -35,6 +36,25 @@ class AppServiceProvider extends ServiceProvider
             $identifier = Str::lower($request->string('identifier')->toString());
 
             return Limit::perMinute(5)->by(Str::transliterate($identifier.'|'.$request->ip()));
+        });
+
+        RateLimiter::for('password-reset', static function (Request $request): Limit {
+            $email = Str::lower($request->string('email')->toString());
+
+            return Limit::perMinute(3)->by(Str::transliterate($email.'|'.$request->ip()));
+        });
+
+        RateLimiter::for('password-reset-confirm', static function (Request $request): Limit {
+            $email = Str::lower($request->string('email')->toString());
+
+            return Limit::perMinute(5)->by(Str::transliterate($email.'|'.$request->ip()));
+        });
+
+        RateLimiter::for('public-analytics', static function (Request $request): Limit {
+            $visitor = (string) $request->cookie(VisitorIdentity::CookieName, 'anonymous');
+            $key = hash_hmac('sha256', $visitor.'|'.$request->ip(), (string) config('app.key'));
+
+            return Limit::perMinute(120)->by($key);
         });
 
         Route::pattern('locale', app(LocaleRegistry::class)->routePattern());

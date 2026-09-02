@@ -22,6 +22,17 @@ async function api(path, options = {}) {
     return payload.data;
 }
 
+async function passwordApi(path, body) {
+    const response = await fetch(`/api/admin/v1/${path}`, {
+        method: 'POST',
+        headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+    });
+    const payload = await response.json();
+    if (!response.ok) throw new Error(payload.message || Object.values(payload.errors || {}).flat().join(' ') || 'عملیات انجام نشد.');
+    return payload.data;
+}
+
 async function authenticatedFile(path) {
     const response = await fetch(`/api/admin/v1${path}`, { headers: headers() });
     if (response.status === 401) {
@@ -67,6 +78,49 @@ if (loginForm) {
         }
     });
 }
+
+const forgotPasswordForm = document.querySelector('[data-forgot-password-form]');
+forgotPasswordForm?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const error = forgotPasswordForm.querySelector('[data-form-error]');
+    const success = forgotPasswordForm.querySelector('[data-form-success]');
+    error.hidden = true;
+    success.hidden = true;
+
+    try {
+        await passwordApi('forgot-password', { email: forgotPasswordForm.email.value });
+        success.textContent = 'اگر حساب واجد شرایط باشد، لینک بازیابی ارسال شده است.';
+        success.hidden = false;
+        forgotPasswordForm.querySelector('button').disabled = true;
+    } catch (exception) {
+        error.textContent = exception.message;
+        error.hidden = false;
+    }
+});
+
+const resetPasswordForm = document.querySelector('[data-reset-password-form]');
+resetPasswordForm?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const error = resetPasswordForm.querySelector('[data-form-error]');
+    const success = resetPasswordForm.querySelector('[data-form-success]');
+    error.hidden = true;
+    success.hidden = true;
+
+    try {
+        await passwordApi('reset-password', {
+            token: resetPasswordForm.token.value,
+            email: resetPasswordForm.email.value,
+            password: resetPasswordForm.password.value,
+            password_confirmation: resetPasswordForm.password_confirmation.value,
+        });
+        success.textContent = 'رمز عبور تغییر کرد. اکنون می‌توانید وارد شوید.';
+        success.hidden = false;
+        resetPasswordForm.querySelector('button').disabled = true;
+    } catch (exception) {
+        error.textContent = exception.message;
+        error.hidden = false;
+    }
+});
 
 const dashboard = document.querySelector('[data-dashboard]');
 if (dashboard) {
@@ -294,6 +348,9 @@ if (dashboard) {
         document.querySelector('[data-scans-today]').textContent = state.analytics.today?.scan || 0;
         document.querySelector('[data-scans-week]').textContent = state.analytics['7_days']?.scan || 0;
         document.querySelector('[data-scans-month]').textContent = state.analytics['30_days']?.scan || 0;
+        document.querySelector('[data-menu-views-month]').textContent = state.analytics['30_days']?.menu_view || 0;
+        document.querySelector('[data-category-views-month]').textContent = state.analytics['30_days']?.category_view || 0;
+        document.querySelector('[data-product-views-month]').textContent = state.analytics['30_days']?.product_view || 0;
         document.querySelector('[data-backup-status]').textContent = state.backups[0] ? `${state.backups[0].status} · ${state.backups[0].type}` : 'ثبت نشده';
         document.querySelector('[data-business-name]').textContent = state.context.business.name;
         document.querySelector('[data-user-name]').textContent = state.me.name;

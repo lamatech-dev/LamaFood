@@ -29,3 +29,33 @@ menuSearch?.addEventListener('input', () => {
     const empty = document.querySelector('.search-empty');
     if (empty) empty.hidden = visible > 0;
 });
+
+const analyticsRoot = document.querySelector('[data-menu-analytics]');
+if (analyticsRoot && 'IntersectionObserver' in window) {
+    const recorded = new Set();
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+    const observer = new IntersectionObserver((entries) => {
+        entries.filter((entry) => entry.isIntersecting).forEach((entry) => {
+            const element = entry.target;
+            const key = `${element.dataset.analyticsType}:${element.dataset.analyticsSubject}`;
+            if (recorded.has(key)) return;
+
+            recorded.add(key);
+            observer.unobserve(element);
+            fetch(analyticsRoot.dataset.analyticsEndpoint, {
+                method: 'POST',
+                credentials: 'same-origin',
+                keepalive: true,
+                headers: { Accept: 'application/json', 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                body: JSON.stringify({
+                    type: element.dataset.analyticsType,
+                    subject_public_id: element.dataset.analyticsSubject,
+                    locale: analyticsRoot.dataset.analyticsLocale,
+                    branch: analyticsRoot.dataset.analyticsBranch,
+                }),
+            }).catch(() => recorded.delete(key));
+        });
+    }, { threshold: 0.55 });
+
+    document.querySelectorAll('[data-analytics-type][data-analytics-subject]').forEach((element) => observer.observe(element));
+}

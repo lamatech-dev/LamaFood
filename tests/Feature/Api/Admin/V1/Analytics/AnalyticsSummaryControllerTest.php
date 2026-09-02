@@ -24,6 +24,8 @@ class AnalyticsSummaryControllerTest extends TestCase
         $business = Business::factory()->create();
         AnalyticsEvent::factory()->for($business)->create(['event_type' => AnalyticsEventType::Scan, 'occurred_at' => now()]);
         AnalyticsEvent::factory()->for($business)->create(['event_type' => AnalyticsEventType::MenuView, 'occurred_at' => now()->subDays(3)]);
+        AnalyticsEvent::factory()->for($business)->create(['event_type' => AnalyticsEventType::CategoryView, 'occurred_at' => now()->subDays(3)]);
+        AnalyticsEvent::factory()->for($business)->create(['event_type' => AnalyticsEventType::ProductView, 'occurred_at' => now()->subDays(3)]);
         AnalyticsEvent::factory()->for($business)->create(['event_type' => AnalyticsEventType::PageView, 'occurred_at' => now()->subDays(15)]);
         Sanctum::actingAs(User::factory()->godfather()->create());
 
@@ -32,6 +34,8 @@ class AnalyticsSummaryControllerTest extends TestCase
             ->assertJsonPath('data.today.scan', 1)
             ->assertJsonPath('data.today.menu_view', 0)
             ->assertJsonPath('data.7_days.menu_view', 1)
+            ->assertJsonPath('data.7_days.category_view', 1)
+            ->assertJsonPath('data.7_days.product_view', 1)
             ->assertJsonPath('data.30_days.page_view', 1);
     }
 }

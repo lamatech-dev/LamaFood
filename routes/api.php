@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\Api\Admin\V1\Analytics\AnalyticsSummaryController;
 use App\Http\Controllers\Api\Admin\V1\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Api\Admin\V1\Auth\NewPasswordController;
+use App\Http\Controllers\Api\Admin\V1\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Api\Admin\V1\Backup\BackupController;
 use App\Http\Controllers\Api\Admin\V1\Business\BusinessContextController;
 use App\Http\Controllers\Api\Admin\V1\Cms\BlockSchemaController;
@@ -24,6 +26,12 @@ Route::prefix('admin/v1')->group(function (): void {
     Route::post('login', [AuthenticatedSessionController::class, 'store'])
         ->middleware('throttle:login')
         ->name('api.admin.v1.auth.login');
+    Route::post('forgot-password', PasswordResetLinkController::class)
+        ->middleware('throttle:password-reset')
+        ->name('api.admin.v1.auth.password.email');
+    Route::post('reset-password', NewPasswordController::class)
+        ->middleware('throttle:password-reset-confirm')
+        ->name('api.admin.v1.auth.password.update');
 
     Route::middleware(['auth:sanctum', 'business-permissions'])->group(function (): void {
         Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])

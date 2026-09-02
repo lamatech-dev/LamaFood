@@ -18,6 +18,9 @@ button, input, textarea, select { font: inherit; }
 .admin-button { min-height: 50px; border: 0; border-radius: 14px; background: var(--a-teal); color: #061014; padding: 10px 20px; font-weight: 900; cursor: pointer; }
 .admin-button.small { min-height: 42px; border-radius: 999px; }
 .form-error { color: #ff9e9e; font-size: 13px; }
+.login-card form > a { color: var(--a-teal); text-align: center; }
+.login-card [data-form-success] { color: var(--a-teal); font-size: 13px; }
+.login-card button:disabled { cursor: default; opacity: .6; }
 
 .dashboard-screen { display: grid; grid-template-columns: 250px 1fr; }
 .admin-sidebar { position: sticky; inset-block-start: 0; height: 100vh; display: flex; flex-direction: column; padding: 28px 22px; border-inline-end: 1px solid var(--a-line); background: #09141a; }

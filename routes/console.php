@@ -10,3 +10,4 @@ Artisan::command('inspire', function () {
 
 Schedule::command('backup:create database')->dailyAt('02:15')->withoutOverlapping();
 Schedule::command('backup:create full')->weeklyOn(1, '03:15')->withoutOverlapping();
+Schedule::command('health:scheduler-heartbeat')->everyMinute()->withoutOverlapping();
