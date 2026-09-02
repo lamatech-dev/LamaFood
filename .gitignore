@@ -20,6 +20,7 @@
 /secrets/
 /node_modules
 /public/build
+/output
 /public/fonts-manifest.dev.json
 /public/hot
 /public/storage

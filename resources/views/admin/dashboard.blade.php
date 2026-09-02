@@ -4,7 +4,8 @@
 <body class="admin-app dashboard-screen">
 <aside class="admin-sidebar">
     <a class="admin-brand" href="/admin"><span>D</span><b>DENARDI</b></a>
-    <nav aria-label="بخش‌های مدیریت">
+    <button class="admin-nav-toggle" type="button" aria-expanded="false" aria-controls="admin-navigation">بخش‌ها</button>
+    <nav id="admin-navigation" aria-label="بخش‌های مدیریت">
         <button class="active" data-admin-target="overview">نمای کلی</button>
         <button data-admin-target="products">محصول‌ها <small>قیمت و موجودی</small></button>
         <button data-admin-target="categories">دسته‌ها</button>
@@ -17,7 +18,7 @@
 </aside>
 <main class="admin-main">
     <header class="admin-topbar"><div><p class="admin-kicker">DENARDI · OPERATIONS</p><h1 data-view-title>نمای کلی</h1></div><div class="admin-identity"><span data-business-name>—</span><b data-user-name>—</b></div></header>
-    <div class="admin-loading" data-loading>در حال بارگذاری پنل…</div>
+    <div class="admin-loading" data-loading role="status">در حال بارگذاری پنل… <button class="status" type="button" data-retry hidden>تلاش دوباره</button></div>
     <div data-dashboard hidden>
         <section data-admin-view="overview">
             <div class="metric-grid"><article><span>محصول‌ها</span><strong data-product-count>0</strong></article><article><span>دسته‌ها</span><strong data-category-count>0</strong></article><article><span>ترجمه‌ها</span><strong>FA · EN · AR</strong></article><article><span>شعبه فعال</span><strong data-branch-count>0</strong></article><article><span>QR فعال</span><strong data-qr-count>0</strong></article><article><span>اسکن ۳۰ روز</span><strong data-scan-count>0</strong></article><article><span>آخرین بکاپ</span><strong data-backup-status>—</strong></article></div>
@@ -35,6 +36,6 @@
 <dialog class="admin-dialog" data-page-dialog><form method="dialog" class="dialog-head"><h2 data-page-dialog-title>صفحه جدید</h2><button aria-label="بستن">×</button></form><form data-page-form><input name="public_id" type="hidden"><label>شناسه URL<input name="slug" required placeholder="about"></label><label>قالب<input name="template" value="standard" required></label><div data-page-translations class="translation-fields"></div><p class="form-error" data-page-error hidden></p><button class="admin-button" type="submit">ذخیره صفحه</button></form></dialog>
 <dialog class="admin-dialog" data-block-dialog><form method="dialog" class="dialog-head"><h2 data-block-dialog-title>بلوک محتوای جدید</h2><button aria-label="بستن">×</button></form><form data-block-form><input name="page_id" type="hidden"><input name="block_id" type="hidden"><label>نوع بلوک<select name="type" required></select></label><label data-position-field>جایگاه<input name="position" type="number" min="0" value="0" required></label><label class="checkbox"><input name="is_enabled" type="checkbox" checked> فعال</label><div class="schema-fields"><section><h3>تنظیمات مشترک</h3><div data-block-structure></div></section><section><h3>محتوای مستقل FA/EN/AR</h3><div data-block-translations class="translation-fields"></div></section></div><p class="form-error" data-block-error hidden></p><button class="admin-button" type="submit">ذخیره بلوک</button></form></dialog>
 <dialog class="admin-dialog" data-media-dialog><form method="dialog" class="dialog-head"><h2>اطلاعات رسانه</h2><button aria-label="بستن">×</button></form><form data-media-edit-form><input name="media_id" type="hidden"><div data-media-edit-translations class="translation-fields"></div><p class="form-error" data-media-error hidden></p><button class="admin-button" type="submit">ذخیره اطلاعات</button></form></dialog>
-<div class="toast" data-toast hidden></div>
+<div class="toast" data-toast role="status" aria-live="polite" hidden></div>
 </body>
 </html>

@@ -127,6 +127,13 @@ if (dashboard) {
     if (!token) window.location.assign('/admin/login');
 
     const state = { context: null, categories: [], products: [], pages: [], media: [], qrCodes: [], backups: [], analytics: {}, blockSchemas: {}, me: null };
+    const adminNavigation = document.querySelector('#admin-navigation');
+    const adminNavigationToggle = document.querySelector('.admin-nav-toggle');
+    adminNavigationToggle?.addEventListener('click', () => {
+        const open = adminNavigationToggle.getAttribute('aria-expanded') !== 'true';
+        adminNavigationToggle.setAttribute('aria-expanded', String(open));
+        adminNavigation?.classList.toggle('open', open);
+    });
     const localeValue = (translations, locale, field) => translations?.find((item) => item.locale === locale)?.[field] || '';
     const toast = (message) => {
         const element = document.querySelector('[data-toast]');
@@ -448,10 +455,19 @@ if (dashboard) {
             const qrBranch = document.querySelector('[data-qr-form] select[name="branch_id"]');
             qrBranch.replaceChildren(...state.context.branches.map((branch) => new Option(branch.name, branch.id)));
             render(); document.querySelector('[data-loading]').hidden = true; dashboard.hidden = false;
-        } catch (exception) { document.querySelector('[data-loading]').textContent = exception.message; }
+        } catch (exception) {
+            const loading = document.querySelector('[data-loading]');
+            loading.firstChild.textContent = `${exception.message} `;
+            loading.querySelector('[data-retry]').hidden = false;
+        }
     }
 
-    document.querySelectorAll('[data-admin-target]').forEach((button) => button.addEventListener('click', () => selectView(button.dataset.adminTarget)));
+    document.querySelectorAll('[data-admin-target]').forEach((button) => button.addEventListener('click', () => {
+        selectView(button.dataset.adminTarget);
+        adminNavigation?.classList.remove('open');
+        adminNavigationToggle?.setAttribute('aria-expanded', 'false');
+    }));
+    document.querySelector('[data-retry]')?.addEventListener('click', () => window.location.reload());
     document.querySelector('[data-open-product]').addEventListener('click', () => openProduct());
     document.querySelector('[data-product-form] select[name="branch_id"]').addEventListener('change', (event) => {
         const form = event.currentTarget.form;

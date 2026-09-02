@@ -32,38 +32,46 @@
             <span class="brand-mark" aria-hidden="true">D</span>
             <span>DENARDI<small>ART · COFFEE · JUICE</small></span>
         </a>
-        <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-navigation">{{ __('public.menu_toggle', locale: $locale) }}</button>
+        <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-navigation"><span aria-hidden="true"></span>{{ __('public.menu_toggle', locale: $locale) }}</button>
         <nav id="site-navigation" class="site-nav" aria-label="{{ __('public.navigation', locale: $locale) }}">
-            <a href="{{ url('/'.$locale) }}">{{ __('public.home', locale: $locale) }}</a>
+            <a href="{{ url('/'.$locale) }}" @if($slug === 'home') aria-current="page" @endif>{{ __('public.home', locale: $locale) }}</a>
             <a href="{{ url('/'.$locale.'/menu') }}">{{ __('public.menu', locale: $locale) }}</a>
-            <a href="{{ url('/'.$locale.'/about') }}">{{ __('public.about', locale: $locale) }}</a>
-            <a href="{{ url('/'.$locale.'/contact') }}">{{ __('public.contact', locale: $locale) }}</a>
+            <a href="{{ url('/'.$locale.'/about') }}" @if($slug === 'about') aria-current="page" @endif>{{ __('public.about', locale: $locale) }}</a>
+            <a href="{{ url('/'.$locale.'/contact') }}" @if($slug === 'contact') aria-current="page" @endif>{{ __('public.contact', locale: $locale) }}</a>
         </nav>
-        <div class="language-switcher" aria-label="{{ __('public.languages', locale: $locale) }}">
+        <nav class="language-switcher" aria-label="{{ __('public.languages', locale: $locale) }}">
             @foreach($locales as $code => $metadata)
-                <a href="{{ url('/'.$code.($slug === 'home' ? '' : '/'.$slug)) }}" lang="{{ $code }}" dir="{{ $metadata['direction'] }}" @class(['active' => $code === $locale])>{{ $code === 'fa' ? 'فا' : ($code === 'ar' ? 'عر' : 'EN') }}</a>
+                <a href="{{ url('/'.$code.($slug === 'home' ? '' : '/'.$slug)) }}" lang="{{ $code }}" dir="{{ $metadata['direction'] }}" @class(['active' => $code === $locale]) @if($code === $locale) aria-current="page" @endif>{{ $code === 'fa' ? 'فا' : ($code === 'ar' ? 'عر' : 'EN') }}</a>
             @endforeach
-        </div>
+        </nav>
     </div>
 </header>
 
 <main id="content">
+    @if($slug !== 'home')
+        <header class="page-intro shell">
+            <p class="eyebrow">DENARDI · {{ strtoupper($slug) }}</p>
+            <h1>{{ $translation['title'] }}</h1>
+        </header>
+    @endif
     @forelse($blocks as $block)
         @include('public.partials.block', ['block' => $block, 'content' => data_get($block, "translations.{$locale}.content_json", [])])
     @empty
         <section class="empty-state shell"><h1>{{ $translation['title'] }}</h1></section>
     @endforelse
+    @if($slug === 'home')
+        <section class="home-discovery content-section" aria-labelledby="discover-heading">
+            <div class="shell">
+                <div class="section-heading"><p class="eyebrow">{{ __('public.discover_eyebrow', locale: $locale) }}</p><h2 id="discover-heading">{{ __('public.discover_heading', locale: $locale) }}</h2></div>
+                <nav class="discovery-grid" aria-label="{{ __('public.discover_heading', locale: $locale) }}">
+                    <a href="{{ url('/'.$locale.'/menu') }}"><span>01</span><h3>{{ __('public.menu', locale: $locale) }}</h3><p>{{ __('public.discover_menu', locale: $locale) }}</p></a>
+                    <a href="{{ url('/'.$locale.'/about') }}"><span>02</span><h3>{{ __('public.about', locale: $locale) }}</h3><p>{{ __('public.discover_about', locale: $locale) }}</p></a>
+                    <a href="{{ url('/'.$locale.'/contact') }}"><span>03</span><h3>{{ __('public.contact', locale: $locale) }}</h3><p>{{ __('public.discover_contact', locale: $locale) }}</p></a>
+                </nav>
+            </div>
+        </section>
+    @endif
 </main>
-
-<footer class="site-footer">
-    <div class="shell footer-grid">
-        <div><strong>DENARDI</strong><p>ART · COFFEE · JUICE</p></div>
-        <div class="footer-actions">
-            @if(config('denardi.map_url'))<a href="{{ config('denardi.map_url') }}" rel="noopener">{{ __('public.location', locale: $locale) }}</a>@endif
-            @if(config('denardi.instagram_url'))<a href="{{ config('denardi.instagram_url') }}" rel="noopener">Instagram</a>@endif
-        </div>
-        <small>{{ __('public.built_by', locale: $locale) }} <b>Lamatech</b></small>
-    </div>
-</footer>
+@include('public.partials.footer')
 </body>
 </html>

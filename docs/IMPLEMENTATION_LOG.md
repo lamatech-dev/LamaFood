@@ -4,6 +4,31 @@ This file records implementation checkpoints, verification evidence and remainin
 
 The canonical checklist is maintained in `docs/DENARDI_V1_TRACKER.md` and mirrored by the visual `docs/DENARDI_V1_TRACKER.html` dashboard; every future implementation checkpoint must update both in the same commit.
 
+## 2026-09-02 — Final responsive UI/UX and release polish
+
+**Commit:** pending checkpoint
+
+Completed:
+
+- Refined Home, About, Contact, Privacy and Menu presentation while preserving CMS-driven content and all backend contracts.
+- Shortened the public hero and moved useful discovery/menu content earlier on mobile.
+- Added reusable product cards with real media or the existing Denardi asset fallback, explicit availability and feature states.
+- Added sticky active category navigation, accessible search result/empty states, responsive footer and keyboard-safe mobile navigation.
+- Refined Admin with a collapsible mobile navigation, responsive forms/cards, retryable loading state and accessible live status feedback.
+- Preserved configuration-driven FA/EN/AR direction, routing, CMS content, SEO metadata and public language switching.
+
+Verification:
+
+- Clean explicit `lamafood_test` MySQL migration from zero: passed. The local development database was restored with the existing environment-based Godfather bootstrap and local-only idempotent Denardi provisioner after an environment-selection mistake; no Production data or secrets were involved.
+- PHPUnit: 81 tests, 433 assertions, passed after the clean migration.
+- PHPStan/Larastan: zero errors; Pint passed.
+- Frontend tests: 8 passed, including localized public menu search helpers; Vite production build passed.
+- Composer validation plus Composer/npm audits: passed with zero known vulnerabilities.
+- Browser QA: 320/375/390/430/768/1440 public and Admin views, FA/EN/AR direction/content, single-H1 content pages and menu search/empty states passed without horizontal overflow.
+- Physical iOS/Android devices, automated axe/screen-reader checks and Production-like Lighthouse were not claimed or performed.
+
+No content import, Staging, Production, restore drill, UAT or future modules were started.
+
 ## 2026-09-02 — Current Phase readiness gaps closed
 
 **Commit:** `8519229` — `feat: close Denardi V1 readiness gaps`

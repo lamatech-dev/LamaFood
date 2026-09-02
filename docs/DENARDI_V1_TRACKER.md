@@ -2,9 +2,9 @@
 
 | Project | Branch | V1 Completion | Go-live Readiness | Last updated | Last reviewed commit | CI status | Current blockers |
 |---|---|---:|---:|---|---|---|---:|
-| Denardi V1 | `develop/denardi-v1` | **89%** | **60%** | 2026-09-02 | `8519229` | ✅ [Run 33605426265](https://github.com/lamatech-dev/LamaFood/actions/runs/33605426265) | **3 blocker groups** |
+| Denardi V1 | `develop/denardi-v1` | **92%** | **62%** | 2026-09-02 | UI/UX checkpoint (pending CI) | ⏳ Local gate green; checkpoint CI pending | **3 blocker groups** |
 
-This Markdown file is the canonical project-status document. Percentages are evidence-based planning estimates, not mathematical precision. The tracker contains **159 control items**: 109 Done, 12 Partial, 10 Not Started, 16 Blocked line items and 12 Out of V1. The blocked line items roll up into three actual external blocker groups.
+This Markdown file is the canonical project-status document. Percentages are evidence-based planning estimates, not mathematical precision. The tracker contains **159 control items**: 112 Done, 10 Partial, 9 Not Started, 16 Blocked line items and 12 Out of V1. The blocked line items roll up into three actual external blocker groups.
 
 ## Maintenance rule
 
@@ -20,7 +20,7 @@ After every major implementation phase or release checkpoint, `DENARDI_V1_TRACKE
 
 ## Current State
 
-Foundation, three-language localization, CMS, Media, Product/Category management, branch pricing/availability, General/Table QR, public menu, required analytics emission, secure Password Reset, application-side health checks, structured data, SEO/PWA foundations and secret-safe backup creation are implemented. The full local suite and current GitHub Actions checkpoint pass on MySQL 8.4.11. Remaining engineering is release QA/polish and safe restore implementation; Go-live additionally depends on real Denardi content, Staging, external encrypted backups, restore drill, external monitoring, UAT and Production access.
+Foundation, three-language localization, CMS, Media, Product/Category management, branch pricing/availability, General/Table QR, public menu, required analytics emission, secure Password Reset, health checks, structured data, SEO/PWA foundations, secret-safe backup creation and the final responsive UI/UX pass are implemented. The local quality gate passes. Remaining engineering is safe restore implementation and Production-like validation; Go-live additionally depends on real Denardi content, Staging, external encrypted backups, restore drill, external monitoring, UAT and Production access.
 
 ## Completed
 
@@ -41,8 +41,7 @@ Foundation, three-language localization, CMS, Media, Product/Category management
 
 ## Remaining for V1
 
-- Final mobile Admin usability/error-state refinement
-- Release-grade responsive, accessibility, Lighthouse, iOS Safari and Android QA
+- Production-like Lighthouse, automated accessibility, iOS Safari and Android device QA
 - Safe restore command/runbook implementation and Staging restore drill
 - PWA installation/device validation in a Production-like environment
 - Final real Denardi copy/assets/menu data followed by three-language content approval
@@ -82,11 +81,11 @@ These block complete delivery/go-live, not continued local release-readiness eng
 |---|---:|---|
 | Foundation | 100% | Core, migrations, RBAC, metadata, module/event contracts and CI are green |
 | Functional V1 | 96% | Required local application flows and current engineering gap list are implemented |
-| UI/UX readiness | 75% | Functional responsive shell exists; final visual/content/device UAT remains |
-| QA readiness | 72% | Expanded automated gates and FA/EN/AR browser smoke pass; full device/accessibility/performance/security matrix remains |
+| UI/UX readiness | 90% | Public/Menu/Admin responsive refinement and six-width browser QA pass; final brand/content/device UAT remains |
+| QA readiness | 82% | Automated gates plus 320/375/390/430/768/1440 FA/EN/AR browser checks pass; device/axe/Lighthouse/security matrix remains |
 | Production readiness | 30% | Runbooks and backup contracts exist; Staging/offsite/monitoring/Production are not configured |
-| Overall V1 completion | **89%** | Weighted delivery estimate after closing all items in the authorized Current Phase |
-| Go-live readiness | **60%** | Core implementation is ready for release QA; content, operations and approval remain |
+| Overall V1 completion | **92%** | Weighted estimate after the authorized final responsive UI/UX pass |
+| Go-live readiness | **62%** | Local application and browser quality gates pass; content, operations, device QA and approval remain |
 
 ## Feature Tracker
 
@@ -127,7 +126,7 @@ Columns: **V1** means required for Denardi V1. Priority uses P0 (release-blockin
 | Public | About | 🟡 PARTIAL | Yes | Localized route/page | Final approved copy/images | Denardi content | P1 | Content/UAT | LocalizedPublicPagesTest | `7d73f70` |
 | Public | Contact | 🟡 PARTIAL | Yes | Localized route/page | Final address/phone/map/social/hours | Denardi content | P0 | Content/UAT | LocalizedPublicPagesTest | `7d73f70` |
 | Public | Privacy | 🟡 PARTIAL | Yes | Published localized page shell | Legal/final privacy copy approval | Denardi approval | P1 | Content/UAT | provisioning test | `7d73f70` |
-| Public | Responsive layout | 🟡 PARTIAL | Yes | Responsive CSS and mobile navigation | Required visual/device matrix | — | P0 | Release QA | Browser smoke only | `2a13cbc` |
+| Public | Responsive layout | ✅ DONE | Yes | Responsive public shell/menu/navigation verified at 320/375/390/430/768/1440 without horizontal overflow | Physical-device UAT | Device access | P0 | UAT | Browser viewport matrix | UI/UX checkpoint |
 | Public | Denardi theme | 🟡 PARTIAL | Yes | Charcoal/Teal/Blue visual direction | Final brand assets and approved refinement | Brand assets | P1 | Content/UAT | visual smoke only | `2a13cbc` |
 | Public | Footer / contact info | 🔴 BLOCKED | Yes | Footer contract/components exist | Populate real contact/map/social/hours | Denardi data | P0 | Content/UAT | — | `2a13cbc` |
 
@@ -213,7 +212,7 @@ Columns: **V1** means required for Denardi V1. Priority uses P0 (release-blockin
 | Admin | QR | ✅ DONE | Yes | General/Table creation and artwork | Final tables/print QA | — | P1 | UAT | QR tests | `2b603e8` |
 | Admin | Analytics | ✅ DONE | Yes | Basic totals view | Add required breakdown polish | — | P2 | Release readiness | AnalyticsSummaryTest | `bc8c23a` |
 | Admin | Localization | ✅ DONE | Yes | Metadata/readiness and independent editors | Final content UAT | — | P0 | UAT | AdminShellTest | `63cbb4f` |
-| Admin | Mobile usability | 🟡 PARTIAL | Yes | Responsive navigation/forms | iOS/Android flow matrix and error polish | — | P0 | Release QA | smoke only | `63cbb4f` |
+| Admin | Mobile usability | ✅ DONE | Yes | Collapsible mobile navigation, responsive forms/cards, loading/retry and accessible status feedback | Physical-device UAT | Device access | P0 | UAT | Browser viewport matrix | UI/UX checkpoint |
 
 ### SEO
 
@@ -287,12 +286,12 @@ Columns: **V1** means required for Denardi V1. Priority uses P0 (release-blockin
 | QA | PHPUnit | ✅ DONE | Yes | 81 tests / 433 assertions pass | Grow with features | — | P0 | Continuous | Full suite | `8519229` |
 | QA | PHPStan / Larastan | ✅ DONE | Yes | Zero errors | Maintain | — | P0 | Continuous | CI | `f493edf` |
 | QA | Pint | ✅ DONE | Yes | Formatting gate passes | Maintain | — | P0 | Continuous | CI | `f493edf` |
-| QA | Frontend tests | ✅ DONE | Yes | 6 Node tests pass | Add for new UI logic | — | P1 | Continuous | admin-data tests | `63cbb4f` |
+| QA | Frontend tests | ✅ DONE | Yes | 8 Node tests cover Admin data helpers and public localized search | Grow with features | — | P1 | Continuous | frontend helper tests | UI/UX checkpoint |
 | QA | Production build | ✅ DONE | Yes | Vite build passes | Staging artifact check | — | P0 | Continuous | CI | `f493edf` |
 | QA | Browser smoke tests | ✅ DONE | Yes | FA/EN/AR Home, Menu, Admin login and Password Reset smoke-tested without application console errors | Full P0 automation | — | P1 | Release QA | Playwright smoke | `8519229` |
 | QA | FA/EN/AR tests | ✅ DONE | Yes | Routing/content/direction/readiness tested | Final copy/UAT | — | P0 | Content/UAT | Locale/Public/CMS tests | `63cbb4f` |
-| QA | Responsive tests | 🟡 PARTIAL | Yes | Responsive CSS and basic smoke exist | 320/375/768/1024/1440 matrix | Devices/Staging | P0 | Release QA | None automated | — |
-| QA | Accessibility | ⏳ NOT STARTED | Yes | Basic semantic/focus styles | axe, keyboard and screen-reader checks | — | P0 | Release QA | None | — |
+| QA | Responsive tests | ✅ DONE | Yes | Public FA/EN/AR and authenticated Admin verified at 320/375/390/430/768/1440 with no horizontal overflow | Physical devices | Device access | P0 | UAT | In-app browser matrix | UI/UX checkpoint |
+| QA | Accessibility | 🟡 PARTIAL | Yes | Single H1 hierarchy, semantic navigation/search/status, skip links, visible focus, 44px targets, reduced motion and keyboard-close behavior | axe and screen-reader verification | Staging/device | P0 | Staging/UAT | Semantic browser inspection | UI/UX checkpoint |
 | QA | Lighthouse | ⏳ NOT STARTED | Yes | Targets documented | Run/fix Production-like audit | Staging | P0 | Staging/UAT | None | — |
 | QA | iOS Safari | ⏳ NOT STARTED | Yes | — | Last two major versions P0 flows | Device access | P0 | Staging/UAT | None | — |
 | QA | Android Chrome | ⏳ NOT STARTED | Yes | — | Last two major versions P0 flows | Device access | P0 | Staging/UAT | None | — |
@@ -344,8 +343,8 @@ Columns: **V1** means required for Denardi V1. Priority uses P0 (release-blockin
 ## Git / CI Evidence
 
 - Branch: `develop/denardi-v1`
-- Feature checkpoint commit: `8519229`
-- Green CI for reviewed state: [33605426265](https://github.com/lamatech-dev/LamaFood/actions/runs/33605426265) on disposable MySQL 8.4.11
-- Key commits: `8519229` Current Phase completion; `63cbb4f` management completion; `047830a` clean-CI preview isolation; `259a348` persistent tracker/dashboard
-- Test summary: 81 PHPUnit tests / 433 assertions; 6 frontend tests; PHPStan zero errors; Pint/build/audits pass
+- Feature checkpoint commit: UI/UX checkpoint pending commit
+- Green CI for reviewed state: local gate green; GitHub run pending push
+- Key commits: UI/UX checkpoint pending; `8519229` Current Phase completion; `63cbb4f` management completion; `047830a` clean-CI preview isolation; `259a348` persistent tracker/dashboard
+- Test summary: 81 PHPUnit tests / 433 assertions; 8 frontend tests; PHPStan zero errors; Pint/build/audits pass
 - Secrets: ignored `.env` remains untracked; tracked examples contain placeholders only

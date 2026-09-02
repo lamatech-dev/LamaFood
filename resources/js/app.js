@@ -1,4 +1,5 @@
 import '../css/app.css';
+import { normalizeSearchText, productMatchesSearch } from './public-ui.js';
 
 if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js'));
 
@@ -11,6 +12,19 @@ toggle?.addEventListener('click', () => {
     navigation?.classList.toggle('open', open);
 });
 
+navigation?.querySelectorAll('a').forEach((link) => link.addEventListener('click', () => {
+    toggle?.setAttribute('aria-expanded', 'false');
+    navigation.classList.remove('open');
+}));
+
+document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && navigation?.classList.contains('open')) {
+        navigation.classList.remove('open');
+        toggle?.setAttribute('aria-expanded', 'false');
+        toggle?.focus();
+    }
+});
+
 document.querySelectorAll('.language-switcher a').forEach((link) => {
     link.addEventListener('click', () => {
         document.cookie = `denardi_locale=${link.getAttribute('lang')}; path=/; max-age=31536000; samesite=lax`;
@@ -19,16 +33,44 @@ document.querySelectorAll('.language-switcher a').forEach((link) => {
 
 const menuSearch = document.querySelector('[data-menu-search]');
 menuSearch?.addEventListener('input', () => {
-    const query = menuSearch.value.trim().toLocaleLowerCase(document.documentElement.lang);
+    const query = normalizeSearchText(menuSearch.value, document.documentElement.lang);
     let visible = 0;
     document.querySelectorAll('[data-product-name]').forEach((card) => {
-        const matches = card.dataset.productName.includes(query);
+        const matches = productMatchesSearch(card.dataset.productName, query, document.documentElement.lang);
         card.hidden = !matches;
         visible += matches ? 1 : 0;
     });
     const empty = document.querySelector('.search-empty');
     if (empty) empty.hidden = visible > 0;
+    document.querySelectorAll('[data-menu-category]').forEach((category) => {
+        category.hidden = !category.querySelector('[data-product-name]:not([hidden])');
+    });
+    const status = document.querySelector('[data-search-status]');
+    if (status) status.textContent = `${visible} ${status.dataset.resultLabel}`;
 });
+
+document.querySelectorAll('img[data-image-fallback]').forEach((image) => {
+    image.addEventListener('error', () => {
+        if (image.src.endsWith(image.dataset.imageFallback)) return;
+        image.src = image.dataset.imageFallback;
+        image.classList.add('is-fallback');
+    });
+});
+
+const categoryLinks = [...document.querySelectorAll('.category-scroll a')];
+if (categoryLinks.length && 'IntersectionObserver' in window) {
+    const categoryObserver = new IntersectionObserver((entries) => {
+        const current = entries.filter((entry) => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if (!current) return;
+        categoryLinks.forEach((link) => {
+            const active = link.hash === `#${current.target.id}`;
+            link.classList.toggle('active', active);
+            if (active) link.setAttribute('aria-current', 'true');
+            else link.removeAttribute('aria-current');
+        });
+    }, { rootMargin: '-25% 0px -55%', threshold: [0, .2, .6] });
+    document.querySelectorAll('[data-menu-category]').forEach((category) => categoryObserver.observe(category));
+}
 
 const analyticsRoot = document.querySelector('[data-menu-analytics]');
 if (analyticsRoot && 'IntersectionObserver' in window) {
