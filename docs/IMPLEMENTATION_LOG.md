@@ -4,6 +4,35 @@ This file records implementation checkpoints, verification evidence and remainin
 
 The canonical checklist is maintained in `docs/DENARDI_V1_TRACKER.md` and mirrored by the visual `docs/DENARDI_V1_TRACKER.html` dashboard; every future implementation checkpoint must update both in the same commit.
 
+## 2026-09-02 — Current Phase readiness gaps closed
+
+**Commit:** `8519229` — `feat: close Denardi V1 readiness gaps`
+
+Completed:
+
+- Secure Password Reset for normal Business/Admin users with generic account-discovery-safe responses, 30-minute expiry, rate limiting, strong password validation, token/session revocation and audit; Godfather remains excluded and protected.
+- Privacy-preserving Category View and Product View emission with published-subject validation, active Branch context, bot exclusion and 30-minute visitor deduplication; Menu View and QR Scan regressions remain covered.
+- Application-side health visibility for application, database, storage read/write/delete, queue connectivity/backlog, persistent scheduler heartbeat and backup freshness.
+- Locale-aware `CafeOrCoffeeShop`/`LocalBusiness` JSON-LD using published Contact/Location CMS data with optional verified configuration fallback; no fake Production business details are embedded.
+- PWA production asset structure with 192/512 icons, a dedicated maskable icon, Apple touch icon, manifest validation and explicit API cache bypass; Admin data editing remains online-only with no offline mutation/synchronization.
+
+Verification:
+
+- Clean `lamafood_test` migration from zero: passed.
+- PHPUnit: 81 tests, 433 assertions, passed.
+- PHPStan/Larastan: passed with zero errors.
+- Pint: passed.
+- Frontend tests: 6 passed; Vite production build passed.
+- Composer validation and Composer/npm security audits: passed with zero known vulnerabilities.
+- Browser smoke: FA/EN/AR Home, Persian Menu, Admin login and Password Reset rendered with expected localized titles and no application console errors.
+- Secret check: `.env` remains ignored/untracked; tracked examples contain placeholders or empty verified-data fields only.
+
+GitHub CI:
+
+- Run `33605426265`: **passed** for `8519229` on disposable MySQL 8.4.11, including dependency installs, application bootstrap, migrations from zero, all PHP/frontend tests, PHPStan, Pint, production build and dependency audits.
+
+Remaining within this authorized Current Phase: none. The next recommended phase is targeted Release QA and mobile/Admin error-state polish plus the safe restore workflow. No Staging, Production, content import, UI redesign or future module work was started.
+
 ## 2026-09-02 — Admin/CMS/Menu/Media completion
 
 **Commit:** `63cbb4f` — `feat: complete Denardi admin CMS menu and media`
