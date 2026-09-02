@@ -9,11 +9,13 @@
 ## Production Reference Profile
 
 - Linux VPS پشتیبانی‌شده
-- Nginx/Apache + PHP-FPM 8.3+
+- Nginx/Apache + PHP-FPM 8.4
 - MySQL 8/MariaDB معادل
 - cron هر دقیقه برای Laravel scheduler
 - database queue worker با process supervisor
 - TLS خودکار، outbound HTTPS و external backup storage
+
+در Staging/Production، `SESSION_SECURE_COOKIE=true`، `SESSION_HTTP_ONLY=true` و `SESSION_SAME_SITE=lax` الزامی‌اند. مقدار `false` در `.env.example` فقط برای Local HTTP است و جایگزین بررسی TLS/Cookie در Staging نیست.
 
 Shared Hosting فقط اگر scheduler، queue fallback، storage permission، outbound HTTPS و restore workflow تست شوند مجاز است.
 

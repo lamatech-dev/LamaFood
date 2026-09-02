@@ -2,9 +2,9 @@
 
 | Project | Branch | V1 Completion | Go-live Readiness | Last updated | Last reviewed commit | CI status | Current blockers |
 |---|---|---:|---:|---|---|---|---:|
-| Denardi V1 | `develop/denardi-v1` | **93%** | **63%** | 2026-09-02 | `22ab386` | ✅ [Run 33633503081](https://github.com/lamatech-dev/LamaFood/actions/runs/33633503081) | **3 blocker groups** |
+| Denardi V1 | `develop/denardi-v1` | **94%** | **65%** | 2026-09-02 | `b8ecab5` | ✅ [Run 33661676730](https://github.com/lamatech-dev/LamaFood/actions/runs/33661676730) | **3 blocker groups** |
 
-This Markdown file is the canonical project-status document. Percentages are evidence-based planning estimates, not mathematical precision. The tracker contains **159 control items**: 113 Done, 10 Partial, 8 Not Started, 16 Blocked line items and 12 Out of V1. The blocked line items roll up into three actual external blocker groups.
+This Markdown file is the canonical project-status document. Percentages are evidence-based planning estimates, not mathematical precision. The tracker contains **159 control items**: 115 Done, 10 Partial, 6 Not Started, 16 Blocked line items and 12 Out of V1. The blocked line items roll up into three actual external blocker groups.
 
 ## Maintenance rule
 
@@ -38,11 +38,13 @@ Foundation, three-language localization, CMS, Media, Product/Category management
 - Privacy-preserving Menu/Category/Product/QR analytics with branch attribution and deduplication
 - Application/database/storage/queue/scheduler/backup-freshness health visibility
 - CMS/config-driven LocalBusiness JSON-LD plus production-size PWA icons and installability prerequisites
-- 87 PHPUnit tests / 464 assertions, PHPStan, Pint, frontend tests/build and npm dependency audit; Composer audit is gated in CI
+- Stateful Sanctum/CSRF Admin authentication, baseline security headers, server-protected Admin shell and completed local XSS/IDOR/permission/session/upload/secret matrix
+- Analytics device/table breakdown in the Admin summary
+- 97 PHPUnit tests / 625 assertions, PHPStan, Pint, frontend tests/build and Composer/npm dependency audits
 
 ## Remaining for V1
 
-- Production-like Lighthouse, automated accessibility, iOS Safari and Android device QA
+- Production-like Lighthouse, axe/screen-reader, iOS Safari and Android device QA; local Lighthouse baseline is recorded separately
 - Successful full Restore Drill on isolated Staging with recorded recovery evidence
 - PWA installation/device validation in a Production-like environment
 - Final real Denardi copy/assets/menu data followed by three-language content approval
@@ -67,11 +69,11 @@ These block complete delivery/go-live, not continued local release-readiness eng
 
 ## Recommended Execution Order
 
-1. Run the release security/accessibility/responsive QA matrix and Production-like Lighthouse checks.
+1. Audit and close any approved local Denardi V1 Admin workflow gaps, beginning with User Management.
 2. Receive and import final `fa/en/ar` Denardi content, menu, images and table list.
 3. Provision Staging only after explicit environment/credential authorization.
 4. Configure offsite encrypted backup/monitoring and complete restore/rollback drills.
-5. Validate PWA installation, Lighthouse, iOS Safari and Android Chrome in Staging.
+5. Validate Production-like Lighthouse, axe/screen-reader, PWA installation, iOS Safari and Android Chrome in Staging.
 6. Run Denardi UAT, physical QR proof, training and written sign-off.
 7. Perform Production deploy, DNS/SSL switch, smoke checks and observation window.
 
@@ -82,10 +84,10 @@ These block complete delivery/go-live, not continued local release-readiness eng
 | Foundation | 100% | Core, migrations, RBAC, metadata, module/event contracts and CI are green |
 | Functional V1 | 97% | Required local application flows, including guarded Restore, are implemented |
 | UI/UX readiness | 90% | Public/Menu/Admin responsive refinement and six-width browser QA pass; final brand/content/device UAT remains |
-| QA readiness | 82% | Automated gates plus 320/375/390/430/768/1440 FA/EN/AR browser checks pass; device/axe/Lighthouse/security matrix remains |
+| QA readiness | 89% | Release security matrix, automated gates, local Lighthouse and 320/375/390/430/768/1440 FA/EN/AR browser checks pass; Production-like/device/axe/screen-reader validation remains |
 | Production readiness | 35% | Backup/Restore implementation and runbooks exist; Staging/offsite/monitoring/Production are not configured |
-| Overall V1 completion | **93%** | Weighted estimate after closing the guarded Safe Restore implementation gap |
-| Go-live readiness | **63%** | Local application/Restore foundations pass; content, operational drills, device QA and approval remain |
+| Overall V1 completion | **94%** | Weighted estimate after closing locally verifiable Release QA and Analytics gaps |
+| Go-live readiness | **65%** | Local Release QA and application/Restore foundations pass; content, operational drills, device QA and approval remain |
 
 ## Feature Tracker
 
@@ -99,8 +101,8 @@ Columns: **V1** means required for Denardi V1. Priority uses P0 (release-blockin
 | Core | MySQL / migrations | ✅ DONE | Yes | MySQL 8.4 contract; from-zero CI migrations | Maintain migration safety | — | P0 | Complete | Full CI | `foundation-v1-checkpoint` |
 | Core | Business context | ✅ DONE | Yes | Single-instance Business scope and resolver | — | — | P0 | Complete | CreateBusiness, context tests | `foundation-v1-checkpoint` |
 | Core | Branch foundation | ✅ DONE | Yes | Branch model/default branch and scoping | — | — | P0 | Complete | ProductBranchSettingsTest | `foundation-v1-checkpoint` |
-| Core | Auth foundation | ✅ DONE | Yes | Sanctum login/logout/me | Password Reset tracked under Security | — | P0 | Complete | AuthenticatedSessionTest | `foundation-v1-checkpoint` |
-| Core | RBAC | ✅ DONE | Yes | Business roles/permissions and middleware | Final security matrix | — | P0 | Complete | ProvisionFoundationRbacTest | `foundation-v1-checkpoint` |
+| Core | Auth foundation | ✅ DONE | Yes | Stateful Sanctum session login/logout/me with CSRF and rotation; no browser bearer token | Password Reset tracked under Security | — | P0 | Complete | AuthenticatedSessionTest | `b8ecab5` |
+| Core | RBAC | ✅ DONE | Yes | Business roles/permissions and middleware | Extend only with approved workflows | — | P0 | Complete | ProvisionFoundationRbacTest, route permission matrix | `b8ecab5` |
 | Core | Godfather | ✅ DONE | Yes | Env bootstrap, Gate bypass, Business invisibility, rotation | Operational credential custody | Production owner | P0 | Complete | GodfatherAccessTest | `foundation-v1-checkpoint` |
 | Core | Audit | ✅ DONE | Yes | Append-only audit with recursive secret redaction | Retention policy before Production | Commercial TBD | P1 | Pre-Staging | AuditRecorderTest | `foundation-v1-checkpoint` |
 | Core | Instance/version metadata | ✅ DONE | Yes | Local informational metadata, no enforcement | Surface version in final operations view if needed | — | P2 | Complete | InstanceMetadataTest | `foundation-v1-checkpoint` |
@@ -150,7 +152,7 @@ Columns: **V1** means required for Denardi V1. Priority uses P0 (release-blockin
 
 | Area | Feature / Requirement | Status | V1 | What is completed | What remains | Blocker | Priority | Target phase | Related tests | Last relevant commit |
 |---|---|---|---|---|---|---|---|---|---|---|
-| Media | Secure upload | ✅ DONE | Yes | MIME/image validation and Business storage | Security release fuzzing | — | P0 | Release QA | MediaManagementTest | `63cbb4f` |
+| Media | Secure upload | ✅ DONE | Yes | MIME/image/decode validation, disguised-payload rejection and Business storage | Production upload-volume tuning only | — | P0 | Complete | MediaManagementTest | `b8ecab5` |
 | Media | Thumbnails | ✅ DONE | Yes | 480px WebP thumbnail | Final crop visual QA | — | P1 | Content/UAT | MediaManagementTest | `63cbb4f` |
 | Media | WebP optimization | ✅ DONE | Yes | Optimized WebP up to 1600px | Tune only if real assets require | — | P1 | Complete | MediaManagementTest | `63cbb4f` |
 | Media | Preview/listing | ✅ DONE | Yes | Practical thumbnail grid and metadata edit | — | — | P1 | Complete | AdminShellTest | `63cbb4f` |
@@ -197,7 +199,7 @@ Columns: **V1** means required for Denardi V1. Priority uses P0 (release-blockin
 | Analytics | Category View | ✅ DONE | Yes | Intersection-based public event, validation, branch context and 30-minute deduplication | Real traffic QA | — | P1 | Staging/UAT | PublicMenuAnalyticsTest | `8519229` |
 | Analytics | Product View | ✅ DONE | Yes | Intersection-based public event, validation, branch context and 30-minute deduplication | Real traffic QA | — | P1 | Staging/UAT | PublicMenuAnalyticsTest | `8519229` |
 | Analytics | Bot filtering | ✅ DONE | Yes | Known-bot exclusion | Staging verification | — | P1 | Staging/UAT | QR analytics tests | `bc8c23a` |
-| Analytics | Device/table breakdown | 🟡 PARTIAL | Yes | Data is captured in event records | Admin breakdown UI/query | — | P2 | Release readiness | event tests | `bc8c23a` |
+| Analytics | Device/table breakdown | ✅ DONE | Yes | Business-scoped 30-day device and Table QR query/UI | Real-traffic QA | — | P2 | Complete | AnalyticsSummaryTest | `b8ecab5` |
 | Analytics | Dashboard visibility | ✅ DONE | Yes | Today/7/30-day event totals | UAT | — | P1 | Content/UAT | AnalyticsSummaryTest | `bc8c23a` |
 
 ### Admin
@@ -210,7 +212,7 @@ Columns: **V1** means required for Denardi V1. Priority uses P0 (release-blockin
 | Admin | CMS | ✅ DONE | Yes | Page/Block workflow | Editor UAT | — | P0 | UAT | CMS tests | `63cbb4f` |
 | Admin | Media | ✅ DONE | Yes | Upload/list/edit/reference/delete UI | Editor UAT | — | P1 | UAT | Media tests | `63cbb4f` |
 | Admin | QR | ✅ DONE | Yes | General/Table creation and artwork | Final tables/print QA | — | P1 | UAT | QR tests | `2b603e8` |
-| Admin | Analytics | ✅ DONE | Yes | Basic totals view | Add required breakdown polish | — | P2 | Release readiness | AnalyticsSummaryTest | `bc8c23a` |
+| Admin | Analytics | ✅ DONE | Yes | Today/7/30 totals plus 30-day device/Table QR breakdown | Real-data UAT | — | P2 | Content/UAT | AnalyticsSummaryTest | `b8ecab5` |
 | Admin | Localization | ✅ DONE | Yes | Metadata/readiness and independent editors | Final content UAT | — | P0 | UAT | AdminShellTest | `63cbb4f` |
 | Admin | Mobile usability | ✅ DONE | Yes | Collapsible mobile navigation, responsive forms/cards, loading/retry and accessible status feedback | Physical-device UAT | Device access | P0 | UAT | Browser viewport matrix | UI/UX checkpoint |
 
@@ -225,7 +227,7 @@ Columns: **V1** means required for Denardi V1. Priority uses P0 (release-blockin
 | SEO | OpenGraph | ✅ DONE | Yes | Localized title/description/url | Final metadata/assets | Denardi content | P1 | Content/UAT | PublicSeoAndPwaTest | `2a13cbc` |
 | SEO | Structured data | ✅ DONE | Yes | Locale-aware Cafe/LocalBusiness JSON-LD from published CMS/config data; no fake business values | Populate final verified business data | Denardi content | P1 | Content/UAT | PublicSeoAndPwaTest | `8519229` |
 | SEO | Metadata | 🟡 PARTIAL | Yes | CMS localized metadata architecture | Final approved titles/descriptions | Denardi content | P0 | Content/UAT | CMS/SEO tests | `63cbb4f` |
-| SEO | Lighthouse readiness | ⏳ NOT STARTED | Yes | Targets documented | Run/fix Production-like audit | Staging | P0 | Staging/UAT | None | — |
+| SEO | Lighthouse readiness | 🟡 PARTIAL | Yes | Local FA/EN/AR Home and Menu baseline: SEO 92/92/92/100; missing Home descriptions correctly remain content-dependent | Repeat against final metadata/domain in Production-like Staging | Staging/content | P0 | Staging/UAT | Lighthouse local baseline | `b8ecab5` |
 
 ### PWA
 
@@ -243,7 +245,7 @@ Columns: **V1** means required for Denardi V1. Priority uses P0 (release-blockin
 
 | Area | Feature / Requirement | Status | V1 | What is completed | What remains | Blocker | Priority | Target phase | Related tests | Last relevant commit |
 |---|---|---|---|---|---|---|---|---|---|---|
-| Security | Login / logout | ✅ DONE | Yes | Sanctum session endpoints/UI | Browser/session QA | — | P0 | Release QA | AuthenticatedSessionTest | Foundation |
+| Security | Login / logout | ✅ DONE | Yes | Stateful Sanctum session, CSRF cookie/header, session rotation/invalidation, HttpOnly cookie and no localStorage token | Production Secure-cookie/TLS validation | Staging | P0 | Staging | AuthenticatedSessionTest, Playwright | `b8ecab5` |
 | Security | Password Reset | ✅ DONE | Yes | Generic-response API/UI flow, expiring tokens, strong validation, throttling, session revocation and audit | Configure Production mail provider | Infrastructure | P0 | Staging | PasswordResetControllerTest | `8519229` |
 | Security | RBAC | ✅ DONE | Yes | Permission middleware and roles | Full role matrix | — | P0 | Release QA | RBAC tests | Foundation |
 | Security | Business isolation | ✅ DONE | Yes | Business-scoped controllers/actions | Broader IDOR matrix | — | P0 | Release QA | CMS/QR/context tests | `63cbb4f` |
@@ -252,7 +254,7 @@ Columns: **V1** means required for Denardi V1. Priority uses P0 (release-blockin
 | Security | Input validation | ✅ DONE | Yes | Form Requests and block schema validation | Security fuzz cases | — | P0 | Release QA | feature tests | `63cbb4f` |
 | Security | Dependency audit | ✅ DONE | Yes | Composer/npm audits in CI | Continue every checkpoint | — | P0 | Continuous | CI | `f493edf` |
 | Security | Production 2FA | ⚪ OUT OF V1 | No | Explicitly deferred by approved amendment | New scope required | Signed change | P2 | Future | — | architecture spec |
-| Security | Release security review | 🟡 PARTIAL | Yes | Core authz/secret/upload tests exist | XSS/IDOR/session/stack/secret-scan matrix | — | P0 | Release QA | QA strategy | — |
+| Security | Release security review | ✅ DONE | Yes | XSS escaping, cross-Business IDOR, route permissions, CSRF/session fixation/logout, upload fuzzing, baseline headers, dependency and tracked-secret scans pass | Repeat environment-dependent checks in Staging | Staging | P0 | Complete locally | ReleaseSecurityHeadersTest and feature matrix | `b8ecab5` |
 
 ### Backup / Operations
 
@@ -283,7 +285,7 @@ Columns: **V1** means required for Denardi V1. Priority uses P0 (release-blockin
 
 | Area | Feature / Requirement | Status | V1 | What is completed | What remains | Blocker | Priority | Target phase | Related tests | Last relevant commit |
 |---|---|---|---|---|---|---|---|---|---|---|
-| QA | PHPUnit | ✅ DONE | Yes | 87 tests / 464 assertions pass | Grow with features | — | P0 | Continuous | Full suite | `22ab386` |
+| QA | PHPUnit | ✅ DONE | Yes | 97 tests / 625 assertions pass | Grow with features | — | P0 | Continuous | Full suite | `b8ecab5` |
 | QA | PHPStan / Larastan | ✅ DONE | Yes | Zero errors | Maintain | — | P0 | Continuous | CI | `f493edf` |
 | QA | Pint | ✅ DONE | Yes | Formatting gate passes | Maintain | — | P0 | Continuous | CI | `f493edf` |
 | QA | Frontend tests | ✅ DONE | Yes | 8 Node tests cover Admin data helpers and public localized search | Grow with features | — | P1 | Continuous | frontend helper tests | UI/UX checkpoint |
@@ -291,8 +293,8 @@ Columns: **V1** means required for Denardi V1. Priority uses P0 (release-blockin
 | QA | Browser smoke tests | ✅ DONE | Yes | FA/EN/AR Home, Menu, Admin login and Password Reset smoke-tested without application console errors | Full P0 automation | — | P1 | Release QA | Playwright smoke | `8519229` |
 | QA | FA/EN/AR tests | ✅ DONE | Yes | Routing/content/direction/readiness tested | Final copy/UAT | — | P0 | Content/UAT | Locale/Public/CMS tests | `63cbb4f` |
 | QA | Responsive tests | ✅ DONE | Yes | Public FA/EN/AR and authenticated Admin verified at 320/375/390/430/768/1440 with no horizontal overflow | Physical devices | Device access | P0 | UAT | In-app browser matrix | UI/UX checkpoint |
-| QA | Accessibility | 🟡 PARTIAL | Yes | Single H1 hierarchy, semantic navigation/search/status, skip links, visible focus, 44px targets, reduced motion and keyboard-close behavior | axe and screen-reader verification | Staging/device | P0 | Staging/UAT | Semantic browser inspection | UI/UX checkpoint |
-| QA | Lighthouse | ⏳ NOT STARTED | Yes | Targets documented | Run/fix Production-like audit | Staging | P0 | Staging/UAT | None | — |
+| QA | Accessibility | 🟡 PARTIAL | Yes | Semantic browser matrix plus local Lighthouse accessibility 100 on FA/EN/AR Home and Persian Menu | axe and screen-reader verification | Staging/device | P0 | Staging/UAT | Semantic browser/Lighthouse inspection | `b8ecab5` |
+| QA | Lighthouse | 🟡 PARTIAL | Yes | Local FA/EN/AR Home and Persian Menu: performance 100/99/100/98, accessibility 100, best-practices 100, SEO 92/92/92/100 | Repeat with final content/assets/domain in Production-like Staging | Staging/content | P0 | Staging/UAT | Lighthouse local baseline | `b8ecab5` |
 | QA | iOS Safari | ⏳ NOT STARTED | Yes | — | Last two major versions P0 flows | Device access | P0 | Staging/UAT | None | — |
 | QA | Android Chrome | ⏳ NOT STARTED | Yes | — | Last two major versions P0 flows | Device access | P0 | Staging/UAT | None | — |
 
@@ -343,8 +345,8 @@ Columns: **V1** means required for Denardi V1. Priority uses P0 (release-blockin
 ## Git / CI Evidence
 
 - Branch: `develop/denardi-v1`
-- Feature checkpoint commit: `22ab386`
-- Green CI for Safe Restore checkpoint: [33633503081](https://github.com/lamatech-dev/LamaFood/actions/runs/33633503081) on disposable MySQL 8.4
-- Key commits: `22ab386` guarded Safe Restore; `6ccc4e1` Persian URL normalization; `12659c9` UI/UX checkpoint; `8519229` Current Phase completion; `63cbb4f` management completion; `047830a` clean-CI preview isolation; `259a348` persistent tracker/dashboard
-- Test summary: 87 PHPUnit tests / 464 assertions; 8 frontend tests; PHPStan zero errors; Pint/build and Composer/npm validation/audits pass
+- Feature checkpoint commit: `b8ecab5`
+- Release QA CI: [33661676730](https://github.com/lamatech-dev/LamaFood/actions/runs/33661676730) on disposable MySQL 8.4
+- Key commits: `b8ecab5` Release QA hardening; `22ab386` guarded Safe Restore; `6ccc4e1` Persian URL normalization; `12659c9` UI/UX checkpoint; `8519229` Current Phase completion; `63cbb4f` management completion; `259a348` persistent tracker/dashboard
+- Test summary: 97 PHPUnit tests / 625 assertions; 8 frontend tests; PHPStan zero errors; Pint/build and Composer/npm validation/audits pass
 - Secrets: ignored `.env` remains untracked; tracked examples contain placeholders only

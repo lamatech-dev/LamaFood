@@ -127,6 +127,36 @@ GitHub CI:
 
 Remaining within this checkpoint: none. The Admin/CMS/Menu/Media completion pass is closed and must not expand into the deferred scopes without a new authorization.
 
+## 2026-09-02 — Release QA security and analytics checkpoint
+
+**Commit:** `b8ecab5` — `fix: harden Denardi V1 release QA`
+
+Completed:
+
+- Replaced browser-stored Sanctum bearer tokens with stateful Session/Sanctum authentication, CSRF cookie/header protection, login session rotation and logout invalidation.
+- Protected the Admin dashboard at the server route and retained API authorization boundaries.
+- Added baseline CSP framing/object/form restrictions, `nosniff`, Referrer-Policy, Permissions-Policy, frame denial and HTTPS Production-only HSTS.
+- Completed business-scoped 30-day device and Table QR analytics breakdowns in the Admin API/UI.
+- Expanded the Release security matrix across XSS escaping, IDOR for CMS/Menu/Media/QR, route permission coverage, Godfather isolation, session/CSRF behavior, tracked-secret scanning and malicious upload rejection.
+- Added safe image decode validation so disguised executable content returns a validation error before storage instead of a server exception.
+
+Verification:
+
+- Clean `lamafood_test` migration from zero: passed.
+- PHPUnit: 97 tests / 625 assertions, passed.
+- PHPStan/Larastan: zero errors; Pint passed.
+- Frontend tests: 8 passed; Vite production build passed.
+- Composer validation and Composer/npm audits: passed with zero known vulnerabilities.
+- Playwright local matrix: FA/EN/AR Home/Menu and Admin auth pages returned expected locale/direction, single H1 and no horizontal overflow; CSRF header, HttpOnly Session cookie, no localStorage token and unauthenticated Admin redirect were verified.
+- Local Lighthouse only (not Staging/Production): FA/EN/AR Home and Persian Menu performance 100/99/100/98, accessibility 100, best-practices 100 and SEO 92/92/92/100. Home SEO remains content-dependent because final localized descriptions have not been supplied.
+- `.env` remains ignored/untracked; no tracked private-key, real Godfather/database password or APP_KEY pattern was found.
+
+GitHub CI:
+
+- Run `33661676730`: **passed** on disposable MySQL 8.4 with clean migrations, PHPUnit, PHPStan, Pint, frontend tests/build and dependency audits.
+
+No Staging, Production, real Denardi data, physical-device QA, screen-reader claim, restore drill or Future/Out-of-V1 module was started.
+
 ## Earlier checkpoints
 
 - `foundation-v1-checkpoint`: Foundation architecture, localization, RBAC/Godfather and CI baseline.
