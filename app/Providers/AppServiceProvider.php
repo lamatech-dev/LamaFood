@@ -53,6 +53,10 @@ class AppServiceProvider extends ServiceProvider
             return Limit::perMinute(5)->by(Str::transliterate($email.'|'.$request->ip()));
         });
 
+        RateLimiter::for('user-password-reset', static function (Request $request): Limit {
+            return Limit::perMinute(5)->by(($request->user()?->getAuthIdentifier() ?? 'anonymous').'|'.$request->route('user'));
+        });
+
         RateLimiter::for('public-analytics', static function (Request $request): Limit {
             $visitor = (string) $request->cookie(VisitorIdentity::CookieName, 'anonymous');
             $key = hash_hmac('sha256', $visitor.'|'.$request->ip(), (string) config('app.key'));

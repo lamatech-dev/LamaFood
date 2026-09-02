@@ -66,6 +66,14 @@ class PasswordResetControllerTest extends TestCase
         $business = Business::factory()->create();
         $user = User::factory()->for($business)->create(['email' => 'owner@example.com']);
         $user->createToken('existing-session');
+        DB::table('sessions')->insert([
+            'id' => 'existing-session',
+            'user_id' => $user->id,
+            'ip_address' => null,
+            'user_agent' => 'test',
+            'payload' => 'test-payload',
+            'last_activity' => now()->timestamp,
+        ]);
         $token = Password::createToken($user);
         Event::fake([PasswordReset::class]);
 
@@ -79,6 +87,7 @@ class PasswordResetControllerTest extends TestCase
         $user->refresh();
         $this->assertTrue(Hash::check('NewSecure#123', $user->password));
         $this->assertDatabaseMissing('personal_access_tokens', ['tokenable_id' => $user->id]);
+        $this->assertDatabaseMissing('sessions', ['user_id' => $user->id]);
         $this->assertDatabaseHas('audit_logs', [
             'action' => 'auth.password_reset_completed',
             'subject_id' => $user->id,

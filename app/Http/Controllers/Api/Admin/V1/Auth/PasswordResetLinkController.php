@@ -14,7 +14,7 @@ class PasswordResetLinkController extends Controller
     public function __invoke(RequestPasswordResetLinkRequest $request, AuditRecorder $audit): JsonResponse
     {
         $email = mb_strtolower($request->string('email')->trim()->toString());
-        $user = User::query()->businessVisible()->where('email', $email)->first();
+        $user = User::query()->businessVisible()->where('is_active', true)->where('email', $email)->first();
 
         Password::sendResetLink([
             'email' => $user->email ?? 'blocked-password-reset@instance.invalid',

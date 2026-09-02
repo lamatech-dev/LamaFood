@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Admin\V1\Auth;
 
 use App\Core\Audit\AuditRecorder;
+use App\Core\Authorization\FoundationPermission;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\Admin\V1\Auth\LoginRequest;
 use App\Models\User;
@@ -18,6 +19,9 @@ class AuthenticatedSessionController extends Controller
     {
         /** @var User $user */
         $user = $request->user();
+        $permissions = $user->isGodfather()
+            ? array_column(FoundationPermission::cases(), 'value')
+            : $user->getAllPermissions()->pluck('name')->values()->all();
 
         return response()->json([
             'data' => [
@@ -26,7 +30,7 @@ class AuthenticatedSessionController extends Controller
                 'email' => $user->email,
                 'business_id' => $user->business_id,
                 'roles' => $user->getRoleNames()->values()->all(),
-                'permissions' => $user->getAllPermissions()->pluck('name')->values()->all(),
+                'permissions' => $permissions,
             ],
         ]);
     }
@@ -39,7 +43,7 @@ class AuthenticatedSessionController extends Controller
             ->orWhere('username', $identifier)
             ->first();
 
-        if ($user === null || ! Hash::check($request->string('password')->toString(), $user->password)) {
+        if ($user === null || ! $user->is_active || ! Hash::check($request->string('password')->toString(), $user->password)) {
             throw ValidationException::withMessages([
                 'identifier' => [__('auth.failed')],
             ]);

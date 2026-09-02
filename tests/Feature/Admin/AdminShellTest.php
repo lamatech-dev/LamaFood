@@ -29,6 +29,8 @@ class AdminShellTest extends TestCase
             ->assertSee('data-admin-view="categories"', false)
             ->assertSee('data-admin-view="content"', false)
             ->assertSee('data-admin-view="media"', false)
+            ->assertSee('data-admin-view="users"', false)
+            ->assertSee('کاربران و دسترسی')
             ->assertDontSee('godfather@instance.invalid');
     }
 

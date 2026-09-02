@@ -8,6 +8,7 @@ use App\Http\Requests\Api\Admin\V1\Auth\ResetPasswordRequest;
 use App\Models\User;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -17,7 +18,7 @@ class NewPasswordController extends Controller
     public function __invoke(ResetPasswordRequest $request, AuditRecorder $audit): JsonResponse
     {
         $email = mb_strtolower($request->string('email')->trim()->toString());
-        $eligibleUser = User::query()->businessVisible()->where('email', $email)->first();
+        $eligibleUser = User::query()->businessVisible()->where('is_active', true)->where('email', $email)->first();
 
         if ($eligibleUser === null) {
             throw ValidationException::withMessages([
@@ -35,6 +36,7 @@ class NewPasswordController extends Controller
                     'remember_token' => Str::random(60),
                 ])->save();
                 $user->tokens()->delete();
+                DB::table('sessions')->where('user_id', $user->id)->delete();
 
                 $audit->record(
                     action: 'auth.password_reset_completed',

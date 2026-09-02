@@ -20,6 +20,8 @@ use App\Http\Controllers\Api\Admin\V1\Qr\QrCodeArtworkController;
 use App\Http\Controllers\Api\Admin\V1\Qr\QrCodeController;
 use App\Http\Controllers\Api\Admin\V1\System\HealthController;
 use App\Http\Controllers\Api\Admin\V1\System\InstanceMetadataController;
+use App\Http\Controllers\Api\Admin\V1\User\UserController;
+use App\Http\Controllers\Api\Admin\V1\User\UserPasswordResetController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('admin/v1')->group(function (): void {
@@ -33,13 +35,21 @@ Route::prefix('admin/v1')->group(function (): void {
         ->middleware('throttle:password-reset-confirm')
         ->name('api.admin.v1.auth.password.update');
 
-    Route::middleware(['auth:sanctum', 'business-permissions'])->group(function (): void {
+    Route::middleware(['auth:sanctum', 'active-user', 'business-permissions'])->group(function (): void {
         Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
             ->name('api.admin.v1.auth.logout');
         Route::get('me', [AuthenticatedSessionController::class, 'show'])
             ->name('api.admin.v1.auth.me');
         Route::get('business/context', BusinessContextController::class)
             ->middleware('permission:settings.view');
+
+        Route::get('users', [UserController::class, 'index'])->middleware('permission:users.manage');
+        Route::post('users', [UserController::class, 'store'])->middleware('permission:users.manage');
+        Route::get('users/{user}', [UserController::class, 'show'])->middleware('permission:users.manage');
+        Route::put('users/{user}', [UserController::class, 'update'])->middleware('permission:users.manage');
+        Route::delete('users/{user}', [UserController::class, 'destroy'])->middleware('permission:users.manage');
+        Route::post('users/{user}/password-reset', UserPasswordResetController::class)
+            ->middleware(['permission:users.manage', 'throttle:user-password-reset']);
 
         Route::get('system/health', HealthController::class)
             ->middleware('permission:system.view')

@@ -3,6 +3,7 @@
 namespace Tests\Feature\Api\Admin\V1\Auth;
 
 use App\Core\Audit\Models\AuditLog;
+use App\Core\Business\Models\Business;
 use App\Models\User;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Hash;
@@ -34,6 +35,11 @@ class AuthenticatedSessionControllerTest extends TestCase
         $this->assertDatabaseCount('personal_access_tokens', 0);
         $this->assertSame('auth.login', AuditLog::query()->sole()->action);
         $this->assertArrayNotHasKey('ip', AuditLog::query()->sole()->context);
+
+        $this->getJson('/api/admin/v1/me')
+            ->assertOk()
+            ->assertJsonPath('data.roles', [])
+            ->assertJsonFragment(['users.manage']);
     }
 
     public function test_returns_422_for_invalid_credentials_without_creating_token(): void
@@ -52,7 +58,7 @@ class AuthenticatedSessionControllerTest extends TestCase
 
     public function test_authenticated_session_can_be_used_and_is_invalidated_on_logout(): void
     {
-        $user = User::factory()->create([
+        $user = User::factory()->for(Business::factory())->create([
             'email' => 'owner@example.com',
             'password' => Hash::make('local-secret'),
         ]);

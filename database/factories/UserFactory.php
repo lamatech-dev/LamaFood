@@ -33,6 +33,7 @@ class UserFactory extends Factory
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
             'is_godfather' => false,
+            'is_active' => true,
         ];
     }
 
@@ -54,6 +55,7 @@ class UserFactory extends Factory
             'username' => 'godfather',
             'email' => 'godfather@instance.invalid',
             'is_godfather' => true,
+            'is_active' => true,
         ]);
     }
 }

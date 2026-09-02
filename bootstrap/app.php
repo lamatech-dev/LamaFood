@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\ApplySecurityHeaders;
+use App\Http\Middleware\EnsureUserIsActive;
 use App\Http\Middleware\RequirePermission;
 use App\Http\Middleware\SetBusinessPermissionContext;
 use App\Http\Middleware\SetPublicLocale;
@@ -23,6 +24,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'business-permissions' => SetBusinessPermissionContext::class,
+            'active-user' => EnsureUserIsActive::class,
             'locale' => SetPublicLocale::class,
             'permission' => RequirePermission::class,
         ]);

@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Route;
 Route::view('/admin/login', 'admin.login')->name('admin.login');
 Route::view('/admin/forgot-password', 'admin.forgot-password')->name('password.request');
 Route::get('/admin/reset-password/{token}', fn (string $token) => view('admin.reset-password', ['token' => $token]))->name('password.reset');
-Route::view('/admin', 'admin.dashboard')->middleware('auth')->name('admin.dashboard');
+Route::view('/admin', 'admin.dashboard')->middleware(['auth', 'active-user'])->name('admin.dashboard');
 Route::get('/q/{publicId}', PublicQrRedirectController::class)->name('public.qr.redirect');
 Route::post('/analytics/views', PublicAnalyticsViewController::class)
     ->middleware('throttle:public-analytics')

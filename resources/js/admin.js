@@ -146,7 +146,7 @@ resetPasswordForm?.addEventListener('submit', async (event) => {
 
 const dashboard = document.querySelector('[data-dashboard]');
 if (dashboard) {
-    const state = { context: null, categories: [], products: [], pages: [], media: [], qrCodes: [], backups: [], analytics: {}, blockSchemas: {}, me: null };
+    const state = { context: null, categories: [], products: [], pages: [], media: [], qrCodes: [], backups: [], users: [], allowedRoles: [], analytics: {}, blockSchemas: {}, me: null };
     const adminNavigation = document.querySelector('#admin-navigation');
     const adminNavigationToggle = document.querySelector('.admin-nav-toggle');
     adminNavigationToggle?.addEventListener('click', () => {
@@ -336,6 +336,30 @@ if (dashboard) {
         fillTranslations(form.querySelector('[data-media-edit-translations]'), item.translations);
         document.querySelector('[data-media-dialog]').showModal();
     };
+    const openUser = (user = null) => {
+        const form = document.querySelector('[data-user-form]');
+        form.reset();
+        form.user_id.value = user?.id || '';
+        form.name.value = user?.name || '';
+        form.username.value = user?.username || '';
+        form.email.value = user?.email || '';
+        form.role.replaceChildren(...state.allowedRoles.map((role) => new Option(role.label, role.value)));
+        form.role.value = user?.role || state.allowedRoles[0]?.value || '';
+        form.is_active.checked = user?.is_active ?? true;
+        document.querySelector('[data-user-dialog-title]').textContent = user ? 'ویرایش کاربر' : 'کاربر جدید';
+        document.querySelector('[data-user-form-note]').textContent = user
+            ? 'تغییر نقش یا غیرفعال‌سازی، نشست‌های فعال این حساب را باطل می‌کند.'
+            : 'پس از ایجاد حساب، لینک امن تعیین رمز برای ایمیل کاربر درخواست می‌شود.';
+        document.querySelector('[data-user-error]').hidden = true;
+        document.querySelector('[data-user-dialog]').showModal();
+    };
+    const userPayload = (user, isActive = user.is_active) => ({
+        name: user.name,
+        username: user.username || null,
+        email: user.email,
+        role: user.role,
+        is_active: isActive,
+    });
     const reorderCategories = async (index, direction) => {
         const ids = swapOrder(state.categories.map((item) => item.public_id), index, direction);
         await api('/categories/order', { method: 'PUT', body: JSON.stringify({ categories: ids }) });
@@ -463,6 +487,30 @@ if (dashboard) {
 
         const localeSettings = document.querySelector('[data-locale-settings]');
         localeSettings.replaceChildren(...state.context.locales.map((item) => { const card = document.createElement('article'); card.innerHTML = `<strong>${item.native_name}</strong><span>${item.locale.toUpperCase()}</span><small>${item.direction.value || item.direction}${item.locale === state.context.business.default_locale ? ' · پیش‌فرض' : ''}</small>`; return card; }));
+        const userList = document.querySelector('[data-users]');
+        userList.replaceChildren(...state.users.map((user) => {
+            const row = document.createElement('article'); row.className = 'admin-row';
+            const identity = document.createElement('div'); identity.append(Object.assign(document.createElement('strong'), { textContent: user.name }), Object.assign(document.createElement('small'), { textContent: user.username ? `@${user.username}` : 'بدون نام کاربری' }));
+            const contact = document.createElement('div'); contact.append(Object.assign(document.createElement('span'), { textContent: user.email }), Object.assign(document.createElement('small'), { textContent: state.allowedRoles.find((role) => role.value === user.role)?.label || user.role }));
+            const status = document.createElement('span'); status.className = `status account-status${user.is_active ? '' : ' inactive'}`; status.textContent = user.is_active ? 'فعال' : 'غیرفعال';
+            const actions = document.createElement('div'); actions.className = 'row-actions';
+            actions.append(actionButton('ویرایش', () => openUser(user)));
+            const reset = actionButton('بازیابی رمز', () => run(async () => { await api(`/users/${user.id}/password-reset`, { method: 'POST' }); }, 'لینک امن بازیابی رمز درخواست شد.'));
+            reset.disabled = !user.is_active;
+            actions.append(reset);
+            if (user.email !== state.me.email) {
+                actions.append(actionButton(user.is_active ? 'غیرفعال‌سازی' : 'فعال‌سازی', () => {
+                    const prompt = user.is_active ? 'دسترسی این کاربر غیرفعال و نشست‌های او بسته شود؟' : 'دسترسی این کاربر دوباره فعال شود؟';
+                    if (!window.confirm(prompt)) return;
+                    run(async () => {
+                        if (user.is_active) await api(`/users/${user.id}`, { method: 'DELETE' });
+                        else await api(`/users/${user.id}`, { method: 'PUT', body: JSON.stringify(userPayload(user, true)) });
+                        await loadUsers();
+                    }, user.is_active ? 'دسترسی کاربر غیرفعال شد.' : 'دسترسی کاربر فعال شد.');
+                }, user.is_active ? 'status danger' : 'status'));
+            }
+            row.append(identity, contact, status, actions); return row;
+        }));
         fillProductOptions();
     };
 
@@ -470,11 +518,18 @@ if (dashboard) {
     async function loadPages() { state.pages = await api('/cms/pages'); render(); }
     async function loadMedia() { const data = await api('/media'); state.media = data.data; render(); }
     async function loadQrAnalytics() { [state.qrCodes, state.analytics] = await Promise.all([api('/qr-codes'), api('/analytics/summary')]); render(); }
+    async function loadUsers() { const data = await api('/users'); state.users = data.users; state.allowedRoles = data.allowed_roles; render(); }
     async function boot() {
         try {
             [state.me, state.context, state.categories, state.pages, state.blockSchemas] = await Promise.all([api('/me'), api('/business/context'), api('/categories'), api('/cms/pages'), api('/cms/block-schemas')]);
             const [products, media, qrCodes, analytics, backups] = await Promise.all([api('/products'), api('/media'), api('/qr-codes'), api('/analytics/summary'), api('/backups').catch(() => [])]);
             state.products = products.data; state.media = media.data; state.qrCodes = qrCodes; state.analytics = analytics; state.backups = backups;
+            if (state.me.permissions.includes('users.manage')) {
+                const data = await api('/users');
+                state.users = data.users;
+                state.allowedRoles = data.allowed_roles;
+                document.querySelector('[data-users-navigation]').hidden = false;
+            }
             translationInputs(document.querySelector('[data-category-translations]'), [['name', 'نام دسته'], ['description', 'توضیح']]);
             translationInputs(document.querySelector('[data-product-translations]'), [['name', 'نام محصول'], ['description', 'توضیح'], ['ingredients', 'ترکیبات'], ['allergen_notice', 'هشدار حساسیت']]);
             translationInputs(document.querySelector('[data-page-translations]'), [['title', 'عنوان'], ['meta_title', 'عنوان SEO'], ['meta_description', 'توضیح SEO']]);
@@ -505,6 +560,8 @@ if (dashboard) {
         fillProductBranchSetting(form, state.products.find((item) => item.public_id === form.public_id.value));
     });
     document.querySelector('[data-open-page]').addEventListener('click', () => openPage());
+    document.querySelector('[data-open-user]').addEventListener('click', () => openUser());
+    document.querySelector('[data-cancel-user]').addEventListener('click', () => document.querySelector('[data-user-dialog]').close());
     document.querySelector('[data-reset-category]').addEventListener('click', resetCategoryForm);
     document.querySelector('[data-logout]').addEventListener('click', async () => { try { await api('/logout', { method: 'POST' }); } finally { window.location.assign('/admin/login'); } });
 
@@ -550,6 +607,22 @@ if (dashboard) {
         await api(`/media/${form.media_id.value}`, { method: 'PATCH', body: JSON.stringify({ translations: readTranslations(form) }) });
         document.querySelector('[data-media-dialog]').close(); await loadMedia();
     }, 'اطلاعات رسانه ذخیره شد.'));
+
+    document.querySelector('[data-user-form]').addEventListener('submit', (event) => run(async () => {
+        event.preventDefault();
+        const form = event.currentTarget;
+        const id = form.user_id.value;
+        const payload = {
+            name: form.name.value,
+            username: form.username.value || null,
+            email: form.email.value,
+            role: form.role.value,
+            is_active: form.is_active.checked,
+        };
+        await api(id ? `/users/${id}` : '/users', { method: id ? 'PUT' : 'POST', body: JSON.stringify(payload) });
+        document.querySelector('[data-user-dialog]').close();
+        await loadUsers();
+    }, 'اطلاعات و دسترسی کاربر ذخیره شد.'));
 
     const qrForm = document.querySelector('[data-qr-form]');
     qrForm.type.addEventListener('change', () => { const field = qrForm.querySelector('[data-table-key]'); field.hidden = !requiresTableKey(qrForm.type.value); qrForm.table_key.required = requiresTableKey(qrForm.type.value); if (!requiresTableKey(qrForm.type.value)) qrForm.table_key.value = ''; });
