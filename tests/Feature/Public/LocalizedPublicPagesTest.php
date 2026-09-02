@@ -34,7 +34,18 @@ class LocalizedPublicPagesTest extends TestCase
         $this->get('/fa/menu?branch=central')->assertRedirect('/menu?branch=central', 301);
     }
 
-    private function publishHome(): void
+    public function test_published_cms_content_is_escaped_in_public_html(): void
+    {
+        $this->withoutVite();
+        $this->publishHome('<script>alert("xss")</script>');
+
+        $this->get('/')
+            ->assertOk()
+            ->assertDontSee('<script>alert("xss")</script>', false)
+            ->assertSee('&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;', false);
+    }
+
+    private function publishHome(string $persianHeroTitle = 'دناردی اینجاست'): void
     {
         $business = Business::factory()->create(['slug' => 'denardi']);
         $actor = User::factory()->for($business)->create();
@@ -44,7 +55,7 @@ class LocalizedPublicPagesTest extends TestCase
             'ar' => ['title' => 'الرئيسية', 'meta_title' => 'ديناردي', 'translation_state' => 'ready'],
         ]);
         app(CreateBlock::class)->execute($page, $actor, 'hero', 0, ['alignment' => 'center'], [
-            'fa' => ['content' => ['title' => 'دناردی اینجاست'], 'translation_state' => 'ready'],
+            'fa' => ['content' => ['title' => $persianHeroTitle], 'translation_state' => 'ready'],
             'en' => ['content' => ['title' => 'Denardi is here'], 'translation_state' => 'ready'],
             'ar' => ['content' => ['title' => 'ديناردي هنا'], 'translation_state' => 'ready'],
         ]);

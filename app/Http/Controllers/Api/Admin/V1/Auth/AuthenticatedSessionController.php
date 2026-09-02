@@ -8,6 +8,7 @@ use App\Http\Requests\Api\Admin\V1\Auth\LoginRequest;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
@@ -44,19 +45,19 @@ class AuthenticatedSessionController extends Controller
             ]);
         }
 
-        $token = $user->createToken($request->string('device_name')->toString());
+        Auth::guard('web')->login($user);
+        $request->session()->regenerate();
 
         $audit->record(
             action: 'auth.login',
             actor: $user,
             subject: $user,
             businessId: $user->business_id,
-            context: ['ip' => $request->ip(), 'device_name' => $request->string('device_name')->toString()],
+            context: ['device_name' => $request->string('device_name')->toString()],
         );
 
         return response()->json([
             'data' => [
-                'token' => $token->plainTextToken,
                 'user' => [
                     'name' => $user->name,
                     'username' => $user->username,
@@ -75,10 +76,12 @@ class AuthenticatedSessionController extends Controller
             actor: $user,
             subject: $user,
             businessId: $user->business_id,
-            context: ['ip' => $request->ip()],
+            context: [],
         );
 
-        $user->currentAccessToken()->delete();
+        Auth::guard('web')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
 
         return response()->json(status: 204);
     }

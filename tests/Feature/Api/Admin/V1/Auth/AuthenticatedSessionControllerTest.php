@@ -12,11 +12,13 @@ class AuthenticatedSessionControllerTest extends TestCase
 {
     use LazilyRefreshDatabase;
 
-    public function test_valid_godfather_credentials_return_token_and_write_audit_log(): void
+    public function test_valid_godfather_credentials_create_a_stateful_session_without_a_personal_token(): void
     {
         User::factory()->godfather()->create(['password' => Hash::make('local-secret')]);
+        $this->withHeader('Origin', 'http://localhost')->get('/sanctum/csrf-cookie')->assertNoContent();
+        $sessionIdBeforeLogin = $this->app['session.store']->getId();
 
-        $response = $this->postJson('/api/admin/v1/login', [
+        $response = $this->withHeader('Origin', 'http://localhost')->postJson('/api/admin/v1/login', [
             'identifier' => 'godfather',
             'password' => 'local-secret',
             'device_name' => 'foundation-test',
@@ -24,10 +26,14 @@ class AuthenticatedSessionControllerTest extends TestCase
 
         $response->assertOk()
             ->assertJsonPath('data.user.name', 'Godfather')
-            ->assertJsonStructure(['data' => ['token', 'user' => ['name', 'username']]])
+            ->assertJsonStructure(['data' => ['user' => ['name', 'username']]])
+            ->assertJsonMissingPath('data.token')
             ->assertJsonMissingPath('data.user.is_godfather');
-        $this->assertDatabaseHas('personal_access_tokens', ['name' => 'foundation-test']);
+        $this->assertAuthenticatedAs(User::query()->where('username', 'godfather')->sole());
+        $this->assertNotSame($sessionIdBeforeLogin, $this->app['session.store']->getId());
+        $this->assertDatabaseCount('personal_access_tokens', 0);
         $this->assertSame('auth.login', AuditLog::query()->sole()->action);
+        $this->assertArrayNotHasKey('ip', AuditLog::query()->sole()->context);
     }
 
     public function test_returns_422_for_invalid_credentials_without_creating_token(): void
@@ -42,5 +48,29 @@ class AuthenticatedSessionControllerTest extends TestCase
 
         $this->assertDatabaseCount('personal_access_tokens', 0);
         $this->assertDatabaseCount('audit_logs', 0);
+    }
+
+    public function test_authenticated_session_can_be_used_and_is_invalidated_on_logout(): void
+    {
+        $user = User::factory()->create([
+            'email' => 'owner@example.com',
+            'password' => Hash::make('local-secret'),
+        ]);
+
+        $this->withHeader('Origin', 'http://localhost')->postJson('/api/admin/v1/login', [
+            'identifier' => 'owner@example.com',
+            'password' => 'local-secret',
+            'device_name' => 'foundation-test',
+        ])->assertOk();
+
+        $this->getJson('/api/admin/v1/me')
+            ->assertOk()
+            ->assertJsonPath('data.email', $user->email);
+
+        $this->postJson('/api/admin/v1/logout')->assertNoContent();
+        $this->assertGuest('web');
+        $this->app['auth']->forgetGuards();
+        $this->getJson('/api/admin/v1/me')->assertUnauthorized();
+        $this->assertSame(['auth.login', 'auth.logout'], AuditLog::query()->orderBy('id')->pluck('action')->all());
     }
 }

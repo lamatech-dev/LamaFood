@@ -28,7 +28,7 @@
 <a class="skip-link" href="#content">{{ __('public.skip', locale: $locale) }}</a>
 <header class="site-header">
     <div class="shell nav-shell">
-        <a class="brand" href="{{ url($localeRegistry->publicPath($locale)) }}" aria-label="Denardi">
+        <a class="brand" href="{{ url($localeRegistry->publicPath($locale)) }}">
             <span class="brand-mark" aria-hidden="true">D</span>
             <span>DENARDI<small>ART · COFFEE · JUICE</small></span>
         </a>

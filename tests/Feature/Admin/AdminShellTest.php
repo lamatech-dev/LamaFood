@@ -20,6 +20,8 @@ class AdminShellTest extends TestCase
         $this->withoutVite();
 
         $this->get('/admin/login')->assertOk()->assertSee('noindex,nofollow')->assertDontSee('LAMATECH_GODFATHER_PASSWORD');
+        $this->get('/admin')->assertRedirect('/admin/login');
+        $this->actingAs(User::factory()->create());
         $this->get('/admin')
             ->assertOk()
             ->assertSee('noindex,nofollow')

@@ -2,6 +2,8 @@
 
 namespace Tests\Feature\Api\Admin\V1\Media;
 
+use App\Core\Authorization\FoundationRole;
+use App\Core\Authorization\ProvisionFoundationRbac;
 use App\Core\Business\Models\Business;
 use App\Core\Media\Models\Media;
 use App\Core\Menu\Actions\CreateMenuCategory;
@@ -11,6 +13,7 @@ use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\Sanctum;
+use Spatie\Permission\PermissionRegistrar;
 use Tests\TestCase;
 
 class MediaManagementControllerTest extends TestCase
@@ -39,6 +42,23 @@ class MediaManagementControllerTest extends TestCase
         $this->assertStringStartsWith('RIFF', Storage::disk('public')->get($media['optimized_path']));
         $this->assertStringContainsString('WEBP', substr(Storage::disk('public')->get($media['thumbnail_path']), 0, 16));
         $this->assertDatabaseHas('media_translations', ['locale' => 'ar', 'alt' => 'صورة القهوة']);
+    }
+
+    public function test_upload_rejects_executable_content_disguised_as_an_image(): void
+    {
+        Storage::fake('public');
+        Business::factory()->create(['slug' => 'denardi']);
+        Sanctum::actingAs(User::factory()->godfather()->create());
+
+        $this->post('/api/admin/v1/media', [
+            'file' => UploadedFile::fake()->createWithContent('payload.jpg', '<?php echo "unsafe";'),
+            'translations' => $this->translations(),
+        ], ['Accept' => 'application/json'])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('file');
+
+        $this->assertDatabaseCount('media', 0);
+        Storage::disk('public')->assertDirectoryEmpty('/');
     }
 
     public function test_listing_reports_product_usage_and_prevents_in_use_deletion(): void
@@ -73,6 +93,25 @@ class MediaManagementControllerTest extends TestCase
 
         Storage::disk('public')->assertMissing($paths);
         $this->assertDatabaseMissing('media', ['id' => $media->id]);
+    }
+
+    public function test_business_user_cannot_discover_update_or_delete_another_business_media(): void
+    {
+        Storage::fake('public');
+        Business::factory()->create(['slug' => 'denardi']);
+        Sanctum::actingAs(User::factory()->godfather()->create());
+        $media = $this->upload();
+
+        $business = Business::factory()->create(['slug' => 'viewer-business']);
+        $user = User::factory()->for($business)->create();
+        app(ProvisionFoundationRbac::class)->execute($business);
+        app(PermissionRegistrar::class)->setPermissionsTeamId($business->id);
+        $user->assignRole(FoundationRole::BusinessOwner->value);
+        Sanctum::actingAs($user);
+
+        $this->patchJson("/api/admin/v1/media/{$media->public_id}", ['status' => 'archived'])->assertNotFound();
+        $this->deleteJson("/api/admin/v1/media/{$media->public_id}")->assertNotFound();
+        $this->assertModelExists($media);
     }
 
     private function upload(): Media

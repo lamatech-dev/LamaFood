@@ -2,6 +2,8 @@
 
 namespace Tests\Feature\Api\Admin\V1\Menu;
 
+use App\Core\Authorization\FoundationRole;
+use App\Core\Authorization\ProvisionFoundationRbac;
 use App\Core\Business\Models\Branch;
 use App\Core\Business\Models\Business;
 use App\Core\Media\MediaStatus;
@@ -15,6 +17,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Str;
 use Laravel\Sanctum\Sanctum;
+use Spatie\Permission\PermissionRegistrar;
 use Tests\TestCase;
 
 class MenuManagementControllerTest extends TestCase
@@ -123,6 +126,33 @@ class MenuManagementControllerTest extends TestCase
             ->assertJsonPath('data.availability_state', 'sold_out');
 
         $this->assertSame(PublicationState::Published, $product->fresh()->publication_state);
+    }
+
+    public function test_business_user_cannot_discover_or_mutate_another_business_menu_records(): void
+    {
+        [$otherBusiness, $godfather] = $this->context();
+        $otherBranch = Branch::factory()->for($otherBusiness)->create();
+        $otherCategory = $this->category($otherBusiness, $godfather, 'private-category', 0);
+        $otherProduct = $this->product($otherCategory, $godfather, 'private-product', 0);
+
+        $business = Business::factory()->create();
+        $user = User::factory()->for($business)->create();
+        app(ProvisionFoundationRbac::class)->execute($business);
+        app(PermissionRegistrar::class)->setPermissionsTeamId($business->id);
+        $user->assignRole(FoundationRole::BusinessOwner->value);
+        Sanctum::actingAs($user);
+
+        $this->getJson("/api/admin/v1/products/{$otherProduct->public_id}")->assertNotFound();
+        $this->deleteJson("/api/admin/v1/products/{$otherProduct->public_id}")->assertNotFound();
+        $this->deleteJson("/api/admin/v1/categories/{$otherCategory->public_id}")->assertNotFound();
+        $this->putJson("/api/admin/v1/products/{$otherProduct->public_id}/branches/{$otherBranch->id}/settings", [
+            'price_amount' => 1,
+            'availability_state' => 'available',
+            'expected_version' => 0,
+        ])->assertNotFound();
+
+        $this->assertModelExists($otherCategory);
+        $this->assertModelExists($otherProduct);
     }
 
     /** @return array{Business, User} */

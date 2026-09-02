@@ -18,6 +18,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 
 class MediaController extends Controller
@@ -45,6 +46,11 @@ class MediaController extends Controller
         $file = $request->file('file');
         abort_if($file === null, 422, 'A file is required.');
         $dimensions = @getimagesize($file->getRealPath());
+        if ($dimensions === false) {
+            throw ValidationException::withMessages([
+                'file' => ['The uploaded file is not a decodable image.'],
+            ]);
+        }
         $checksum = hash_file('sha256', $file->getRealPath());
         $path = $file->store("businesses/{$business->id}/media", 'public');
         abort_if($path === false, 500, 'Media storage failed.');
@@ -67,8 +73,8 @@ class MediaController extends Controller
                     'thumbnail_path' => $generated['thumbnail_path'],
                     'mime' => $file->getMimeType() ?? 'application/octet-stream',
                     'size' => $file->getSize(),
-                    'width' => is_array($dimensions) ? $dimensions[0] : null,
-                    'height' => is_array($dimensions) ? $dimensions[1] : null,
+                    'width' => $dimensions[0],
+                    'height' => $dimensions[1],
                     'checksum' => $checksum,
                     'status' => MediaStatus::Ready,
                     'uploaded_by' => $user->id,

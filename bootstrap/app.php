@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\ApplySecurityHeaders;
 use App\Http\Middleware\RequirePermission;
 use App\Http\Middleware\SetBusinessPermissionContext;
 use App\Http\Middleware\SetPublicLocale;
@@ -16,6 +17,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->statefulApi();
+        $middleware->append(ApplySecurityHeaders::class);
+        $middleware->redirectGuestsTo(fn (): string => route('admin.login'));
+
         $middleware->alias([
             'business-permissions' => SetBusinessPermissionContext::class,
             'locale' => SetPublicLocale::class,

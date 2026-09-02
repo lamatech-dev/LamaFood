@@ -3,18 +3,41 @@ import { buildReadyBlockTranslations, buildReadyTranslations, nextAvailability, 
 
 if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js'));
 
-const tokenKey = 'denardi_admin_token';
-const token = localStorage.getItem(tokenKey);
-const headers = () => ({ Accept: 'application/json', Authorization: `Bearer ${localStorage.getItem(tokenKey) || ''}` });
+localStorage.removeItem('denardi_admin_token');
+
+const cookieValue = (name) => document.cookie
+    .split('; ')
+    .find((cookie) => cookie.startsWith(`${name}=`))
+    ?.split('=')
+    .slice(1)
+    .join('=');
+const headers = () => {
+    const requestHeaders = { Accept: 'application/json' };
+    const csrfToken = cookieValue('XSRF-TOKEN');
+    if (csrfToken) requestHeaders['X-XSRF-TOKEN'] = decodeURIComponent(csrfToken);
+    return requestHeaders;
+};
+let csrfInitialized = false;
+
+async function ensureCsrfCookie() {
+    if (csrfInitialized) return;
+    await fetch('/sanctum/csrf-cookie', { credentials: 'same-origin', headers: { Accept: 'application/json' } });
+    csrfInitialized = true;
+}
 
 async function api(path, options = {}) {
+    const method = (options.method || 'GET').toUpperCase();
+    if (!['GET', 'HEAD', 'OPTIONS'].includes(method)) await ensureCsrfCookie();
     const requestHeaders = { ...headers(), ...(options.headers || {}) };
     if (options.body && !(options.body instanceof FormData)) requestHeaders['Content-Type'] = 'application/json';
-    const response = await fetch(`/api/admin/v1${path}`, { ...options, headers: requestHeaders });
+    const response = await fetch(`/api/admin/v1${path}`, { ...options, credentials: 'same-origin', headers: requestHeaders });
     if (response.status === 401) {
-        localStorage.removeItem(tokenKey);
         window.location.assign('/admin/login');
         throw new Error('نشست شما پایان یافته است.');
+    }
+    if (response.status === 419) {
+        csrfInitialized = false;
+        throw new Error('نشست امنیتی منقضی شده است. صفحه را تازه‌سازی کنید.');
     }
     if (response.status === 204) return null;
     const payload = await response.json();
@@ -23,9 +46,11 @@ async function api(path, options = {}) {
 }
 
 async function passwordApi(path, body) {
+    await ensureCsrfCookie();
     const response = await fetch(`/api/admin/v1/${path}`, {
         method: 'POST',
-        headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        headers: { ...headers(), 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
     });
     const payload = await response.json();
@@ -34,9 +59,8 @@ async function passwordApi(path, body) {
 }
 
 async function authenticatedFile(path) {
-    const response = await fetch(`/api/admin/v1${path}`, { headers: headers() });
+    const response = await fetch(`/api/admin/v1${path}`, { credentials: 'same-origin', headers: headers() });
     if (response.status === 401) {
-        localStorage.removeItem(tokenKey);
         window.location.assign('/admin/login');
         throw new Error('نشست شما پایان یافته است.');
     }
@@ -63,14 +87,12 @@ async function downloadArtwork(path) {
 
 const loginForm = document.querySelector('[data-login-form]');
 if (loginForm) {
-    if (token) window.location.assign('/admin');
     loginForm.addEventListener('submit', async (event) => {
         event.preventDefault();
         const error = document.querySelector('[data-form-error]');
         const data = new FormData(loginForm);
         try {
-            const result = await api('/login', { method: 'POST', body: JSON.stringify({ identifier: data.get('identifier'), password: data.get('password'), device_name: 'Denardi Admin Web' }) });
-            localStorage.setItem(tokenKey, result.token);
+            await api('/login', { method: 'POST', body: JSON.stringify({ identifier: data.get('identifier'), password: data.get('password'), device_name: 'Denardi Admin Web' }) });
             window.location.assign('/admin');
         } catch (exception) {
             error.textContent = exception.message;
@@ -124,8 +146,6 @@ resetPasswordForm?.addEventListener('submit', async (event) => {
 
 const dashboard = document.querySelector('[data-dashboard]');
 if (dashboard) {
-    if (!token) window.location.assign('/admin/login');
-
     const state = { context: null, categories: [], products: [], pages: [], media: [], qrCodes: [], backups: [], analytics: {}, blockSchemas: {}, me: null };
     const adminNavigation = document.querySelector('#admin-navigation');
     const adminNavigationToggle = document.querySelector('.admin-nav-toggle');
@@ -358,6 +378,17 @@ if (dashboard) {
         document.querySelector('[data-menu-views-month]').textContent = state.analytics['30_days']?.menu_view || 0;
         document.querySelector('[data-category-views-month]').textContent = state.analytics['30_days']?.category_view || 0;
         document.querySelector('[data-product-views-month]').textContent = state.analytics['30_days']?.product_view || 0;
+        const deviceLabels = { mobile: 'موبایل', tablet: 'تبلت', desktop: 'دسکتاپ', bot: 'ربات', unknown: 'نامشخص' };
+        document.querySelector('[data-device-breakdown]').replaceChildren(...(state.analytics.breakdowns?.devices_30_days || []).map((item) => {
+            const card = document.createElement('div');
+            card.append(Object.assign(document.createElement('span'), { textContent: deviceLabels[item.device_class] || item.device_class }), Object.assign(document.createElement('b'), { textContent: item.count }));
+            return card;
+        }));
+        document.querySelector('[data-table-scan-breakdown]').replaceChildren(...(state.analytics.breakdowns?.table_scans_30_days || []).map((item) => {
+            const row = document.createElement('article'); row.className = 'admin-row';
+            row.append(Object.assign(document.createElement('strong'), { textContent: item.label }), Object.assign(document.createElement('small'), { textContent: item.table_key }), Object.assign(document.createElement('b'), { textContent: item.count }));
+            return row;
+        }));
         document.querySelector('[data-backup-status]').textContent = state.backups[0] ? `${state.backups[0].status} · ${state.backups[0].type}` : 'ثبت نشده';
         document.querySelector('[data-business-name]').textContent = state.context.business.name;
         document.querySelector('[data-user-name]').textContent = state.me.name;
@@ -475,7 +506,7 @@ if (dashboard) {
     });
     document.querySelector('[data-open-page]').addEventListener('click', () => openPage());
     document.querySelector('[data-reset-category]').addEventListener('click', resetCategoryForm);
-    document.querySelector('[data-logout]').addEventListener('click', async () => { try { await api('/logout', { method: 'POST' }); } finally { localStorage.removeItem(tokenKey); window.location.assign('/admin/login'); } });
+    document.querySelector('[data-logout]').addEventListener('click', async () => { try { await api('/logout', { method: 'POST' }); } finally { window.location.assign('/admin/login'); } });
 
     document.querySelector('[data-category-form]').addEventListener('submit', (event) => run(async () => {
         event.preventDefault(); const form = event.currentTarget; const id = form.public_id.value;
