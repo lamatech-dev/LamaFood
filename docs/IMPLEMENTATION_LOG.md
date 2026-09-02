@@ -12,6 +12,7 @@ The canonical checklist is maintained in `docs/DENARDI_V1_TRACKER.md` and mirror
 - English and Arabic retain explicit `/en/...` and `/ar/...` prefixes.
 - Legacy `/fa` URLs permanently redirect to their unprefixed Persian equivalents with query parameters preserved.
 - Internal navigation, language switching, QR destinations, JSON-LD, canonical/hreflang/x-default, sitemap, Admin brand links and the public PWA start URL follow the same contract.
+- GitHub Actions Run `33630595154` passed on disposable MySQL 8.4 with migrations from zero, 81 PHPUnit tests / 441 assertions, PHPStan, Pint, frontend tests/build and dependency audits.
 
 ## 2026-09-02 — Final responsive UI/UX and release polish
 
