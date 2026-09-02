@@ -144,15 +144,15 @@ Upload ابتدا `processing` است و فقط پس از validation/derivative 
 - `GET /backups`
 - `POST /backups`
 - `POST /backups/{id}/verify`
-- `POST /backups/{id}/restore`
+- `POST /backups/{id}/restore` — قرارداد رزروشده؛ endpoint در V1 اولیه فعال نیست و CLI مرجع است
 - `GET /audit-logs`
 
-Restore نیازمند Lamatech Super Admin، re-authentication، confirmation phrase و maintenance mode است.
+Restore اجرایی V1 از CLI کنترل‌شده انجام می‌شود. فعال‌سازی آینده endpoint/UI همچنان نیازمند Lamatech Super Admin، re-authentication، confirmation phrase، idempotency و maintenance mode است و بدون تکمیل همه این guardها مجاز نیست.
 
 Instance metadata شامل ID و versionهای محلی است. هیچ endpoint تماس با license server، activate/deactivate license یا remote enforcement در V1 وجود ندارد.
 
 ## Idempotency و Rate Limit
 
-- عملیات Backup/Restore/Publish و future Payment از `Idempotency-Key` پشتیبانی می‌کنند.
+- عملیات Backup/Publish و future Payment از `Idempotency-Key` پشتیبانی می‌کنند؛ Restore API رزروشده هنگام فعال‌سازی باید همین قرارداد را رعایت کند.
 - API Admin بر اساس user و IP prefix rate limit دارد.
 - endpoint ثبت Analytics در لبه یا application با dedupe و bot filter محافظت می‌شود.

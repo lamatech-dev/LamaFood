@@ -16,7 +16,11 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $disk
  * @property string|null $path
  * @property string|null $checksum
+ * @property array<string, mixed>|null $manifest_json
+ * @property int|null $size
  * @property CarbonImmutable|null $completed_at
+ * @property CarbonImmutable|null $expires_at
+ * @property CarbonImmutable|null $started_at
  * @property CarbonImmutable|null $verified_at
  */
 #[Fillable(['public_id', 'type', 'status', 'disk', 'path', 'checksum', 'storage_encrypted', 'size', 'manifest_json', 'failure_message', 'started_at', 'completed_at', 'expires_at', 'verified_at'])]

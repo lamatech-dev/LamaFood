@@ -95,6 +95,38 @@ Deploy با artifact انجام می‌شود، نه `git pull` روی Productio
 - تست شامل provision جداگانه secrets، login، count رکوردهای کلیدی، media sample، public menu، decrypt check کنترل‌شده و health است.
 - Backup بدون restore drill موفق «قابل اعتماد» محسوب نمی‌شود.
 
+## Safe Restore CLI Runbook
+
+فرمان مرجع V1، `backup:restore` است. این فرمان به‌صورت پیش‌فرض فقط preflight انجام می‌دهد و هیچ داده‌ای را تغییر نمی‌دهد. API/UI Restore تا زمانی که re-authentication، Godfather-only access و idempotency آن کامل نشده باشد فعال نمی‌شود.
+
+### پیش‌نیازها
+
+1. Target Backup و Backup ایمنی هر دو باید `completed`، دارای manifest سازگار و قبلاً با `backup:verify` تأیید شده باشند.
+2. Backup ایمنی باید از نوع `pre_release`، متفاوت از Target و جدیدتر از آن باشد.
+3. `instance_id` و `core_version` هر دو Backup باید با Instance جاری برابر باشند.
+4. secretها ابتدا از escrow مجاز روی محیط پاک provision می‌شوند؛ Restore هرگز `.env`، `APP_KEY`، Godfather password یا Provider plaintext secret را از archive برنمی‌گرداند.
+5. در Production علاوه بر encrypted external storage باید `BACKUP_PRODUCTION_RESTORE_ENABLED=true` فقط برای پنجره کنترل‌شده Restore تنظیم شود؛ مقدار امن پیش‌فرض `false` است.
+
+### ترتیب اجرا
+
+```text
+php artisan backup:create pre_release
+php artisan backup:verify <safety-public-id>
+php artisan backup:verify <target-public-id>
+php artisan backup:restore <target-public-id> --safety-backup=<safety-public-id>
+php artisan down
+php artisan backup:restore <target-public-id> --safety-backup=<safety-public-id> --execute --confirmation="RESTORE <target-public-id> ON <instance-id>"
+```
+
+- خروجی preflight باید type، اندازه SQL و تعداد فایل‌های upload را نشان دهد و صریحاً اعلام کند هیچ داده‌ای تغییر نکرده است.
+- اجرای واقعی checksum هر دو artifact را دوباره می‌سنجد، archive را به‌صورت streaming در مسیر خصوصی موقت stage می‌کند، pathهای ناشناخته/traversal/symlink و حجم uncompressed بیشتر از `BACKUP_RESTORE_MAX_UNCOMPRESSED_MB` را رد می‌کند و فقط سپس DB را با Process argument-array و `MYSQL_PWD` غیرنمایشی restore می‌کند.
+- Database-only Backup به uploads دست نمی‌زند. Full/Pre-release Backup، uploads را ابتدا کامل stage و سپس با rename روی همان filesystem جایگزین می‌کند.
+- فقط یک Restore هم‌زمان مجاز است. عملیات start/completed/failed در audit و protected application log ثبت می‌شود؛ credential و SQL content در log ثبت نمی‌شوند.
+- پس از Restore موفق نیز maintenance mode را فوراً خاموش نکنید. ابتدا migration status، health، login، شمارش رکوردهای کلیدی، public menu، media sample و decrypt/provider check کنترل‌شده را بررسی کنید؛ سپس `php artisan up` اجرا شود.
+- در هر شکست، maintenance mode فعال می‌ماند. از اجرای مجدد کورکورانه خودداری کنید؛ protected log را بررسی و برای بازگشت از Backup ایمنی طبق همین preflight اقدام کنید.
+
+این پیاده‌سازی «قابلیت Restore» را فراهم می‌کند، اما Restore Drill را اثبات نمی‌کند. Drill واقعی فقط روی Staging ایزوله و با گزارش نتیجه بسته می‌شود.
+
 ## Monitoring و Alert
 
 - HTTP uptime و TLS expiry

@@ -4,7 +4,9 @@ namespace App\Providers;
 
 use App\Core\Analytics\VisitorIdentity;
 use App\Core\Backup\Contracts\DatabaseDumper;
+use App\Core\Backup\Contracts\DatabaseRestorer;
 use App\Core\Backup\MySqlDatabaseDumper;
+use App\Core\Backup\MySqlDatabaseRestorer;
 use App\Core\Localization\LocaleRegistry;
 use App\Models\User;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -23,6 +25,7 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(DatabaseDumper::class, MySqlDatabaseDumper::class);
+        $this->app->bind(DatabaseRestorer::class, MySqlDatabaseRestorer::class);
     }
 
     /**
