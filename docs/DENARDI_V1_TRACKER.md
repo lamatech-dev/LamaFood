@@ -2,7 +2,7 @@
 
 | Project | Branch | V1 Completion | Go-live Readiness | Last updated | Last reviewed commit | CI status | Current blockers |
 |---|---|---:|---:|---|---|---|---:|
-| Denardi V1 | `develop/denardi-v1` | **93%** | **63%** | 2026-09-02 | `22ab386` | ⏳ CI pending for Safe Restore checkpoint | **3 blocker groups** |
+| Denardi V1 | `develop/denardi-v1` | **93%** | **63%** | 2026-09-02 | `22ab386` | ✅ [Run 33633503081](https://github.com/lamatech-dev/LamaFood/actions/runs/33633503081) | **3 blocker groups** |
 
 This Markdown file is the canonical project-status document. Percentages are evidence-based planning estimates, not mathematical precision. The tracker contains **159 control items**: 113 Done, 10 Partial, 8 Not Started, 16 Blocked line items and 12 Out of V1. The blocked line items roll up into three actual external blocker groups.
 
@@ -344,7 +344,7 @@ Columns: **V1** means required for Denardi V1. Priority uses P0 (release-blockin
 
 - Branch: `develop/denardi-v1`
 - Feature checkpoint commit: `22ab386`
-- CI for Safe Restore checkpoint: pending; previous reviewed state [33630595154](https://github.com/lamatech-dev/LamaFood/actions/runs/33630595154) passed on disposable MySQL 8.4
+- Green CI for Safe Restore checkpoint: [33633503081](https://github.com/lamatech-dev/LamaFood/actions/runs/33633503081) on disposable MySQL 8.4
 - Key commits: `22ab386` guarded Safe Restore; `6ccc4e1` Persian URL normalization; `12659c9` UI/UX checkpoint; `8519229` Current Phase completion; `63cbb4f` management completion; `047830a` clean-CI preview isolation; `259a348` persistent tracker/dashboard
-- Test summary: 87 PHPUnit tests / 464 assertions; 8 frontend tests; PHPStan zero errors; Pint/build/npm audit pass; Composer validation/audit pending CI
+- Test summary: 87 PHPUnit tests / 464 assertions; 8 frontend tests; PHPStan zero errors; Pint/build and Composer/npm validation/audits pass
 - Secrets: ignored `.env` remains untracked; tracked examples contain placeholders only

@@ -23,7 +23,7 @@ Verification:
 - Frontend tests: 8 passed; Vite production build passed.
 - npm audit: zero known vulnerabilities. Local Composer CLI was unavailable; Composer validation/audit remains required in GitHub CI.
 
-GitHub CI: pending for this checkpoint.
+GitHub Actions Run `33633503081`: **passed** on disposable MySQL 8.4, including Composer install/validation/audit, application bootstrap, migrations from zero, 87 PHPUnit tests / 464 assertions, PHPStan, Pint, frontend tests/build and npm audit.
 
 ## 2026-09-02 — Persian default URL normalization
 
