@@ -2,9 +2,9 @@
 
 | Project | Branch | V1 Completion | Go-live Readiness | Last updated | Last reviewed commit | CI status | Current blockers |
 |---|---|---:|---:|---|---|---|---:|
-| Denardi V1 | `develop/denardi-v1` | **94%** | **65%** | 2026-09-02 | `b8ecab5` | ✅ [Run 33661676730](https://github.com/lamatech-dev/LamaFood/actions/runs/33661676730) | **3 blocker groups** |
+| Denardi V1 | `develop/denardi-v1` | **95%** | **66%** | 2026-09-02 | `2d7a465` | ✅ [Run 33664462499](https://github.com/lamatech-dev/LamaFood/actions/runs/33664462499) | **3 blocker groups** |
 
-This Markdown file is the canonical project-status document. Percentages are evidence-based planning estimates, not mathematical precision. The tracker contains **159 control items**: 115 Done, 10 Partial, 6 Not Started, 16 Blocked line items and 12 Out of V1. The blocked line items roll up into three actual external blocker groups.
+This Markdown file is the canonical project-status document. Percentages are evidence-based planning estimates, not mathematical precision. The tracker contains **167 control items**: 123 Done, 10 Partial, 6 Not Started, 16 Blocked line items and 12 Out of V1. The blocked line items roll up into three actual external blocker groups.
 
 ## Maintenance rule
 
@@ -20,7 +20,7 @@ After every major implementation phase or release checkpoint, `DENARDI_V1_TRACKE
 
 ## Current State
 
-Foundation, three-language localization, CMS, Media, Product/Category management, branch pricing/availability, General/Table QR, public menu, required analytics emission, secure Password Reset, health checks, structured data, SEO/PWA foundations, secret-safe backup creation, guarded Safe Restore and the final responsive UI/UX pass are implemented. The local quality gate passes. Remaining engineering is Production-like validation; Go-live additionally depends on real Denardi content, Staging, external encrypted backups, restore drill, external monitoring, UAT and Production access.
+Foundation, three-language localization, CMS, Media, Product/Category management, branch pricing/availability, General/Table QR, public menu, required analytics emission, secure Password Reset, business User Management, health checks, structured data, SEO/PWA foundations, secret-safe backup creation, guarded Safe Restore and the final responsive UI/UX pass are implemented. The local quality gate passes. Remaining engineering is Production-like validation; Go-live additionally depends on real Denardi content, Staging, external encrypted backups, restore drill, external monitoring, UAT and Production access.
 
 ## Completed
 
@@ -40,7 +40,8 @@ Foundation, three-language localization, CMS, Media, Product/Category management
 - CMS/config-driven LocalBusiness JSON-LD plus production-size PWA icons and installability prerequisites
 - Stateful Sanctum/CSRF Admin authentication, baseline security headers, server-protected Admin shell and completed local XSS/IDOR/permission/session/upload/secret matrix
 - Analytics device/table breakdown in the Admin summary
-- 97 PHPUnit tests / 625 assertions, PHPStan, Pint, frontend tests/build and Composer/npm dependency audits
+- Business-scoped User Management for listing, invite/create, profile/role/status updates, safe deactivation, password reset and audit, with Godfather/Lamatech isolation
+- 107 PHPUnit tests / 708 assertions, PHPStan, Pint, frontend tests/build and Composer/npm dependency audits
 
 ## Remaining for V1
 
@@ -69,8 +70,8 @@ These block complete delivery/go-live, not continued local release-readiness eng
 
 ## Recommended Execution Order
 
-1. Audit and close any approved local Denardi V1 Admin workflow gaps, beginning with User Management.
-2. Receive and import final `fa/en/ar` Denardi content, menu, images and table list.
+1. Receive and validate final `fa/en/ar` Denardi content, menu, images, prices, contact data and table list.
+2. Import the approved content through the completed Admin workflows and run content-readiness checks.
 3. Provision Staging only after explicit environment/credential authorization.
 4. Configure offsite encrypted backup/monitoring and complete restore/rollback drills.
 5. Validate Production-like Lighthouse, axe/screen-reader, PWA installation, iOS Safari and Android Chrome in Staging.
@@ -82,12 +83,12 @@ These block complete delivery/go-live, not continued local release-readiness eng
 | Metric | Estimate | Basis |
 |---|---:|---|
 | Foundation | 100% | Core, migrations, RBAC, metadata, module/event contracts and CI are green |
-| Functional V1 | 97% | Required local application flows, including guarded Restore, are implemented |
-| UI/UX readiness | 90% | Public/Menu/Admin responsive refinement and six-width browser QA pass; final brand/content/device UAT remains |
-| QA readiness | 89% | Release security matrix, automated gates, local Lighthouse and 320/375/390/430/768/1440 FA/EN/AR browser checks pass; Production-like/device/axe/screen-reader validation remains |
+| Functional V1 | 98% | Required local application flows, including business User Management and guarded Restore, are implemented |
+| UI/UX readiness | 91% | Public/Menu/Admin/User Access responsive refinement and browser QA pass; final brand/content/device UAT remains |
+| QA readiness | 90% | Release security/user-access matrices, automated gates, local Lighthouse and responsive FA/EN/AR/Admin browser checks pass; Production-like/device/axe/screen-reader validation remains |
 | Production readiness | 35% | Backup/Restore implementation and runbooks exist; Staging/offsite/monitoring/Production are not configured |
-| Overall V1 completion | **94%** | Weighted estimate after closing locally verifiable Release QA and Analytics gaps |
-| Go-live readiness | **65%** | Local Release QA and application/Restore foundations pass; content, operational drills, device QA and approval remain |
+| Overall V1 completion | **95%** | Weighted estimate after closing Release QA and the locally verifiable business User Management workflow |
+| Go-live readiness | **66%** | Local Release QA, User Management and application/Restore foundations pass; content, operational drills, device QA and approval remain |
 
 ## Feature Tracker
 
@@ -215,6 +216,14 @@ Columns: **V1** means required for Denardi V1. Priority uses P0 (release-blockin
 | Admin | Analytics | ✅ DONE | Yes | Today/7/30 totals plus 30-day device/Table QR breakdown | Real-data UAT | — | P2 | Content/UAT | AnalyticsSummaryTest | `b8ecab5` |
 | Admin | Localization | ✅ DONE | Yes | Metadata/readiness and independent editors | Final content UAT | — | P0 | UAT | AdminShellTest | `63cbb4f` |
 | Admin | Mobile usability | ✅ DONE | Yes | Collapsible mobile navigation, responsive forms/cards, loading/retry and accessible status feedback | Physical-device UAT | Device access | P0 | UAT | Browser viewport matrix | UI/UX checkpoint |
+| Admin | User list/status | ✅ DONE | Yes | Business-scoped list with account status; Godfather/protected Lamatech identities excluded | Owner UAT | — | P0 | Complete locally | UserManagementControllerTest | `2d7a465` |
+| Admin | User create/invite | ✅ DONE | Yes | Name/username/email creation with random internal credential and secure setup-link request | Production mail delivery | Infrastructure | P0 | Staging | UserManagementControllerTest | `2d7a465` |
+| Admin | User profile edit | ✅ DONE | Yes | Validated name, username and email updates in `Settings → Users & Access` | Owner UAT | — | P1 | Complete locally | UserManagementControllerTest | `2d7a465` |
+| Admin | Role assignment | ✅ DONE | Yes | Existing Business Owner/Content Editor roles only; no raw permissions or Lamatech escalation | Owner UAT | — | P0 | Complete locally | UserManagementControllerTest | `2d7a465` |
+| Admin | Access activation | ✅ DONE | Yes | Active/inactive state, login guard and target session/token revocation | Owner UAT | — | P0 | Complete locally | UserManagementControllerTest | `2d7a465` |
+| Admin | Managed Password Reset | ✅ DONE | Yes | Active scoped users receive throttled secure reset request; no password is displayed | Production mail delivery | Infrastructure | P0 | Staging | UserManagementControllerTest, PasswordResetControllerTest | `2d7a465` |
+| Admin | Safe deactivation | ✅ DONE | Yes | Delete action deactivates without erasing history; self and final active owner lockout prevented | Owner UAT | — | P0 | Complete locally | UserManagementControllerTest | `2d7a465` |
+| Admin | User access audit/isolation | ✅ DONE | Yes | Create/update/deactivate/reset events audited; cross-Business, Godfather and Lamatech isolation enforced | Operational audit review | — | P0 | Complete locally | UserManagementControllerTest | `2d7a465` |
 
 ### SEO
 
@@ -285,12 +294,12 @@ Columns: **V1** means required for Denardi V1. Priority uses P0 (release-blockin
 
 | Area | Feature / Requirement | Status | V1 | What is completed | What remains | Blocker | Priority | Target phase | Related tests | Last relevant commit |
 |---|---|---|---|---|---|---|---|---|---|---|
-| QA | PHPUnit | ✅ DONE | Yes | 97 tests / 625 assertions pass | Grow with features | — | P0 | Continuous | Full suite | `b8ecab5` |
+| QA | PHPUnit | ✅ DONE | Yes | 107 tests / 708 assertions pass | Grow with features | — | P0 | Continuous | Full suite | `2d7a465` |
 | QA | PHPStan / Larastan | ✅ DONE | Yes | Zero errors | Maintain | — | P0 | Continuous | CI | `f493edf` |
 | QA | Pint | ✅ DONE | Yes | Formatting gate passes | Maintain | — | P0 | Continuous | CI | `f493edf` |
 | QA | Frontend tests | ✅ DONE | Yes | 8 Node tests cover Admin data helpers and public localized search | Grow with features | — | P1 | Continuous | frontend helper tests | UI/UX checkpoint |
 | QA | Production build | ✅ DONE | Yes | Vite build passes | Staging artifact check | — | P0 | Continuous | CI | `f493edf` |
-| QA | Browser smoke tests | ✅ DONE | Yes | FA/EN/AR Home, Menu, Admin login and Password Reset smoke-tested without application console errors | Full P0 automation | — | P1 | Release QA | Playwright smoke | `8519229` |
+| QA | Browser smoke tests | ✅ DONE | Yes | FA/EN/AR public flows plus authenticated User Access list/create dialog smoke-tested without application console errors | Full P0 automation | — | P1 | Release QA | Playwright smoke | `2d7a465` |
 | QA | FA/EN/AR tests | ✅ DONE | Yes | Routing/content/direction/readiness tested | Final copy/UAT | — | P0 | Content/UAT | Locale/Public/CMS tests | `63cbb4f` |
 | QA | Responsive tests | ✅ DONE | Yes | Public FA/EN/AR and authenticated Admin verified at 320/375/390/430/768/1440 with no horizontal overflow | Physical devices | Device access | P0 | UAT | In-app browser matrix | UI/UX checkpoint |
 | QA | Accessibility | 🟡 PARTIAL | Yes | Semantic browser matrix plus local Lighthouse accessibility 100 on FA/EN/AR Home and Persian Menu | axe and screen-reader verification | Staging/device | P0 | Staging/UAT | Semantic browser/Lighthouse inspection | `b8ecab5` |
@@ -345,8 +354,9 @@ Columns: **V1** means required for Denardi V1. Priority uses P0 (release-blockin
 ## Git / CI Evidence
 
 - Branch: `develop/denardi-v1`
-- Feature checkpoint commit: `b8ecab5`
+- Feature checkpoint commit: `2d7a465`
+- User Management CI: [33664462499](https://github.com/lamatech-dev/LamaFood/actions/runs/33664462499) passed on disposable MySQL 8.4
 - Release QA CI: [33661676730](https://github.com/lamatech-dev/LamaFood/actions/runs/33661676730) on disposable MySQL 8.4
-- Key commits: `b8ecab5` Release QA hardening; `22ab386` guarded Safe Restore; `6ccc4e1` Persian URL normalization; `12659c9` UI/UX checkpoint; `8519229` Current Phase completion; `63cbb4f` management completion; `259a348` persistent tracker/dashboard
-- Test summary: 97 PHPUnit tests / 625 assertions; 8 frontend tests; PHPStan zero errors; Pint/build and Composer/npm validation/audits pass
+- Key commits: `2d7a465` business User Management; `b8ecab5` Release QA hardening; `22ab386` guarded Safe Restore; `6ccc4e1` Persian URL normalization; `12659c9` UI/UX checkpoint; `8519229` Current Phase completion; `63cbb4f` management completion; `259a348` persistent tracker/dashboard
+- Test summary: 107 PHPUnit tests / 708 assertions; 8 frontend tests; PHPStan zero errors; Pint/build and Composer/npm validation/audits pass
 - Secrets: ignored `.env` remains untracked; tracked examples contain placeholders only

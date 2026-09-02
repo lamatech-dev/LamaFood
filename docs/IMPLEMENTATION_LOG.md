@@ -4,6 +4,30 @@ This file records implementation checkpoints, verification evidence and remainin
 
 The canonical checklist is maintained in `docs/DENARDI_V1_TRACKER.md` and mirrored by the visual `docs/DENARDI_V1_TRACKER.html` dashboard; every future implementation checkpoint must update both in the same commit.
 
+## 2026-09-02 — Business User Management checkpoint
+
+**Commit:** `2d7a465` — `feat: complete business user management`
+
+- Added the real `Settings → Users & Access` workflow for Business-scoped list, create/invite, profile editing, allowed role assignment, active/inactive status, safe deactivation and managed Password Reset.
+- Reused the existing Business Owner/Content Editor RBAC model; normal admins never receive a raw permission editor and cannot assign Lamatech privileges.
+- Added persistent `is_active` state, inactive login/session enforcement, token/database-session revocation after access changes, and final-active-owner/self-lockout protection.
+- Excluded Godfather and any protected Lamatech-level identity from normal user queries, counts and operations while preserving Godfather's instance-level capability contract.
+- Recorded create, setup-link, update, deactivate and managed-reset events through the existing secret-redacting audit recorder.
+- Confirmed the existing Denardi V1 model is Business-scoped; no unnecessary per-Branch user relation was introduced for the current single-Branch delivery.
+
+Verification:
+
+- Explicit clean `lamafood_test` MySQL migration from zero: passed; the additive migration was also applied to the local development database.
+- PHPUnit: 107 tests / 708 assertions passed, including authorization, cross-Business isolation, protected identities, escalation, session revocation, lifecycle and audit cases.
+- PHPStan/Larastan: zero errors; Pint and `git diff --check` passed.
+- Frontend tests: 8 passed; Vite production build passed.
+- Composer validation/audit and npm audit passed with zero known vulnerabilities.
+- Playwright: authenticated Users & Access page and create dialog passed semantic/console checks; 375×812 mobile layout was visually verified with no browser error or warning.
+
+GitHub Actions Run `33664462499`: **passed** on disposable MySQL 8.4 with clean migrations, PHPUnit, PHPStan, Pint, frontend tests/build and dependency audits.
+
+No Staging, Production, real Denardi content, physical-device UAT, restore drill or Future/Out-of-V1 module was started.
+
 ## 2026-09-02 — Guarded Safe Restore foundation
 
 **Commit:** `22ab386` — `feat: add guarded backup restore workflow`
