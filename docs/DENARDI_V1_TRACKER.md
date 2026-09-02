@@ -2,9 +2,9 @@
 
 | Project | Branch | V1 Completion | Go-live Readiness | Last updated | Last reviewed commit | CI status | Current blockers |
 |---|---|---:|---:|---|---|---|---:|
-| Denardi V1 | `develop/denardi-v1` | **92%** | **62%** | 2026-09-02 | `6ccc4e1` | ✅ [Run 33630595154](https://github.com/lamatech-dev/LamaFood/actions/runs/33630595154) | **3 blocker groups** |
+| Denardi V1 | `develop/denardi-v1` | **93%** | **63%** | 2026-09-02 | `22ab386` | ⏳ CI pending for Safe Restore checkpoint | **3 blocker groups** |
 
-This Markdown file is the canonical project-status document. Percentages are evidence-based planning estimates, not mathematical precision. The tracker contains **159 control items**: 112 Done, 10 Partial, 9 Not Started, 16 Blocked line items and 12 Out of V1. The blocked line items roll up into three actual external blocker groups.
+This Markdown file is the canonical project-status document. Percentages are evidence-based planning estimates, not mathematical precision. The tracker contains **159 control items**: 113 Done, 10 Partial, 8 Not Started, 16 Blocked line items and 12 Out of V1. The blocked line items roll up into three actual external blocker groups.
 
 ## Maintenance rule
 
@@ -20,7 +20,7 @@ After every major implementation phase or release checkpoint, `DENARDI_V1_TRACKE
 
 ## Current State
 
-Foundation, three-language localization, CMS, Media, Product/Category management, branch pricing/availability, General/Table QR, public menu, required analytics emission, secure Password Reset, health checks, structured data, SEO/PWA foundations, secret-safe backup creation and the final responsive UI/UX pass are implemented. The local quality gate passes. Remaining engineering is safe restore implementation and Production-like validation; Go-live additionally depends on real Denardi content, Staging, external encrypted backups, restore drill, external monitoring, UAT and Production access.
+Foundation, three-language localization, CMS, Media, Product/Category management, branch pricing/availability, General/Table QR, public menu, required analytics emission, secure Password Reset, health checks, structured data, SEO/PWA foundations, secret-safe backup creation, guarded Safe Restore and the final responsive UI/UX pass are implemented. The local quality gate passes. Remaining engineering is Production-like validation; Go-live additionally depends on real Denardi content, Staging, external encrypted backups, restore drill, external monitoring, UAT and Production access.
 
 ## Completed
 
@@ -33,16 +33,17 @@ Foundation, three-language localization, CMS, Media, Product/Category management
 - Structured Admin workspaces for Menu, CMS, Media, QR, Analytics and Localization
 - Canonical/hreflang/sitemap/robots/OpenGraph and online-first PWA/offline-shell foundations
 - Secret-excluding DB/Full backup creation, checksum verification, schedule and audit
+- Guarded CLI Restore with dry-run preflight, instance/core checks, verified safety backup, maintenance/confirmation/locking guards, streaming archive validation and audit
 - Secure normal-user Password Reset with expiry, throttling, Godfather isolation and audit
 - Privacy-preserving Menu/Category/Product/QR analytics with branch attribution and deduplication
 - Application/database/storage/queue/scheduler/backup-freshness health visibility
 - CMS/config-driven LocalBusiness JSON-LD plus production-size PWA icons and installability prerequisites
-- 81 PHPUnit tests / 433 assertions, PHPStan, Pint, frontend tests/build and dependency audits
+- 87 PHPUnit tests / 464 assertions, PHPStan, Pint, frontend tests/build and npm dependency audit; Composer audit is gated in CI
 
 ## Remaining for V1
 
 - Production-like Lighthouse, automated accessibility, iOS Safari and Android device QA
-- Safe restore command/runbook implementation and Staging restore drill
+- Successful full Restore Drill on isolated Staging with recorded recovery evidence
 - PWA installation/device validation in a Production-like environment
 - Final real Denardi copy/assets/menu data followed by three-language content approval
 
@@ -66,26 +67,25 @@ These block complete delivery/go-live, not continued local release-readiness eng
 
 ## Recommended Execution Order
 
-1. Run targeted mobile/Admin error-state refinement and the release security/accessibility/responsive QA matrix.
-2. Implement the safe restore workflow and validate it locally without Production data.
-3. Receive and import final `fa/en/ar` Denardi content, menu, images and table list.
-4. Provision Staging only after explicit environment/credential authorization.
-5. Configure offsite encrypted backup/monitoring and complete restore/rollback drills.
-6. Validate PWA installation, Lighthouse, iOS Safari and Android Chrome in Staging.
-7. Run Denardi UAT, physical QR proof, training and written sign-off.
-8. Perform Production deploy, DNS/SSL switch, smoke checks and observation window.
+1. Run the release security/accessibility/responsive QA matrix and Production-like Lighthouse checks.
+2. Receive and import final `fa/en/ar` Denardi content, menu, images and table list.
+3. Provision Staging only after explicit environment/credential authorization.
+4. Configure offsite encrypted backup/monitoring and complete restore/rollback drills.
+5. Validate PWA installation, Lighthouse, iOS Safari and Android Chrome in Staging.
+6. Run Denardi UAT, physical QR proof, training and written sign-off.
+7. Perform Production deploy, DNS/SSL switch, smoke checks and observation window.
 
 ## Completion Metrics
 
 | Metric | Estimate | Basis |
 |---|---:|---|
 | Foundation | 100% | Core, migrations, RBAC, metadata, module/event contracts and CI are green |
-| Functional V1 | 96% | Required local application flows and current engineering gap list are implemented |
+| Functional V1 | 97% | Required local application flows, including guarded Restore, are implemented |
 | UI/UX readiness | 90% | Public/Menu/Admin responsive refinement and six-width browser QA pass; final brand/content/device UAT remains |
 | QA readiness | 82% | Automated gates plus 320/375/390/430/768/1440 FA/EN/AR browser checks pass; device/axe/Lighthouse/security matrix remains |
-| Production readiness | 30% | Runbooks and backup contracts exist; Staging/offsite/monitoring/Production are not configured |
-| Overall V1 completion | **92%** | Weighted estimate after the authorized final responsive UI/UX pass |
-| Go-live readiness | **62%** | Local application and browser quality gates pass; content, operations, device QA and approval remain |
+| Production readiness | 35% | Backup/Restore implementation and runbooks exist; Staging/offsite/monitoring/Production are not configured |
+| Overall V1 completion | **93%** | Weighted estimate after closing the guarded Safe Restore implementation gap |
+| Go-live readiness | **63%** | Local application/Restore foundations pass; content, operational drills, device QA and approval remain |
 
 ## Feature Tracker
 
@@ -263,7 +263,7 @@ Columns: **V1** means required for Denardi V1. Priority uses P0 (release-blockin
 | Backup | Secret exclusion | ✅ DONE | Yes | `.env`/keys/secrets excluded; manifest references only | Escrow procedure exercise | Secret owner | P0 | Staging | BackupLifecycleTest | `cd48495` |
 | Backup | Checksum verification | ✅ DONE | Yes | SHA-256 verification/audit | Automated post-backup policy | — | P1 | Pre-Staging | BackupLifecycleTest | `cd48495` |
 | Backup | Scheduler | ✅ DONE | Yes | Daily DB / weekly Full schedule | Verify cron heartbeat in environment | Hosting | P0 | Staging | schedule review | `cd48495` |
-| Backup | Restore implementation | ⏳ NOT STARTED | Yes | Recovery order documented | Safe restore command/runbook execution | Staging | P0 | Pre-Staging | None | — |
+| Backup | Restore implementation | ✅ DONE | Yes | Guarded CLI preflight/execution, checksum/manifest/instance checks, safety backup, maintenance/confirmation/lock, streaming archive limits, DB/uploads restore and audit | Execute only through Staging drill before Production trust | — | P0 | Complete | BackupLifecycleTest | `22ab386` |
 | Backup | Restore drill | ⏳ NOT STARTED | Yes | Acceptance checklist documented | Execute and record full Staging drill | Staging/offsite | P0 | Staging/UAT | None | — |
 | Backup | Offsite encrypted storage | 🔴 BLOCKED | Yes | Production policy rejects unsafe storage | Select/configure encrypted external destination | Infrastructure owner | P0 | Staging | policy test | `cd48495` |
 
@@ -283,7 +283,7 @@ Columns: **V1** means required for Denardi V1. Priority uses P0 (release-blockin
 
 | Area | Feature / Requirement | Status | V1 | What is completed | What remains | Blocker | Priority | Target phase | Related tests | Last relevant commit |
 |---|---|---|---|---|---|---|---|---|---|---|
-| QA | PHPUnit | ✅ DONE | Yes | 81 tests / 433 assertions pass | Grow with features | — | P0 | Continuous | Full suite | `8519229` |
+| QA | PHPUnit | ✅ DONE | Yes | 87 tests / 464 assertions pass | Grow with features | — | P0 | Continuous | Full suite | `22ab386` |
 | QA | PHPStan / Larastan | ✅ DONE | Yes | Zero errors | Maintain | — | P0 | Continuous | CI | `f493edf` |
 | QA | Pint | ✅ DONE | Yes | Formatting gate passes | Maintain | — | P0 | Continuous | CI | `f493edf` |
 | QA | Frontend tests | ✅ DONE | Yes | 8 Node tests cover Admin data helpers and public localized search | Grow with features | — | P1 | Continuous | frontend helper tests | UI/UX checkpoint |
@@ -343,8 +343,8 @@ Columns: **V1** means required for Denardi V1. Priority uses P0 (release-blockin
 ## Git / CI Evidence
 
 - Branch: `develop/denardi-v1`
-- Feature checkpoint commit: `12659c9`
-- Green CI for reviewed state: [33630595154](https://github.com/lamatech-dev/LamaFood/actions/runs/33630595154) on disposable MySQL 8.4
-- Key commits: `6ccc4e1` Persian URL normalization; `12659c9` UI/UX checkpoint; `8519229` Current Phase completion; `63cbb4f` management completion; `047830a` clean-CI preview isolation; `259a348` persistent tracker/dashboard
-- Test summary: 81 PHPUnit tests / 433 assertions; 8 frontend tests; PHPStan zero errors; Pint/build/audits pass
+- Feature checkpoint commit: `22ab386`
+- CI for Safe Restore checkpoint: pending; previous reviewed state [33630595154](https://github.com/lamatech-dev/LamaFood/actions/runs/33630595154) passed on disposable MySQL 8.4
+- Key commits: `22ab386` guarded Safe Restore; `6ccc4e1` Persian URL normalization; `12659c9` UI/UX checkpoint; `8519229` Current Phase completion; `63cbb4f` management completion; `047830a` clean-CI preview isolation; `259a348` persistent tracker/dashboard
+- Test summary: 87 PHPUnit tests / 464 assertions; 8 frontend tests; PHPStan zero errors; Pint/build/npm audit pass; Composer validation/audit pending CI
 - Secrets: ignored `.env` remains untracked; tracked examples contain placeholders only

@@ -4,6 +4,27 @@ This file records implementation checkpoints, verification evidence and remainin
 
 The canonical checklist is maintained in `docs/DENARDI_V1_TRACKER.md` and mirrored by the visual `docs/DENARDI_V1_TRACKER.html` dashboard; every future implementation checkpoint must update both in the same commit.
 
+## 2026-09-02 — Guarded Safe Restore foundation
+
+**Commit:** `22ab386` — `feat: add guarded backup restore workflow`
+
+- Added reference CLI Restore with non-mutating preflight by default and explicit `--execute` mode.
+- Enforced completed/verified target and newer `pre_release` safety Backup, current instance/core manifest matching, checksum revalidation, maintenance mode, exact instance-bound confirmation phrase and a single-operation lock.
+- Added streaming DB/full-archive staging, embedded-manifest validation, traversal/symlink rejection, configurable uncompressed-size ceiling and controlled uploads replacement.
+- Kept database credentials out of command arguments/logs, preserved secret-exclusion recovery policy and added start/completed/failed audit plus protected operational logging.
+- Production execution is disabled by default and additionally requires encrypted external target/safety artifacts; API/UI Restore remains inactive until its Godfather-only re-authentication/idempotency guards are implemented.
+- Updated the deployment/recovery runbook. This checkpoint does not claim or execute a Restore Drill, Staging or Production Restore.
+
+Verification:
+
+- Clean `lamafood_test` migrations from zero: passed.
+- PHPUnit: 87 tests, 464 assertions, passed; focused Backup/Restore: 9 tests, 34 assertions.
+- PHPStan/Larastan: zero errors; Pint passed.
+- Frontend tests: 8 passed; Vite production build passed.
+- npm audit: zero known vulnerabilities. Local Composer CLI was unavailable; Composer validation/audit remains required in GitHub CI.
+
+GitHub CI: pending for this checkpoint.
+
 ## 2026-09-02 — Persian default URL normalization
 
 **Commit:** `6ccc4e1` — `fix: make Persian the unprefixed default locale`
