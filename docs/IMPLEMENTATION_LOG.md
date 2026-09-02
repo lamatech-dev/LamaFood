@@ -6,6 +6,8 @@ The canonical checklist is maintained in `docs/DENARDI_V1_TRACKER.md` and mirror
 
 ## 2026-09-02 — Persian default URL normalization
 
+**Commit:** `6ccc4e1` — `fix: make Persian the unprefixed default locale`
+
 - Persian public URLs are canonical without a locale prefix: `/`, `/menu`, `/about`, `/contact` and `/privacy`.
 - English and Arabic retain explicit `/en/...` and `/ar/...` prefixes.
 - Legacy `/fa` URLs permanently redirect to their unprefixed Persian equivalents with query parameters preserved.
