@@ -2,9 +2,9 @@
     <div class="shell footer-grid">
         <div class="footer-brand"><strong>DENARDI</strong><p>ART · COFFEE · JUICE</p></div>
         <nav class="footer-nav" aria-label="{{ __('public.footer_navigation', locale: $locale) }}">
-            <a href="{{ url('/'.$locale.'/menu') }}">{{ __('public.menu', locale: $locale) }}</a>
-            <a href="{{ url('/'.$locale.'/about') }}">{{ __('public.about', locale: $locale) }}</a>
-            <a href="{{ url('/'.$locale.'/contact') }}">{{ __('public.contact', locale: $locale) }}</a>
+            <a href="{{ url($localeRegistry->publicPath($locale, 'menu')) }}">{{ __('public.menu', locale: $locale) }}</a>
+            <a href="{{ url($localeRegistry->publicPath($locale, 'about')) }}">{{ __('public.about', locale: $locale) }}</a>
+            <a href="{{ url($localeRegistry->publicPath($locale, 'contact')) }}">{{ __('public.contact', locale: $locale) }}</a>
         </nav>
         <div class="footer-actions">
             @if(config('denardi.phone'))<a href="tel:{{ config('denardi.phone') }}">{{ __('public.call', locale: $locale) }}</a>@endif

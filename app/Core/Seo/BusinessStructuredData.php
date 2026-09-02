@@ -5,10 +5,13 @@ namespace App\Core\Seo;
 use App\Core\Business\Models\Business;
 use App\Core\Cms\Models\Page;
 use App\Core\Cms\PageStatus;
+use App\Core\Localization\LocaleRegistry;
 use Illuminate\Support\Arr;
 
 class BusinessStructuredData
 {
+    public function __construct(private readonly LocaleRegistry $locales) {}
+
     /** @return array<string, mixed> */
     public function forBusiness(Business $business, string $locale): array
     {
@@ -23,8 +26,8 @@ class BusinessStructuredData
             '@type' => $type,
             '@id' => url('/#business'),
             'name' => $business->name,
-            'url' => url("/{$locale}"),
-            'menu' => route('public.menu', ['locale' => $locale]),
+            'url' => url($this->locales->publicPath($locale)),
+            'menu' => url($this->locales->publicPath($locale, 'menu')),
             'inLanguage' => $locale,
         ];
 

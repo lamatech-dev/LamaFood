@@ -27,7 +27,7 @@ class QrRedirectAnalyticsTest extends TestCase
         $this->withCookie('denardi_visitor', $visitor)
             ->withHeader('Accept-Language', 'ar')
             ->get('/q/'.$qrCode->public_id)
-            ->assertRedirect(route('public.menu', ['locale' => 'ar', 'branch' => 'central', 'table' => 'table-12']));
+            ->assertRedirect(url('/ar/menu').'?branch=central&table=table-12');
         $this->withCookie('denardi_visitor', $visitor)
             ->withHeader('Accept-Language', 'ar')
             ->get('/q/'.$qrCode->public_id)

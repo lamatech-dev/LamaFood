@@ -64,4 +64,18 @@ class LocaleRegistry
     {
         return implode('|', array_map(static fn (string $locale): string => preg_quote($locale, '/'), $this->codes()));
     }
+
+    public function publicPath(string $locale, string $path = ''): string
+    {
+        $this->get($locale);
+
+        $prefix = $locale === $this->default() ? '' : '/'.$locale;
+        $suffix = trim($path, '/');
+
+        if ($suffix === '') {
+            return $prefix === '' ? '/' : $prefix;
+        }
+
+        return $prefix.'/'.$suffix;
+    }
 }

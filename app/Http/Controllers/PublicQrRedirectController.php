@@ -37,7 +37,7 @@ class PublicQrRedirectController extends Controller
             $query['table'] = $qrCode->table_key;
         }
 
-        return redirect()->route('public.menu', ['locale' => $locale, ...$query])
+        return redirect($locales->publicPath($locale, 'menu').'?'.http_build_query($query))
             ->withCookie($visitors->cookie($identifier));
     }
 }

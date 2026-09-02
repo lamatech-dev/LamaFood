@@ -3,7 +3,7 @@
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#071015"><meta name="robots" content="noindex,nofollow"><link rel="manifest" href="/admin.webmanifest"><link rel="icon" href="/icons/icon-192.png" type="image/png"><link rel="apple-touch-icon" href="/icons/apple-touch-icon.png"><title>رمز عبور جدید · Denardi Admin</title>@vite('resources/js/admin.js')</head>
 <body class="admin-app login-screen">
 <main class="login-card">
-    <a class="admin-brand" href="/fa"><span>D</span><b>DENARDI</b></a>
+    <a class="admin-brand" href="/"><span>D</span><b>DENARDI</b></a>
     <p class="admin-kicker">SECURE PASSWORD RESET</p>
     <h1>رمز عبور جدید</h1>
     <p>رمز باید حداقل ۱۲ نویسه و شامل حروف بزرگ و کوچک، عدد و نماد باشد.</p>

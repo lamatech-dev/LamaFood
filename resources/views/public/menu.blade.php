@@ -13,21 +13,21 @@
     <meta property="og:type" content="website">
     <meta property="og:title" content="{{ __('public.menu_title', locale: $locale) }}">
     <meta property="og:description" content="{{ __('public.menu_description', locale: $locale) }}">
-    <meta property="og:url" content="{{ route('public.menu', ['locale' => $locale, ...$menuQuery]) }}">
+    <meta property="og:url" content="{{ url($localeRegistry->publicPath($locale, 'menu')).($menuQuery ? '?'.http_build_query($menuQuery) : '') }}">
     <meta property="og:locale" content="{{ $locale }}">
-    <link rel="canonical" href="{{ route('public.menu', ['locale' => $locale, ...$menuQuery]) }}">
-    @foreach($locales as $code => $metadata)<link rel="alternate" hreflang="{{ $code }}" href="{{ route('public.menu', ['locale' => $code, ...$menuQuery]) }}">@endforeach
-    <link rel="alternate" hreflang="x-default" href="{{ url('/fa/menu') }}">
+    <link rel="canonical" href="{{ url($localeRegistry->publicPath($locale, 'menu')).($menuQuery ? '?'.http_build_query($menuQuery) : '') }}">
+    @foreach($locales as $code => $metadata)<link rel="alternate" hreflang="{{ $code }}" href="{{ url($localeRegistry->publicPath($code, 'menu')).($menuQuery ? '?'.http_build_query($menuQuery) : '') }}">@endforeach
+    <link rel="alternate" hreflang="x-default" href="{{ url($localeRegistry->publicPath('fa', 'menu')) }}">
     <script type="application/ld+json">{!! \Illuminate\Support\Js::encode($structuredData) !!}</script>
     @vite('resources/js/app.js')
 </head>
 <body class="public-site menu-page">
 <a class="skip-link" href="#menu-content">{{ __('public.skip', locale: $locale) }}</a>
 <header class="site-header"><div class="shell nav-shell">
-    <a class="brand" href="{{ url('/'.$locale) }}" aria-label="Denardi"><span class="brand-mark" aria-hidden="true">D</span><span>DENARDI<small>ART · COFFEE · JUICE</small></span></a>
+    <a class="brand" href="{{ url($localeRegistry->publicPath($locale)) }}" aria-label="Denardi"><span class="brand-mark" aria-hidden="true">D</span><span>DENARDI<small>ART · COFFEE · JUICE</small></span></a>
     <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-navigation"><span aria-hidden="true"></span>{{ __('public.menu_toggle', locale: $locale) }}</button>
-    <nav id="site-navigation" class="site-nav" aria-label="{{ __('public.navigation', locale: $locale) }}"><a href="{{ url('/'.$locale) }}">{{ __('public.home', locale: $locale) }}</a><a href="{{ url('/'.$locale.'/menu') }}" aria-current="page">{{ __('public.menu', locale: $locale) }}</a><a href="{{ url('/'.$locale.'/about') }}">{{ __('public.about', locale: $locale) }}</a><a href="{{ url('/'.$locale.'/contact') }}">{{ __('public.contact', locale: $locale) }}</a></nav>
-    <nav class="language-switcher" aria-label="{{ __('public.languages', locale: $locale) }}">@foreach($locales as $code => $metadata)<a href="{{ route('public.menu', ['locale' => $code, ...$menuQuery]) }}" lang="{{ $code }}" dir="{{ $metadata['direction'] }}" @class(['active' => $code === $locale]) @if($code === $locale) aria-current="page" @endif>{{ $code === 'fa' ? 'فا' : ($code === 'ar' ? 'عر' : 'EN') }}</a>@endforeach</nav>
+    <nav id="site-navigation" class="site-nav" aria-label="{{ __('public.navigation', locale: $locale) }}"><a href="{{ url($localeRegistry->publicPath($locale)) }}">{{ __('public.home', locale: $locale) }}</a><a href="{{ url($localeRegistry->publicPath($locale, 'menu')) }}" aria-current="page">{{ __('public.menu', locale: $locale) }}</a><a href="{{ url($localeRegistry->publicPath($locale, 'about')) }}">{{ __('public.about', locale: $locale) }}</a><a href="{{ url($localeRegistry->publicPath($locale, 'contact')) }}">{{ __('public.contact', locale: $locale) }}</a></nav>
+    <nav class="language-switcher" aria-label="{{ __('public.languages', locale: $locale) }}">@foreach($locales as $code => $metadata)<a href="{{ url($localeRegistry->publicPath($code, 'menu')).($menuQuery ? '?'.http_build_query($menuQuery) : '') }}" lang="{{ $code }}" dir="{{ $metadata['direction'] }}" @class(['active' => $code === $locale]) @if($code === $locale) aria-current="page" @endif>{{ $code === 'fa' ? 'فا' : ($code === 'ar' ? 'عر' : 'EN') }}</a>@endforeach</nav>
 </div></header>
 
 <main id="menu-content" data-menu-analytics data-analytics-endpoint="{{ route('public.analytics.views') }}" data-analytics-locale="{{ $locale }}" data-analytics-branch="{{ $branchSlug }}">

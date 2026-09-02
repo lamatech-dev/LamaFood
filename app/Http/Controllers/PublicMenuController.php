@@ -58,6 +58,7 @@ class PublicMenuController extends Controller
             'locale' => $locale,
             'localeMetadata' => $metadata,
             'locales' => $locales->all(),
+            'localeRegistry' => $locales,
             'categories' => $categories,
             'branchSlug' => $branch->slug,
             'menuQuery' => array_filter(['branch' => $request->query('branch'), 'table' => $request->query('table')]),

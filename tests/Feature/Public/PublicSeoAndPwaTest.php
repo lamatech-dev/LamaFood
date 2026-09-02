@@ -25,11 +25,11 @@ class PublicSeoAndPwaTest extends TestCase
         $this->get('/sitemap.xml')
             ->assertOk()
             ->assertHeader('Content-Type', 'application/xml; charset=UTF-8')
-            ->assertSee(url('/fa/about'))
+            ->assertSee(url('/about'))
             ->assertSee(url('/en/about'))
             ->assertSee(url('/ar/about'))
             ->assertSee('hreflang="x-default"', false)
-            ->assertDontSee(url('/fa/privacy'));
+            ->assertDontSee(url('/privacy'));
     }
 
     public function test_public_shell_exposes_manifest_offline_fallback_and_dynamic_robots(): void
@@ -50,7 +50,7 @@ class PublicSeoAndPwaTest extends TestCase
 
         $manifest = json_decode((string) file_get_contents(public_path('manifest.webmanifest')), true, flags: JSON_THROW_ON_ERROR);
         $this->assertSame('standalone', $manifest['display']);
-        $this->assertSame('/fa/', $manifest['start_url']);
+        $this->assertSame('/', $manifest['start_url']);
         $this->assertContains(['src' => '/icons/icon-192.png', 'sizes' => '192x192', 'type' => 'image/png', 'purpose' => 'any'], $manifest['icons']);
         $this->assertContains(['src' => '/icons/icon-512.png', 'sizes' => '512x512', 'type' => 'image/png', 'purpose' => 'any'], $manifest['icons']);
         $this->assertContains(['src' => '/icons/maskable-512.png', 'sizes' => '512x512', 'type' => 'image/png', 'purpose' => 'maskable'], $manifest['icons']);
@@ -104,7 +104,7 @@ class PublicSeoAndPwaTest extends TestCase
         $this->assertSame(51.3347, $data['geo']['longitude']);
         $this->assertSame('+982100000000', $data['telephone']);
         $this->assertSame(['https://www.instagram.com/verified-denardi'], $data['sameAs']);
-        $this->assertSame(route('public.menu', ['locale' => 'ar']), $data['menu']);
+        $this->assertSame(url('/ar/menu'), $data['menu']);
     }
 
     /** @return array<string, array<string, string>> */

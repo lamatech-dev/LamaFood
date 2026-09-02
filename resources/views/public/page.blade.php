@@ -13,13 +13,13 @@
     <meta property="og:type" content="website">
     <meta property="og:title" content="{{ $translation['og_title'] ?: ($translation['meta_title'] ?: $translation['title'].' · Denardi') }}">
     @if($translation['og_description'] ?: $translation['meta_description'])<meta property="og:description" content="{{ $translation['og_description'] ?: $translation['meta_description'] }}">@endif
-    <meta property="og:url" content="{{ url('/'.$locale.($slug === 'home' ? '' : '/'.$slug)) }}">
+    <meta property="og:url" content="{{ url($localeRegistry->publicPath($locale, $slug === 'home' ? '' : $slug)) }}">
     <meta property="og:locale" content="{{ $locale }}">
-    <link rel="canonical" href="{{ url('/'.$locale.($slug === 'home' ? '' : '/'.$slug)) }}">
+    <link rel="canonical" href="{{ url($localeRegistry->publicPath($locale, $slug === 'home' ? '' : $slug)) }}">
     @foreach($locales as $code => $metadata)
-        <link rel="alternate" hreflang="{{ $code }}" href="{{ url('/'.$code.($slug === 'home' ? '' : '/'.$slug)) }}">
+        <link rel="alternate" hreflang="{{ $code }}" href="{{ url($localeRegistry->publicPath($code, $slug === 'home' ? '' : $slug)) }}">
     @endforeach
-    <link rel="alternate" hreflang="x-default" href="{{ url('/fa'.($slug === 'home' ? '' : '/'.$slug)) }}">
+    <link rel="alternate" hreflang="x-default" href="{{ url($localeRegistry->publicPath('fa', $slug === 'home' ? '' : $slug)) }}">
     @isset($structuredData)<script type="application/ld+json">{!! \Illuminate\Support\Js::encode($structuredData) !!}</script>@endisset
     @vite('resources/js/app.js')
 </head>
@@ -28,20 +28,20 @@
 <a class="skip-link" href="#content">{{ __('public.skip', locale: $locale) }}</a>
 <header class="site-header">
     <div class="shell nav-shell">
-        <a class="brand" href="{{ url('/'.$locale) }}" aria-label="Denardi">
+        <a class="brand" href="{{ url($localeRegistry->publicPath($locale)) }}" aria-label="Denardi">
             <span class="brand-mark" aria-hidden="true">D</span>
             <span>DENARDI<small>ART · COFFEE · JUICE</small></span>
         </a>
         <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-navigation"><span aria-hidden="true"></span>{{ __('public.menu_toggle', locale: $locale) }}</button>
         <nav id="site-navigation" class="site-nav" aria-label="{{ __('public.navigation', locale: $locale) }}">
-            <a href="{{ url('/'.$locale) }}" @if($slug === 'home') aria-current="page" @endif>{{ __('public.home', locale: $locale) }}</a>
-            <a href="{{ url('/'.$locale.'/menu') }}">{{ __('public.menu', locale: $locale) }}</a>
-            <a href="{{ url('/'.$locale.'/about') }}" @if($slug === 'about') aria-current="page" @endif>{{ __('public.about', locale: $locale) }}</a>
-            <a href="{{ url('/'.$locale.'/contact') }}" @if($slug === 'contact') aria-current="page" @endif>{{ __('public.contact', locale: $locale) }}</a>
+            <a href="{{ url($localeRegistry->publicPath($locale)) }}" @if($slug === 'home') aria-current="page" @endif>{{ __('public.home', locale: $locale) }}</a>
+            <a href="{{ url($localeRegistry->publicPath($locale, 'menu')) }}">{{ __('public.menu', locale: $locale) }}</a>
+            <a href="{{ url($localeRegistry->publicPath($locale, 'about')) }}" @if($slug === 'about') aria-current="page" @endif>{{ __('public.about', locale: $locale) }}</a>
+            <a href="{{ url($localeRegistry->publicPath($locale, 'contact')) }}" @if($slug === 'contact') aria-current="page" @endif>{{ __('public.contact', locale: $locale) }}</a>
         </nav>
         <nav class="language-switcher" aria-label="{{ __('public.languages', locale: $locale) }}">
             @foreach($locales as $code => $metadata)
-                <a href="{{ url('/'.$code.($slug === 'home' ? '' : '/'.$slug)) }}" lang="{{ $code }}" dir="{{ $metadata['direction'] }}" @class(['active' => $code === $locale]) @if($code === $locale) aria-current="page" @endif>{{ $code === 'fa' ? 'فا' : ($code === 'ar' ? 'عر' : 'EN') }}</a>
+                <a href="{{ url($localeRegistry->publicPath($code, $slug === 'home' ? '' : $slug)) }}" lang="{{ $code }}" dir="{{ $metadata['direction'] }}" @class(['active' => $code === $locale]) @if($code === $locale) aria-current="page" @endif>{{ $code === 'fa' ? 'فا' : ($code === 'ar' ? 'عر' : 'EN') }}</a>
             @endforeach
         </nav>
     </div>
@@ -64,9 +64,9 @@
             <div class="shell">
                 <div class="section-heading"><p class="eyebrow">{{ __('public.discover_eyebrow', locale: $locale) }}</p><h2 id="discover-heading">{{ __('public.discover_heading', locale: $locale) }}</h2></div>
                 <nav class="discovery-grid" aria-label="{{ __('public.discover_heading', locale: $locale) }}">
-                    <a href="{{ url('/'.$locale.'/menu') }}"><span>01</span><h3>{{ __('public.menu', locale: $locale) }}</h3><p>{{ __('public.discover_menu', locale: $locale) }}</p></a>
-                    <a href="{{ url('/'.$locale.'/about') }}"><span>02</span><h3>{{ __('public.about', locale: $locale) }}</h3><p>{{ __('public.discover_about', locale: $locale) }}</p></a>
-                    <a href="{{ url('/'.$locale.'/contact') }}"><span>03</span><h3>{{ __('public.contact', locale: $locale) }}</h3><p>{{ __('public.discover_contact', locale: $locale) }}</p></a>
+                    <a href="{{ url($localeRegistry->publicPath($locale, 'menu')) }}"><span>01</span><h3>{{ __('public.menu', locale: $locale) }}</h3><p>{{ __('public.discover_menu', locale: $locale) }}</p></a>
+                    <a href="{{ url($localeRegistry->publicPath($locale, 'about')) }}"><span>02</span><h3>{{ __('public.about', locale: $locale) }}</h3><p>{{ __('public.discover_about', locale: $locale) }}</p></a>
+                    <a href="{{ url($localeRegistry->publicPath($locale, 'contact')) }}"><span>03</span><h3>{{ __('public.contact', locale: $locale) }}</h3><p>{{ __('public.discover_contact', locale: $locale) }}</p></a>
                 </nav>
             </div>
         </section>

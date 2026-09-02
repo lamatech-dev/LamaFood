@@ -3,22 +3,22 @@
 @foreach($pages as $page)
 @foreach($locales as $locale)
     <url>
-        <loc>{{ url('/'.$locale.($page->slug === 'home' ? '' : '/'.$page->slug)) }}</loc>
+        <loc>{{ url($localeRegistry->publicPath($locale, $page->slug === 'home' ? '' : $page->slug)) }}</loc>
 @foreach($locales as $alternate)
-        <xhtml:link rel="alternate" hreflang="{{ $alternate }}" href="{{ url('/'.$alternate.($page->slug === 'home' ? '' : '/'.$page->slug)) }}" />
+        <xhtml:link rel="alternate" hreflang="{{ $alternate }}" href="{{ url($localeRegistry->publicPath($alternate, $page->slug === 'home' ? '' : $page->slug)) }}" />
 @endforeach
-        <xhtml:link rel="alternate" hreflang="x-default" href="{{ url('/fa'.($page->slug === 'home' ? '' : '/'.$page->slug)) }}" />
+        <xhtml:link rel="alternate" hreflang="x-default" href="{{ url($localeRegistry->publicPath('fa', $page->slug === 'home' ? '' : $page->slug)) }}" />
         <lastmod>{{ ($page->published_at ?? $page->updated_at)->toAtomString() }}</lastmod>
     </url>
 @endforeach
 @endforeach
 @foreach($locales as $locale)
     <url>
-        <loc>{{ url('/'.$locale.'/menu') }}</loc>
+        <loc>{{ url($localeRegistry->publicPath($locale, 'menu')) }}</loc>
 @foreach($locales as $alternate)
-        <xhtml:link rel="alternate" hreflang="{{ $alternate }}" href="{{ url('/'.$alternate.'/menu') }}" />
+        <xhtml:link rel="alternate" hreflang="{{ $alternate }}" href="{{ url($localeRegistry->publicPath($alternate, 'menu')) }}" />
 @endforeach
-        <xhtml:link rel="alternate" hreflang="x-default" href="{{ url('/fa/menu') }}" />
+        <xhtml:link rel="alternate" hreflang="x-default" href="{{ url($localeRegistry->publicPath('fa', 'menu')) }}" />
     </url>
 @endforeach
 </urlset>

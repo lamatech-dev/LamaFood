@@ -19,14 +19,19 @@ class LocalizedPublicPagesTest extends TestCase
         $this->withoutVite();
         $this->publishHome();
 
-        $this->get('/fa')->assertOk()->assertSee('dir="rtl"', false)->assertSee('دناردی')->assertDontSee('ديناردي');
+        $this->get('/')->assertOk()->assertSee('dir="rtl"', false)->assertSee('دناردی')->assertDontSee('ديناردي');
         $this->get('/en')->assertOk()->assertSee('dir="ltr"', false)->assertSee('Denardi is')->assertDontSee('دناردی');
         $this->get('/ar')->assertOk()->assertSee('dir="rtl"', false)->assertSee('ديناردي')->assertDontSee('دناردی');
     }
 
-    public function test_root_uses_a_supported_browser_language(): void
+    public function test_persian_uses_unprefixed_routes_and_legacy_fa_routes_redirect_permanently(): void
     {
-        $this->get('/', ['Accept-Language' => 'ar,en;q=0.8'])->assertRedirect('/ar');
+        $this->withoutVite();
+        $this->publishHome();
+
+        $this->get('/', ['Accept-Language' => 'ar,en;q=0.8'])->assertOk()->assertSee('دناردی');
+        $this->get('/fa')->assertRedirect('/', 301);
+        $this->get('/fa/menu?branch=central')->assertRedirect('/menu?branch=central', 301);
     }
 
     private function publishHome(): void

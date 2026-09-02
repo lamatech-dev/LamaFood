@@ -25,6 +25,7 @@ class PublicSitemapController extends Controller
 
         return response()->view('public.sitemap', [
             'locales' => $locales->codes(),
+            'localeRegistry' => $locales,
             'pages' => $pages,
         ])->header('Content-Type', 'application/xml; charset=UTF-8');
     }

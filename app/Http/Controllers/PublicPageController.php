@@ -35,6 +35,7 @@ class PublicPageController extends Controller
             'locale' => $locale,
             'localeMetadata' => $metadata,
             'locales' => $locales->all(),
+            'localeRegistry' => $locales,
             'slug' => $slug,
             'structuredData' => $this->structuredData->forBusiness($page->business, $locale),
             'translation' => $translation,

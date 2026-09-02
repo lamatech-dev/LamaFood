@@ -23,7 +23,7 @@ Roleهای Manager، Cashier و Staff در مدل Permission وجود دارند
 - صفحات About، Contact، Menu و Privacy
 - نمایش اطلاعات تماس، آدرس، نقشه، ساعت کاری و شبکه‌های اجتماعی
 - طراحی Responsive از عرض 320px به بالا
-- مسیرهای `/fa/...`، `/en/...` و `/ar/...`
+- مسیرهای بدون prefix برای فارسی پیش‌فرض (`/`، `/menu`، `/about` و...) و مسیرهای `/en/...` و `/ar/...` برای انگلیسی و عربی؛ `/fa/...` فقط redirect دائمی سازگار با لینک‌های قدیمی است.
 - direction از locale metadata: `fa=rtl`, `en=ltr`, `ar=rtl`
 - Theme اختصاصی Denardi
 - حفظ هویت Art · Coffee · Juice با پالت Charcoal + Teal + Electric Blue
@@ -114,7 +114,7 @@ Roleهای Manager، Cashier و Staff در مدل Permission وجود دارند
 12. در نبود Queue، سایت عمومی همچنان کار می‌کند و Jobها قابل retry هستند.
 13. Product `draft`, `inactive` یا `archived` عمومی نیست؛ Product `published + sold_out` نمایش داده می‌شود ولی ناموجود است.
 14. Full Backup معمولی هیچ plaintext production secret، `.env` یا APP key را در archive ندارد.
-15. `/fa`, `/en`, `/ar` با direction برگرفته از metadata render می‌شوند؛ RTL به شرط خاص فارسی وابسته نیست.
+15. `/` (فارسی)، `/en` و `/ar` با direction برگرفته از metadata render می‌شوند؛ RTL به شرط خاص فارسی وابسته نیست و `/fa` به `/` redirect می‌شود.
 16. Admin برای هر entity وضعیت تکمیل ترجمه هر سه locale را نشان می‌دهد و اجازه ویرایش مستقل دارد.
 17. هیچ متن فارسی/انگلیسی به‌صورت fallback خاموش داخل صفحه عربی عمومی نمایش داده نمی‌شود.
 

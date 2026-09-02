@@ -4,6 +4,13 @@ This file records implementation checkpoints, verification evidence and remainin
 
 The canonical checklist is maintained in `docs/DENARDI_V1_TRACKER.md` and mirrored by the visual `docs/DENARDI_V1_TRACKER.html` dashboard; every future implementation checkpoint must update both in the same commit.
 
+## 2026-09-02 — Persian default URL normalization
+
+- Persian public URLs are canonical without a locale prefix: `/`, `/menu`, `/about`, `/contact` and `/privacy`.
+- English and Arabic retain explicit `/en/...` and `/ar/...` prefixes.
+- Legacy `/fa` URLs permanently redirect to their unprefixed Persian equivalents with query parameters preserved.
+- Internal navigation, language switching, QR destinations, JSON-LD, canonical/hreflang/x-default, sitemap, Admin brand links and the public PWA start URL follow the same contract.
+
 ## 2026-09-02 — Final responsive UI/UX and release polish
 
 **Commit:** `12659c9` — `feat: polish Denardi V1 responsive UI`

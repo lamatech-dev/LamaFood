@@ -28,7 +28,7 @@ class ProvisionDenardiDevelopmentTest extends TestCase
             $this->assertSame(9, Product::query()->count());
             $this->assertSame(27, Product::query()->withCount('translations')->get()->sum('translations_count'));
             $this->withoutVite();
-            $this->get('/fa')->assertOk()->assertSee('دناردی؛ هنر، قهوه و آبمیوه');
+            $this->get('/')->assertOk()->assertSee('دناردی؛ هنر، قهوه و آبمیوه');
             $this->get('/ar/menu')->assertOk()->assertSee('إسبريسو')->assertSee('غير متوفر');
             $this->get('/en/menu')->assertOk()->assertSee('Butter Croissant')->assertDontSee('Seasonal Mix');
         } finally {

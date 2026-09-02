@@ -30,6 +30,7 @@ class PagePreviewController extends Controller
             'locale' => $locale,
             'localeMetadata' => $metadata,
             'locales' => $locales->all(),
+            'localeRegistry' => $locales,
             'slug' => $model->slug,
             'translation' => $translation->only(['title', 'meta_title', 'meta_description', 'og_title', 'og_description']),
             'blocks' => $snapshotBlocks,

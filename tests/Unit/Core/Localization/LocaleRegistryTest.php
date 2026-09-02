@@ -18,6 +18,10 @@ class LocaleRegistryTest extends TestCase
         $this->assertSame('ltr', $registry->get('en')['direction']);
         $this->assertSame('rtl', $registry->get('ar')['direction']);
         $this->assertSame('fa|en|ar', $registry->routePattern());
+        $this->assertSame('/', $registry->publicPath('fa'));
+        $this->assertSame('/menu', $registry->publicPath('fa', 'menu'));
+        $this->assertSame('/en/menu', $registry->publicPath('en', '/menu/'));
+        $this->assertSame('/ar', $registry->publicPath('ar'));
         $this->assertNull(config('localization.public_fallback'));
     }
 

@@ -11,7 +11,7 @@
 /{locale}/products/{slug}   (در صورت فعال‌بودن صفحه جزئیات)
 ```
 
-Localeهای V1 برابر `fa`, `en`, `ar` هستند. `fa` پیش‌فرض است. مسیر بدون locale با 302 بر اساس cookie/browser به locale فعال مناسب و سپس انتخاب کاربر پایدار می‌شود. Direction فقط از locale metadata خوانده می‌شود: `fa=rtl`, `en=ltr`, `ar=rtl`.
+Localeهای V1 برابر `fa`, `en`, `ar` هستند. `fa` پیش‌فرض است و روی مسیرهای بدون prefix (`/`, `/menu`, `/about` و...) ارائه می‌شود. انگلیسی و عربی به‌ترتیب از `/en/...` و `/ar/...` استفاده می‌کنند. مسیرهای قدیمی `/fa/...` با 301 به معادل فارسی بدون prefix هدایت می‌شوند. Direction فقط از locale metadata خوانده می‌شود: `fa=rtl`, `en=ltr`, `ar=rtl`.
 
 ## Landing Denardi
 

@@ -111,9 +111,9 @@ Columns: **V1** means required for Denardi V1. Priority uses P0 (release-blockin
 
 | Area | Feature / Requirement | Status | V1 | What is completed | What remains | Blocker | Priority | Target phase | Related tests | Last relevant commit |
 |---|---|---|---|---|---|---|---|---|---|---|
-| Localization | Persian (`fa`) | ✅ DONE | Yes | Default public/Admin content model | Final Denardi copy | Content tracked separately | P0 | Content/UAT | Locale/Public tests | `3bf46e3` |
-| Localization | English (`en`) | ✅ DONE | Yes | Independent routing/data fields | Final Denardi copy | Content tracked separately | P0 | Content/UAT | Locale/Public tests | `3bf46e3` |
-| Localization | Arabic (`ar`) | ✅ DONE | Yes | Actual V1 routing/data fields | Final Arabic copy | Content tracked separately | P0 | Content/UAT | Locale/Public tests | `3bf46e3` |
+| Localization | Persian (`fa`) | ✅ DONE | Yes | Default locale on canonical unprefixed public URLs | Final Denardi copy | Content tracked separately | P0 | Content/UAT | Locale/Public tests | URL normalization checkpoint |
+| Localization | English (`en`) | ✅ DONE | Yes | Independent `/en/...` routing/data fields | Final Denardi copy | Content tracked separately | P0 | Content/UAT | Locale/Public tests | URL normalization checkpoint |
+| Localization | Arabic (`ar`) | ✅ DONE | Yes | Actual V1 `/ar/...` routing/data fields | Final Arabic copy | Content tracked separately | P0 | Content/UAT | Locale/Public tests | URL normalization checkpoint |
 | Localization | RTL / LTR | ✅ DONE | Yes | Direction exclusively from locale metadata | Full breakpoint visual QA | — | P1 | Release QA | LocaleRegistryTest | `3bf46e3` |
 | Localization | Translation validation | ✅ DONE | Yes | CMS/Menu readiness and explicit locale rows | UAT final copy | — | P0 | Content/UAT | LocalizedCmsTest | `63cbb4f` |
 | Localization | Fallback behavior | ✅ DONE | Yes | No silent public language mixing | Revalidate with final content | — | P0 | Content/UAT | no-fallback tests | `3bf46e3` |
@@ -218,7 +218,7 @@ Columns: **V1** means required for Denardi V1. Priority uses P0 (release-blockin
 
 | Area | Feature / Requirement | Status | V1 | What is completed | What remains | Blocker | Priority | Target phase | Related tests | Last relevant commit |
 |---|---|---|---|---|---|---|---|---|---|---|
-| SEO | Canonical | ✅ DONE | Yes | Localized canonical links | Production URL validation | Domain | P0 | Staging | PublicSeoAndPwaTest | `2a13cbc` |
+| SEO | Canonical | ✅ DONE | Yes | Persian unprefixed canonical plus `/en` and `/ar` localized canonical links; legacy `/fa` uses 301 | Production URL validation | Domain | P0 | Staging | PublicSeoAndPwaTest | URL normalization checkpoint |
 | SEO | Hreflang | ✅ DONE | Yes | `fa/en/ar` and x-default | Production crawl validation | Domain | P0 | Staging | PublicSeoAndPwaTest | `2a13cbc` |
 | SEO | Sitemap | ✅ DONE | Yes | Localized public URLs | Final readiness/crawl validation | — | P1 | Staging | PublicSeoAndPwaTest | `2a13cbc` |
 | SEO | Robots | ✅ DONE | Yes | Public allow/Admin disallow | Production validation | Domain | P1 | Staging | PublicSeoAndPwaTest | `2a13cbc` |
