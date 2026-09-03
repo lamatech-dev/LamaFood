@@ -76,5 +76,6 @@
     @endif
 </main>
 @include('public.partials.footer')
+@include('public.partials.mobile-navigation', ['currentPage' => $slug])
 </body>
 </html>

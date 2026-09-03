@@ -39,6 +39,7 @@ Date: 2026-09-03. Scope: public menu presentation, not production acceptance.
 
 ## Accepted differences and follow-up
 
+- Subsequent user amendment: the dock is now a shared floating glass navigation surface across all public mobile pages, instead of a menu-only flush-bottom bar. Reviewed FA Home/Menu, EN About and AR Contact screenshots; 45 page/locale/width checks verified current states, 44px+ targets, no overflow and reserved bottom space. Desktop/Admin are unchanged. Evidence: `output/design-audit/after/dock-menu-fa-390.png`, `dock-about-en-390.png`, `dock-contact-ar-390.png`.
 - Latest explicit user review overrides the concept's English composition: English mobile cards now place text on the left and image on the right; FA/AR remain approved and unchanged. Rechecked all three locales at 320/390/430px and updated the English 390px screenshot; square geometry and no overflow confirmed. Build and 10 frontend tests passed.
 - No plus/add/order action: Ordering is outside Denardi V1. No fake control or new product API was introduced.
 - Explicit 1:1 image requirement overrides the portrait-looking photos in the concept phone panel.

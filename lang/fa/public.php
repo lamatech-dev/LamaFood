@@ -7,6 +7,7 @@ return [
     'skip' => 'رفتن به محتوای اصلی',
     'menu_toggle' => 'منو',
     'navigation' => 'ناوبری اصلی',
+    'quick_navigation' => 'دسترسی سریع',
     'home' => 'خانه',
     'menu' => 'منو',
     'about' => 'درباره دناردی',

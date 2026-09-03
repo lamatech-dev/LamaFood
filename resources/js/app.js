@@ -1,5 +1,6 @@
 import '../css/app.css';
 import '../css/menu.css';
+import '../css/public-navigation.css';
 import { activeCategoryId, normalizeSearchText, productMatchesSearch } from './public-ui.js';
 
 if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js'));

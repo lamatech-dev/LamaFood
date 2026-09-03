@@ -50,6 +50,35 @@ class ProvisionDenardiDevelopmentTest extends TestCase
         }
     }
 
+    public function test_public_navigation_is_localized_on_every_page_and_marks_only_the_current_destination(): void
+    {
+        Storage::fake('public');
+        Storage::fake('local');
+        $this->app->detectEnvironment(fn (): string => 'local');
+        User::factory()->godfather()->create();
+        $this->withoutVite();
+
+        try {
+            $this->artisan('denardi:provision-development')->assertSuccessful();
+
+            foreach (['' => 'دسترسی سریع', '/en' => 'Quick navigation', '/ar' => 'التنقل السريع'] as $prefix => $label) {
+                foreach (['home', 'menu', 'about', 'contact', 'privacy'] as $page) {
+                    $path = $prefix.($page === 'home' ? '' : '/'.$page);
+                    $response = $this->get($path ?: '/')->assertOk();
+                    $this->assertSame(1, preg_match('/<nav class="menu-dock".*?<\/nav>/su', $response->getContent(), $matches));
+                    $dock = $matches[0];
+                    $this->assertStringContainsString('aria-label="'.$label.'"', $dock);
+                    $this->assertSame(4, substr_count($dock, 'data-dock-page='));
+                    $this->assertStringContainsString('href="'.url($prefix.'/menu').'"', $dock);
+                    $this->assertSame($page === 'privacy' ? 0 : 1, preg_match('/data-dock-page="([^"]+)"\s+aria-current="page"/u', $dock, $active));
+                    $this->assertSame($page === 'privacy' ? null : $page, $active[1] ?? null);
+                }
+            }
+        } finally {
+            $this->app->detectEnvironment(fn (): string => 'testing');
+        }
+    }
+
     public function test_demo_reset_and_removal_preserve_unowned_content_and_shared_categories(): void
     {
         Storage::fake('public');

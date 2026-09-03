@@ -7,6 +7,7 @@ return [
     'skip' => 'Skip to main content',
     'menu_toggle' => 'Menu',
     'navigation' => 'Primary navigation',
+    'quick_navigation' => 'Quick navigation',
     'home' => 'Home',
     'menu' => 'Menu',
     'about' => 'About Denardi',

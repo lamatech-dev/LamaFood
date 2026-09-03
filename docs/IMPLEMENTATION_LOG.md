@@ -4,6 +4,15 @@ This file records implementation checkpoints, verification evidence and remainin
 
 The canonical checklist is maintained in `docs/DENARDI_V1_TRACKER.md` and mirrored by the visual `docs/DENARDI_V1_TRACKER.html` dashboard; every future implementation checkpoint must update both in the same commit.
 
+## 2026-09-03 — Shared premium mobile navigation
+
+- Extracted the existing bottom navigation into one Blade partial used by every public Home/Menu/About/Contact/Privacy page. Localized links and current-page state are explicit; Privacy has no falsely highlighted destination. Existing Menu branch query is preserved on its dock link.
+- Refined the dock as a floating, dark glass surface with restrained edge/depth, aqua active state, existing licensed icons, comfortable touch targets, safe-area spacing and reduced-motion/solid-surface fallbacks. Body bottom space is reserved on all public mobile pages; Admin and desktop navigation are unchanged.
+- Browser checks: 45 combinations (five pages × three locales × 320/390/430px), no overflow, correct active state, all dock targets at least 44px and sufficient reserved bottom space. Desktop dock remains hidden. Actual Arabic Home/Menu dock clicks retained locale and updated the active state. No recent browser errors/warnings.
+- Screenshots inspected: Home FA, Menu FA, About EN and Contact AR. Local evidence: `output/design-audit/after/dock-{menu-fa,about-en,contact-ar}-390.png`.
+- Focused PHPUnit: 13 tests / 245 assertions; PHPStan zero errors, Pint, 10 frontend tests, Vite build and whitespace checks passed. New coverage verifies all 15 page/locale combinations and current navigation state. Completion estimates and external blockers unchanged.
+- Full PHPUnit regression: **110 tests / 841 assertions passed**. GitHub CI for this checkpoint will be recorded after push.
+
 ## 2026-09-03 — English mobile composition amendment
 
 - Per explicit review feedback, English mobile cards now place left-aligned text on the left and square media on the right. Persian/Arabic retain their approved image-left/text-right composition; desktop behavior is unchanged.

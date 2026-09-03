@@ -63,11 +63,6 @@
     </div>
 </main>
 @include('public.partials.footer')
-<nav class="menu-dock" aria-label="{{ __('public.navigation', locale: $locale) }}">
-    <a href="{{ url($localeRegistry->publicPath($locale)) }}"><span class="menu-icon icon-home" aria-hidden="true"></span>{{ __('public.home', locale: $locale) }}</a>
-    <a href="{{ url($localeRegistry->publicPath($locale, 'about')) }}"><span class="menu-icon icon-info" aria-hidden="true"></span>{{ __('public.about', locale: $locale) }}</a>
-    <a href="{{ url($localeRegistry->publicPath($locale, 'menu')).($menuQuery ? '?'.http_build_query($menuQuery) : '') }}" aria-current="page"><span class="menu-icon icon-book" aria-hidden="true"></span>{{ __('public.menu', locale: $locale) }}</a>
-    <a href="{{ url($localeRegistry->publicPath($locale, 'contact')) }}"><span class="menu-icon icon-pin" aria-hidden="true"></span>{{ __('public.contact', locale: $locale) }}</a>
-</nav>
+@include('public.partials.mobile-navigation', ['currentPage' => 'menu'])
 </body>
 </html>

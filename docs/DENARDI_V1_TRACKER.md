@@ -20,6 +20,8 @@ After every major implementation phase or release checkpoint, `DENARDI_V1_TRACKE
 
 ## Current State
 
+**Shared mobile navigation update:** The premium floating dock now appears on every public page in FA/EN/AR, with localized routes and page-aware active states. Verified across five pages × three locales × three mobile widths, with no overflow and reserved footer/safe-area space. Admin/desktop are unchanged; see the implementation log for tests. Estimates remain unchanged.
+
 **English review amendment:** English mobile cards use text-left/image-right; the approved FA/AR composition remains unchanged. Verified locally at 320/390/430px with square media, no page overflow, 10 frontend tests and production build passing. Estimates are unchanged.
 
 **2026-09-03 reference-led menu update:** The supplied concept is implemented with large 1:1 media, horizontal mobile composition, compact sticky controls, a mobile navigation dock and responsive 2/3/4-column grids. FA keeps `تومان`; EN/AR use `T`. Final visual comparison is in root `design-qa.md`. FA/EN/AR browser checks at eight widths (320–1440px), 109 PHPUnit tests / 735 assertions, 10 frontend tests, PHPStan, Pint, build and dependency checks passed. Checkpoint `2f59efb` is pushed and GitHub CI [33732532543](https://github.com/lamatech-dev/LamaFood/actions/runs/33732532543) passed, including clean migrations on disposable MySQL 8.4. Estimates remain **95% / 66%** and external dependencies remain open. Previously authorized demo/page/Admin presentation work is preserved; demo content is not approved production content.
