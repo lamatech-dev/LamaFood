@@ -2,6 +2,8 @@
 <html lang="{{ $locale }}" dir="{{ $localeMetadata['direction'] }}">
 <head>
     <meta charset="utf-8">
+    <link rel="preload" href="/fonts/vazirmatn/Vazirmatn.woff2" as="font" type="font/woff2" crossorigin>
+    @if(app()->isLocal())<meta name="robots" content="noindex,nofollow">@endif
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#071015">
     @if($isPreview ?? false)<meta name="robots" content="noindex,nofollow">@endif
@@ -23,7 +25,7 @@
     @isset($structuredData)<script type="application/ld+json">{!! \Illuminate\Support\Js::encode($structuredData) !!}</script>@endisset
     @vite('resources/js/app.js')
 </head>
-<body class="public-site">
+<body class="public-site" data-page="{{ $slug }}">
 @if($isPreview ?? false)<div class="preview-banner">PREVIEW · {{ strtoupper($locale) }} · {{ $translation['title'] }}</div>@endif
 <a class="skip-link" href="#content">{{ __('public.skip', locale: $locale) }}</a>
 <header class="site-header">
@@ -50,8 +52,9 @@
 <main id="content">
     @if($slug !== 'home')
         <header class="page-intro shell">
-            <p class="eyebrow">DENARDI · {{ strtoupper($slug) }}</p>
+            <p class="eyebrow">DENARDI / {{ strtoupper($slug) }} · {{ strtoupper($locale) }}</p>
             <h1>{{ $translation['title'] }}</h1>
+            <span class="page-intro-line" aria-hidden="true"></span>
         </header>
     @endif
     @forelse($blocks as $block)

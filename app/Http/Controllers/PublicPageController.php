@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Core\Cms\Models\Page;
 use App\Core\Cms\PageStatus;
 use App\Core\Localization\LocaleRegistry;
+use App\Core\Localization\TranslationState;
+use App\Core\Menu\Models\Product;
+use App\Core\Menu\PublicationState;
 use App\Core\Seo\BusinessStructuredData;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
@@ -39,6 +42,18 @@ class PublicPageController extends Controller
             'slug' => $slug,
             'structuredData' => $this->structuredData->forBusiness($page->business, $locale),
             'translation' => $translation,
+            'featuredProducts' => $slug === 'home' ? Product::query()
+                ->whereBelongsTo($page->business)
+                ->where('publication_state', PublicationState::Published)
+                ->where('is_featured', true)
+                ->whereHas('category', fn (Builder $query) => $query->where('publication_state', PublicationState::Published))
+                ->whereHas('translations', fn (Builder $query) => $query->where('locale', $locale)->where('translation_state', TranslationState::Ready)->whereNotNull('name'))
+                ->whereHas('branchSettings.branch', fn (Builder $query) => $query->where('business_id', $page->business_id)->where('is_default', true)->where('is_active', true))
+                ->with([
+                    'translations' => fn ($query) => $query->where('locale', $locale),
+                    'branchSettings' => fn ($query) => $query->whereHas('branch', fn (Builder $branch) => $branch->where('business_id', $page->business_id)->where('is_default', true)->where('is_active', true)),
+                    'primaryMedia.translations' => fn ($query) => $query->where('locale', $locale),
+                ])->orderBy('position')->orderBy('id')->limit(3)->get() : collect(),
             'blocks' => collect($snapshotBlocks)->filter(
                 fn (mixed $block): bool => is_array($block) && is_array(Arr::get($block, "translations.{$locale}.content_json")),
             )->values(),

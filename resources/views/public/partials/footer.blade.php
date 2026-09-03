@@ -11,6 +11,6 @@
             @if(config('denardi.map_url'))<a href="{{ config('denardi.map_url') }}" rel="noopener">{{ __('public.location', locale: $locale) }}</a>@endif
             @if(config('denardi.instagram_url'))<a href="{{ config('denardi.instagram_url') }}" rel="noopener">Instagram</a>@endif
         </div>
-        <small>{{ __('public.built_by', locale: $locale) }} <b>Lamatech</b></small>
+        <small>@if(app()->isLocal())<span class="demo-notice">{{ __('public.demo_notice', locale: $locale) }}</span>@endif{{ __('public.built_by', locale: $locale) }} <b>Lamatech</b></small>
     </div>
 </footer>

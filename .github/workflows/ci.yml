@@ -52,6 +52,9 @@ jobs:
       - name: Install PHP dependencies
         run: composer install --no-interaction --prefer-dist
 
+      - name: Validate Composer metadata
+        run: composer validate --strict
+
       - name: Prepare application key
         run: |
           cp .env.testing.example .env

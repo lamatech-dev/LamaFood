@@ -23,7 +23,10 @@ Route::view('/offline', 'public.offline')->name('public.offline');
 Route::middleware('locale')->group(function (): void {
     Route::get('/', fn (PublicPageController $controller) => $controller('fa', 'home', app(LocaleRegistry::class)))->defaults('locale', 'fa')->name('public.home');
     Route::get('/menu', PublicMenuController::class)->defaults('locale', 'fa')->name('public.menu');
-    Route::get('/{slug}', PublicPageController::class)->defaults('locale', 'fa')->whereIn('slug', ['about', 'contact', 'privacy'])->name('public.page');
+    Route::get('/{slug}', fn (string $slug, PublicPageController $controller) => $controller('fa', $slug, app(LocaleRegistry::class)))
+        ->defaults('locale', 'fa')
+        ->whereIn('slug', ['about', 'contact', 'privacy'])
+        ->name('public.page');
 });
 
 Route::prefix('{locale}')->whereIn('locale', ['en', 'ar'])->middleware('locale')->group(function (): void {

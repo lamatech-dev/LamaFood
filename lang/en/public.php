@@ -1,6 +1,9 @@
 <?php
 
 return [
+    'demo_notice' => 'Local preview — content, images and prices are not approved for publication.',
+    'demo_map_title' => 'Location preview',
+    'demo_map_note' => 'The map and directions will appear here after Denardi confirms its real address.',
     'skip' => 'Skip to main content',
     'menu_toggle' => 'Menu',
     'navigation' => 'Primary navigation',
@@ -17,7 +20,7 @@ return [
     'menu_intro' => 'Find your flavour for today—fresh, precise and made with care.',
     'search' => 'Search the menu',
     'search_placeholder' => 'Drink or product name…',
-    'toman' => 'toman',
+    'toman' => 'T',
     'new' => 'New',
     'best_seller' => 'Best seller',
     'sold_out' => 'Sold out',

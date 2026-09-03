@@ -2,7 +2,7 @@
 
 | Project | Branch | V1 Completion | Go-live Readiness | Last updated | Last reviewed commit | CI status | Current blockers |
 |---|---|---:|---:|---|---|---|---:|
-| Denardi V1 | `develop/denardi-v1` | **95%** | **66%** | 2026-09-02 | `2d7a465` | ✅ [Run 33664462499](https://github.com/lamatech-dev/LamaFood/actions/runs/33664462499) | **3 blocker groups** |
+| Denardi V1 | `develop/denardi-v1` | **95%** | **66%** | 2026-09-03 | Local menu checkpoint pending | Pending push; prior CI green | **3 blocker groups** |
 
 This Markdown file is the canonical project-status document. Percentages are evidence-based planning estimates, not mathematical precision. The tracker contains **167 control items**: 123 Done, 10 Partial, 6 Not Started, 16 Blocked line items and 12 Out of V1. The blocked line items roll up into three actual external blocker groups.
 
@@ -19,6 +19,8 @@ After every major implementation phase or release checkpoint, `DENARDI_V1_TRACKE
 - ⚪ **OUT OF V1** — explicitly deferred and not counted as incomplete V1 work
 
 ## Current State
+
+**2026-09-03 reference-led menu update:** The supplied concept is implemented with large 1:1 media, horizontal mobile composition, compact sticky controls, a mobile navigation dock and responsive 2/3/4-column grids. FA keeps `تومان`; EN/AR use `T`. Final visual comparison is in root `design-qa.md`. FA/EN/AR browser checks at eight widths (320–1440px), 109 PHPUnit tests / 735 assertions, 10 frontend tests, PHPStan, Pint, build and dependency checks passed. GitHub checkpoint CI is pending; the earlier green run is historical. Estimates remain **95% / 66%** and external dependencies remain open. Previously authorized demo/page/Admin presentation work is preserved; demo content is not approved production content.
 
 Foundation, three-language localization, CMS, Media, Product/Category management, branch pricing/availability, General/Table QR, public menu, required analytics emission, secure Password Reset, business User Management, health checks, structured data, SEO/PWA foundations, secret-safe backup creation, guarded Safe Restore and the final responsive UI/UX pass are implemented. The local quality gate passes. Remaining engineering is Production-like validation; Go-live additionally depends on real Denardi content, Staging, external encrypted backups, restore drill, external monitoring, UAT and Production access.
 
@@ -41,7 +43,7 @@ Foundation, three-language localization, CMS, Media, Product/Category management
 - Stateful Sanctum/CSRF Admin authentication, baseline security headers, server-protected Admin shell and completed local XSS/IDOR/permission/session/upload/secret matrix
 - Analytics device/table breakdown in the Admin summary
 - Business-scoped User Management for listing, invite/create, profile/role/status updates, safe deactivation, password reset and audit, with Godfather/Lamatech isolation
-- 107 PHPUnit tests / 708 assertions, PHPStan, Pint, frontend tests/build and Composer/npm dependency audits
+- 109 PHPUnit tests / 735 assertions, PHPStan, Pint, 10 frontend tests/build and Composer/npm dependency audits
 
 ## Remaining for V1
 
@@ -294,7 +296,7 @@ Columns: **V1** means required for Denardi V1. Priority uses P0 (release-blockin
 
 | Area | Feature / Requirement | Status | V1 | What is completed | What remains | Blocker | Priority | Target phase | Related tests | Last relevant commit |
 |---|---|---|---|---|---|---|---|---|---|---|
-| QA | PHPUnit | ✅ DONE | Yes | 107 tests / 708 assertions pass | Grow with features | — | P0 | Continuous | Full suite | `2d7a465` |
+| QA | PHPUnit | ✅ DONE | Yes | 109 tests / 735 assertions pass locally | Grow with features | — | P0 | Continuous | Full suite | Reference-led menu checkpoint |
 | QA | PHPStan / Larastan | ✅ DONE | Yes | Zero errors | Maintain | — | P0 | Continuous | CI | `f493edf` |
 | QA | Pint | ✅ DONE | Yes | Formatting gate passes | Maintain | — | P0 | Continuous | CI | `f493edf` |
 | QA | Frontend tests | ✅ DONE | Yes | 8 Node tests cover Admin data helpers and public localized search | Grow with features | — | P1 | Continuous | frontend helper tests | UI/UX checkpoint |

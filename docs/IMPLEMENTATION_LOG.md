@@ -4,6 +4,30 @@ This file records implementation checkpoints, verification evidence and remainin
 
 The canonical checklist is maintained in `docs/DENARDI_V1_TRACKER.md` and mirrored by the visual `docs/DENARDI_V1_TRACKER.html` dashboard; every future implementation checkpoint must update both in the same commit.
 
+## 2026-09-03 — Reference-led premium menu checkpoint
+
+- Implemented the supplied concept in the existing Blade application: image-left horizontal mobile cards, large square media, adjacent title/price/copy, reserved crop dimensions, minimal state chips, featured/new ribbons and readable sold-out states. FA retains `تومان`; EN/AR use `T`.
+- Added a scoped `resources/css/menu.css` using existing colors/font conventions plus explicit menu tokens, compact glass header/search/category controls, responsive 2/3/4-column desktop/tablet grids and an accessible mobile navigation dock using existing routes. No ordering or non-functional plus button.
+- Improved category scrollspy for tall/short sections and search-hidden categories; preserved the existing analytics requests and public data flow. Added two pure frontend regression tests.
+- Used self-hosted Vazirmatn (SIL OFL) and six vendored Feather 4.29.2 icons (MIT license included); no package dependency was added. Font source: https://github.com/rastikerdar/vazirmatn/tree/v33.003. Icon source: https://github.com/feathericons/feather/tree/v4.29.2.
+- Preserved and checkpointed the previously authorized local demo work: 24 products / 8 categories / 4 pages, independent FA/EN/AR copy, 8 local demo WebPs, lifecycle/fallback cases, idempotent provisioning and ownership-manifest guarded reset/removal. `php artisan denardi:provision-development --reset` rebuilds only owned demo records; `--remove` preserves unrelated/shared content and leaves source assets. Both are local-only. No new images were generated during this reference implementation.
+- Included pre-existing public-page presentation and targeted Admin styling, the unprefixed Persian page binding fix and home featured-product read model without discarding the in-progress work.
+- Visual QA: reference and rendered page compared together, then refined for category placement, type scale and combined featured/new state. Final screenshots and limitations are recorded in root `design-qa.md`. Browser checks covered three languages × eight widths, plus search, empty, navigation, scrollspy and all product states.
+- Quality gate: **109 PHPUnit tests / 735 assertions**; final focused rerun **12 / 139**; PHPStan zero errors; Pint; **10 frontend tests**; Vite production build; Composer strict validation/security audit and npm audit — passed. Composer strict validation is now also explicit in CI. No new Lighthouse, screen-reader, physical-device or production validation claim.
+- GitHub CI: pending checkpoint push. Previous green run is historical, not evidence for this working tree. Overall completion estimates remain **95% V1 / 66% Go-live**; final content, real devices/UAT and infrastructure remain external dependencies.
+
+## 2026-09-03 — Local menu-card refinement (working tree)
+
+Superseded visually by the reference-led implementation below; retained as intermediate evidence.
+
+- Preserved the existing dark/cyan identity and rectangular cards. On mobile, enlarged square media sits beside the name/price, with full-width descriptions, allergen notices and wrapping status chips underneath.
+- Added refined borders/depth, larger type, logical RTL spacing and touch-safe hover behavior. Sold-out cards keep readable contrast; status text and all existing flags remain present.
+- Kept Persian currency label `تومان`; English and Arabic use `T`. Price conversion/storage and data model are unchanged.
+- Browser geometry checks passed for FA/EN/AR at 320, 375, 390, 430, 768, 1024 and 1440px: square media, no page or card-content horizontal overflow. At 390px, media increased from about 117px to 146px. Visually reviewed FA/EN/AR mobile and EN desktop, including branded no-image cards; checked Persian/English search and semantic headings/alt text. No recent browser errors/warnings were reported.
+- Local verification: focused public/provisioning PHPUnit suite **12 tests / 139 assertions**, frontend **8 tests**, Pint and Vite production build passed. Font URL is intentionally resolved at runtime; Vite emits an informational warning. No new Lighthouse, physical-device, screen-reader or broken-network-image fault-injection result is claimed.
+- Screenshots: ignored local `output/design-audit/after/cards-{fa,ar,en}-390.png` and `cards-en-1440.png`.
+- This is a scoped local refinement within the pre-existing, uncommitted presentation work, not a new GitHub/CI checkpoint. Previous changes are preserved. Overall estimates and external blockers remain unchanged; broader phase verification/commit/CI is still pending.
+
 ## 2026-09-02 — Business User Management checkpoint
 
 **Commit:** `2d7a465` — `feat: complete business user management`
