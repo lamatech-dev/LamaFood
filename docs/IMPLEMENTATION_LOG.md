@@ -14,7 +14,7 @@ The canonical checklist is maintained in `docs/DENARDI_V1_TRACKER.md` and mirror
 - Included pre-existing public-page presentation and targeted Admin styling, the unprefixed Persian page binding fix and home featured-product read model without discarding the in-progress work.
 - Visual QA: reference and rendered page compared together, then refined for category placement, type scale and combined featured/new state. Final screenshots and limitations are recorded in root `design-qa.md`. Browser checks covered three languages × eight widths, plus search, empty, navigation, scrollspy and all product states.
 - Quality gate: **109 PHPUnit tests / 735 assertions**; final focused rerun **12 / 139**; PHPStan zero errors; Pint; **10 frontend tests**; Vite production build; Composer strict validation/security audit and npm audit — passed. Composer strict validation is now also explicit in CI. No new Lighthouse, screen-reader, physical-device or production validation claim.
-- GitHub CI: pending checkpoint push. Previous green run is historical, not evidence for this working tree. Overall completion estimates remain **95% V1 / 66% Go-live**; final content, real devices/UAT and infrastructure remain external dependencies.
+- Commit **`2f59efb`** pushed to `develop/denardi-v1`. GitHub CI **[33732532543](https://github.com/lamatech-dev/LamaFood/actions/runs/33732532543)** passed every step, including bootstrap, clean migrations on disposable MySQL 8.4, PHP/frontend tests, static analysis, formatting, build and dependency audits. Overall completion estimates remain **95% V1 / 66% Go-live**; final content, real devices/UAT and infrastructure remain external dependencies.
 
 ## 2026-09-03 — Local menu-card refinement (working tree)
 

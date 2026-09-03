@@ -35,6 +35,7 @@ Date: 2026-09-03. Scope: public menu presentation, not production acceptance.
 - Branded no-image, recommended, new and sold-out states were visually inspected. Actual broken-network image fault injection, screen-reader and physical-device testing were not performed in this phase.
 - Browser logs: no recent error/warning entries during final smoke checks.
 - Full PHPUnit: 109 tests / 735 assertions passed; focused suite rerun after final markup edits: 12 tests / 139 assertions. PHPStan zero errors; Pint, 10 frontend tests, production Vite build, Composer validate/audit and npm audit passed. No new Lighthouse score is claimed. The font runtime URL warning is informational; the font renders locally.
+- GitHub checkpoint `2f59efb`: [CI 33732532543](https://github.com/lamatech-dev/LamaFood/actions/runs/33732532543) passed all steps, including bootstrap and clean migrations against disposable MySQL 8.4.
 
 ## Accepted differences and follow-up
 

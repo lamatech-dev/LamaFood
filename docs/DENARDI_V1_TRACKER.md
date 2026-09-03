@@ -2,7 +2,7 @@
 
 | Project | Branch | V1 Completion | Go-live Readiness | Last updated | Last reviewed commit | CI status | Current blockers |
 |---|---|---:|---:|---|---|---|---:|
-| Denardi V1 | `develop/denardi-v1` | **95%** | **66%** | 2026-09-03 | Local menu checkpoint pending | Pending push; prior CI green | **3 blocker groups** |
+| Denardi V1 | `develop/denardi-v1` | **95%** | **66%** | 2026-09-03 | `2f59efb` | ✅ [Run 33732532543](https://github.com/lamatech-dev/LamaFood/actions/runs/33732532543) | **3 blocker groups** |
 
 This Markdown file is the canonical project-status document. Percentages are evidence-based planning estimates, not mathematical precision. The tracker contains **167 control items**: 123 Done, 10 Partial, 6 Not Started, 16 Blocked line items and 12 Out of V1. The blocked line items roll up into three actual external blocker groups.
 
@@ -20,7 +20,7 @@ After every major implementation phase or release checkpoint, `DENARDI_V1_TRACKE
 
 ## Current State
 
-**2026-09-03 reference-led menu update:** The supplied concept is implemented with large 1:1 media, horizontal mobile composition, compact sticky controls, a mobile navigation dock and responsive 2/3/4-column grids. FA keeps `تومان`; EN/AR use `T`. Final visual comparison is in root `design-qa.md`. FA/EN/AR browser checks at eight widths (320–1440px), 109 PHPUnit tests / 735 assertions, 10 frontend tests, PHPStan, Pint, build and dependency checks passed. GitHub checkpoint CI is pending; the earlier green run is historical. Estimates remain **95% / 66%** and external dependencies remain open. Previously authorized demo/page/Admin presentation work is preserved; demo content is not approved production content.
+**2026-09-03 reference-led menu update:** The supplied concept is implemented with large 1:1 media, horizontal mobile composition, compact sticky controls, a mobile navigation dock and responsive 2/3/4-column grids. FA keeps `تومان`; EN/AR use `T`. Final visual comparison is in root `design-qa.md`. FA/EN/AR browser checks at eight widths (320–1440px), 109 PHPUnit tests / 735 assertions, 10 frontend tests, PHPStan, Pint, build and dependency checks passed. Checkpoint `2f59efb` is pushed and GitHub CI [33732532543](https://github.com/lamatech-dev/LamaFood/actions/runs/33732532543) passed, including clean migrations on disposable MySQL 8.4. Estimates remain **95% / 66%** and external dependencies remain open. Previously authorized demo/page/Admin presentation work is preserved; demo content is not approved production content.
 
 Foundation, three-language localization, CMS, Media, Product/Category management, branch pricing/availability, General/Table QR, public menu, required analytics emission, secure Password Reset, business User Management, health checks, structured data, SEO/PWA foundations, secret-safe backup creation, guarded Safe Restore and the final responsive UI/UX pass are implemented. The local quality gate passes. Remaining engineering is Production-like validation; Go-live additionally depends on real Denardi content, Staging, external encrypted backups, restore drill, external monitoring, UAT and Production access.
 
@@ -356,7 +356,8 @@ Columns: **V1** means required for Denardi V1. Priority uses P0 (release-blockin
 ## Git / CI Evidence
 
 - Branch: `develop/denardi-v1`
-- Feature checkpoint commit: `2d7a465`
+- Feature checkpoint commit: `2f59efb` (reference-led menu / local demo presentation)
+- Menu checkpoint CI: [33732532543](https://github.com/lamatech-dev/LamaFood/actions/runs/33732532543) passed on disposable MySQL 8.4, including Composer validation, bootstrap and clean migrations.
 - User Management CI: [33664462499](https://github.com/lamatech-dev/LamaFood/actions/runs/33664462499) passed on disposable MySQL 8.4
 - Release QA CI: [33661676730](https://github.com/lamatech-dev/LamaFood/actions/runs/33661676730) on disposable MySQL 8.4
 - Key commits: `2d7a465` business User Management; `b8ecab5` Release QA hardening; `22ab386` guarded Safe Restore; `6ccc4e1` Persian URL normalization; `12659c9` UI/UX checkpoint; `8519229` Current Phase completion; `63cbb4f` management completion; `259a348` persistent tracker/dashboard
