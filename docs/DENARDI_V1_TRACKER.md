@@ -20,6 +20,8 @@ After every major implementation phase or release checkpoint, `DENARDI_V1_TRACKE
 
 ## Current State
 
+**Category heading review:** Titles/descriptions align right in FA/AR and left in EN on mobile and desktop; category numbers sit opposite. Browser checks at 390/1280px, 10 frontend tests and production build passed. Estimates unchanged.
+
 **Shared mobile navigation update:** The premium floating dock now appears on every public page in FA/EN/AR, with localized routes and page-aware active states. Verified across five pages × three locales × three mobile widths, with no overflow and reserved footer/safe-area space. Admin/desktop are unchanged; see the implementation log for tests. Estimates remain unchanged.
 
 **English review amendment:** English mobile cards use text-left/image-right; the approved FA/AR composition remains unchanged. Verified locally at 320/390/430px with square media, no page overflow, 10 frontend tests and production build passing. Estimates are unchanged.

@@ -4,6 +4,11 @@ This file records implementation checkpoints, verification evidence and remainin
 
 The canonical checklist is maintained in `docs/DENARDI_V1_TRACKER.md` and mirrored by the visual `docs/DENARDI_V1_TRACKER.html` dashboard; every future implementation checkpoint must update both in the same commit.
 
+## 2026-09-03 — Locale-aligned category headings
+
+- Category titles and descriptions now align to the locale's logical start: right in FA/AR and left in EN, on both mobile and desktop. Category numbers occupy the opposite edge; removed the earlier desktop centering override.
+- Browser verification: all three locales at 390px and 1280px, correct heading/number placement and no horizontal overflow. Production Vite build, 10 frontend tests and whitespace checks passed. CSS-only change; product cards, data and completion estimates unchanged.
+
 ## 2026-09-03 — Shared premium mobile navigation
 
 - Extracted the existing bottom navigation into one Blade partial used by every public Home/Menu/About/Contact/Privacy page. Localized links and current-page state are explicit; Privacy has no falsely highlighted destination. Existing Menu branch query is preserved on its dock link.
@@ -11,7 +16,7 @@ The canonical checklist is maintained in `docs/DENARDI_V1_TRACKER.md` and mirror
 - Browser checks: 45 combinations (five pages × three locales × 320/390/430px), no overflow, correct active state, all dock targets at least 44px and sufficient reserved bottom space. Desktop dock remains hidden. Actual Arabic Home/Menu dock clicks retained locale and updated the active state. No recent browser errors/warnings.
 - Screenshots inspected: Home FA, Menu FA, About EN and Contact AR. Local evidence: `output/design-audit/after/dock-{menu-fa,about-en,contact-ar}-390.png`.
 - Focused PHPUnit: 13 tests / 245 assertions; PHPStan zero errors, Pint, 10 frontend tests, Vite build and whitespace checks passed. New coverage verifies all 15 page/locale combinations and current navigation state. Completion estimates and external blockers unchanged.
-- Full PHPUnit regression: **110 tests / 841 assertions passed**. GitHub CI for this checkpoint will be recorded after push.
+- Full PHPUnit regression: **110 tests / 841 assertions passed**. Commit `e1abb73` pushed; GitHub CI [33733619404](https://github.com/lamatech-dev/LamaFood/actions/runs/33733619404) passed all quality steps on disposable MySQL 8.4.
 
 ## 2026-09-03 — English mobile composition amendment
 
