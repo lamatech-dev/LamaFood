@@ -20,6 +20,8 @@ After every major implementation phase or release checkpoint, `DENARDI_V1_TRACKE
 
 ## Current State
 
+**Admin functional review (2026-09-03):** Fixed first-page-only products/media, permission-aware controls and content-editor product saves. Added product/media search, combined filters, 20-item pagination, image preview, readable status/validation feedback and mobile/desktop refinements. Complete API collections remain available for selectors and reorder. Verified 113 PHP tests / 889 assertions, 20 frontend tests, static/format/build/audits and eight-section browser checks at 390/1280px. Live editor/UAT/physical-device checks remain unclaimed; see implementation log. Estimates unchanged.
+
 **Category heading review:** Titles/descriptions align right in FA/AR and left in EN on mobile and desktop; category numbers sit opposite. Browser checks at 390/1280px, 10 frontend tests and production build passed. Estimates unchanged.
 
 **Shared mobile navigation update:** The premium floating dock now appears on every public page in FA/EN/AR, with localized routes and page-aware active states. Verified across five pages × three locales × three mobile widths, with no overflow and reserved footer/safe-area space. Admin/desktop are unchanged; see the implementation log for tests. Estimates remain unchanged.
@@ -49,7 +51,7 @@ Foundation, three-language localization, CMS, Media, Product/Category management
 - Stateful Sanctum/CSRF Admin authentication, baseline security headers, server-protected Admin shell and completed local XSS/IDOR/permission/session/upload/secret matrix
 - Analytics device/table breakdown in the Admin summary
 - Business-scoped User Management for listing, invite/create, profile/role/status updates, safe deactivation, password reset and audit, with Godfather/Lamatech isolation
-- 109 PHPUnit tests / 735 assertions, PHPStan, Pint, 10 frontend tests/build and Composer/npm dependency audits
+- 113 PHPUnit tests / 889 assertions, PHPStan, Pint, 20 frontend tests/build and Composer/npm dependency audits
 
 ## Remaining for V1
 

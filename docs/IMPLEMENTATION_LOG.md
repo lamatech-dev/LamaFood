@@ -4,6 +4,17 @@ This file records implementation checkpoints, verification evidence and remainin
 
 The canonical checklist is maintained in `docs/DENARDI_V1_TRACKER.md` and mirrored by the visual `docs/DENARDI_V1_TRACKER.html` dashboard; every future implementation checkpoint must update both in the same commit.
 
+## 2026-09-03 — Admin workflow corrections and usability refinement
+
+- Fixed truncated Admin product/media collections: read all bounded API pages, then render 20-item UI pages while keeping complete image selectors, counts and category reorder sets. Product ordering now uses an ID tie-breaker for equal positions. This is a V1-sized catalog approach, not a large-catalog server-search implementation.
+- Added combined product search/category/publication/default-branch availability filters, localized media search, result counts, reset and explicit empty states. Search includes independent FA/EN/AR names and normalizes Arabic/Persian letter variants.
+- Controls follow existing permissions for Menu/CMS/Media/QR. Product saves no longer unconditionally submit forbidden branch pricing requests for content editors. Preserved existing API/RBAC/Godfather architecture. Zero prices no longer render as blank.
+- Refined sidebar/current-page treatment, helper copy, responsive filter toolbar, pagination targets, sticky dialog headers, localized status labels and selected-image preview. Media selectors use localized title/alt before identifiers; in-use media delete is disabled with an explanation.
+- Form errors appear and receive focus inside the active dialog; submit buttons show busy/disabled state during requests. Raw validation translation keys have readable Persian explanations. Hidden UI controls have explicit CSS hiding.
+- Verification: **113 PHPUnit tests / 889 assertions**, **20 frontend tests**, PHPStan zero errors, Pint, production Vite build, strict Composer validation and Composer/npm audits passed. Added actual API tests for 51 products / 31 media plus editor update/forbidden pricing, and frontend tests for pagination, filters, permission-gated follow-up requests and errors.
+- Browser: signed-in supervisory account, all eight Admin sections at 390/1280px without horizontal overflow; real next/previous paging, Persian search, sold-out filter/reset/empty state and Product/User dialogs inspected. Product fields preserve FA/EN/AR directions. Invalid-slug submission was rejected with the dialog retaining focus; no test product was created. Normal-role permissions are covered by automated tests, not a claimed live editor login. No physical-device/UAT, outbound mail delivery, restore drill or deployment claim.
+- Current code checkpoint CI will be recorded after push. Planning estimates remain 95% V1 / 66% Go-live; external gates remain open.
+
 ## 2026-09-03 — Locale-aligned category headings
 
 - Category titles and descriptions now align to the locale's logical start: right in FA/AR and left in EN, on both mobile and desktop. Category numbers occupy the opposite edge; removed the earlier desktop centering override.

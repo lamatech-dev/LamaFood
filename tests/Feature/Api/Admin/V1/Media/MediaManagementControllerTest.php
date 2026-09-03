@@ -20,6 +20,26 @@ class MediaManagementControllerTest extends TestCase
 {
     use LazilyRefreshDatabase;
 
+    public function test_media_listing_exposes_a_second_page_after_thirty_items(): void
+    {
+        Storage::fake('public');
+        Business::factory()->create(['slug' => 'denardi']);
+        Sanctum::actingAs(User::factory()->godfather()->create());
+        $oldest = $this->upload();
+        for ($index = 0; $index < 30; $index++) {
+            $this->upload();
+        }
+
+        $this->getJson('/api/admin/v1/media?page=1')
+            ->assertJsonCount(30, 'data.data')
+            ->assertJsonPath('data.total', 31)
+            ->assertJsonPath('data.last_page', 2);
+        $this->getJson('/api/admin/v1/media?page=2')
+            ->assertJsonCount(1, 'data.data')
+            ->assertJsonPath('data.current_page', 2)
+            ->assertJsonPath('data.data.0.public_id', $oldest->public_id);
+    }
+
     public function test_upload_preserves_original_and_generates_webp_and_thumbnail(): void
     {
         Storage::fake('public');

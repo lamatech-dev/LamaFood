@@ -23,7 +23,7 @@ class ProductController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        return response()->json(['data' => $this->query($request)->with(['translations', 'category.translations', 'branchSettings', 'primaryMedia.translations'])->orderBy('position')->paginate(50)]);
+        return response()->json(['data' => $this->query($request)->with(['translations', 'category.translations', 'branchSettings', 'primaryMedia.translations'])->orderBy('position')->orderBy('id')->paginate(50)]);
     }
 
     public function store(StoreProductRequest $request, CreateProduct $create, BusinessContextResolver $contexts): JsonResponse

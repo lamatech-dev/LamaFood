@@ -1,5 +1,5 @@
 import '../css/admin.css';
-import { buildReadyBlockTranslations, buildReadyTranslations, nextAvailability, parseSchemaValue, requiresTableKey, swapOrder } from './admin-data.js';
+import { buildReadyBlockTranslations, buildReadyTranslations, nextAvailability, parseSchemaValue, requiresTableKey, swapOrder, hasPermission, loadCollection, collectionPage, saveProductAccess, filterAdminCollection, mediaLabel, adminErrorMessage } from './admin-data.js';
 
 if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js'));
 
@@ -41,7 +41,7 @@ async function api(path, options = {}) {
     }
     if (response.status === 204) return null;
     const payload = await response.json();
-    if (!response.ok) throw new Error(payload.message || Object.values(payload.errors || {}).flat().join(' ') || 'عملیات انجام نشد.');
+    if (!response.ok) throw new Error(adminErrorMessage(payload));
     return payload.data;
 }
 
@@ -54,7 +54,7 @@ async function passwordApi(path, body) {
         body: JSON.stringify(body),
     });
     const payload = await response.json();
-    if (!response.ok) throw new Error(payload.message || Object.values(payload.errors || {}).flat().join(' ') || 'عملیات انجام نشد.');
+    if (!response.ok) throw new Error(adminErrorMessage(payload));
     return payload.data;
 }
 
@@ -147,6 +147,11 @@ resetPasswordForm?.addEventListener('submit', async (event) => {
 const dashboard = document.querySelector('[data-dashboard]');
 if (dashboard) {
     const state = { context: null, categories: [], products: [], pages: [], media: [], qrCodes: [], backups: [], users: [], allowedRoles: [], analytics: {}, blockSchemas: {}, me: null };
+    const can = (permission) => hasPermission(state.me, permission);
+    const listPages = { products: 1, media: 1 };
+    const filters = { products: {}, media: {} };
+    const labels = { draft: 'پیش‌نویس', published: 'منتشرشده', inactive: 'غیرفعال', archived: 'آرشیو', available: 'موجود', sold_out: 'ناموجود' };
+    const viewDescriptions = { overview: 'وضعیت منو، محتوا و فعالیت مجموعه در یک نگاه', products: 'مدیریت محصولات، قیمت و موجودی؛ با جست‌وجو و فیلتر سریع', categories: 'ساختار منو و ترتیب دسته‌بندی‌ها', content: 'ویرایش، پیش‌نمایش و انتشار محتوای سه‌زبانه', media: 'کتابخانه تصاویر و اطلاعات رسانه‌های مجموعه', qr: 'کدهای منو و میز؛ آمار بازدید بدون اطلاعات شخصی', users: 'حساب‌های کسب‌وکار و دسترسی‌های مجاز', settings: 'زبان‌های عمومی و جهت نمایش محتوای سایت' };
     const adminNavigation = document.querySelector('#admin-navigation');
     const adminNavigationToggle = document.querySelector('.admin-nav-toggle');
     adminNavigationToggle?.addEventListener('click', () => {
@@ -162,10 +167,27 @@ if (dashboard) {
         window.setTimeout(() => { element.hidden = true; }, 3000);
     };
     const run = async (operation, success) => {
+        const form = document.querySelector('dialog[open] > form:last-child') || document.activeElement?.form;
+        const submit = form?.querySelector('button[type="submit"]');
+        const error = form?.querySelector('.form-error');
+        if (error) error.hidden = true;
+        if (submit) submit.disabled = true;
+        form?.setAttribute('aria-busy', 'true');
         try {
             await operation();
             if (success) toast(success);
-        } catch (exception) { toast(exception.message); }
+        } catch (exception) {
+            if (error) {
+                error.textContent = exception.message;
+                error.hidden = false;
+                error.setAttribute('role', 'alert');
+                error.tabIndex = -1;
+                error.focus();
+            } else toast(exception.message);
+        } finally {
+            if (submit) submit.disabled = false;
+            form?.removeAttribute('aria-busy');
+        }
     };
     const actionButton = (label, handler, className = 'status') => {
         const button = document.createElement('button');
@@ -174,6 +196,55 @@ if (dashboard) {
         button.textContent = label;
         button.addEventListener('click', handler);
         return button;
+    };
+    const permissionAction = (permission, ...args) => {
+        const button = actionButton(...args);
+        button.hidden = !can(permission);
+        button.disabled = !can(permission);
+        return button;
+    };
+    const applyAccess = () => {
+        const rules = {
+            '[data-open-product], [data-category-form]': 'menu.edit',
+            '[data-open-page]': 'cms.edit',
+            '[data-media-form]': 'media.manage',
+            '[data-qr-form]': 'qr.manage',
+        };
+        Object.entries(rules).forEach(([selector, permission]) => {
+            document.querySelectorAll(selector).forEach((element) => { element.hidden = !can(permission); });
+        });
+        const form = document.querySelector('[data-product-form]');
+        [['price_amount', 'menu.price'], ['availability_state', 'menu.availability'], ['publication_state', 'menu.publish']].forEach(([field, permission]) => {
+            form.elements[field].disabled = !can(permission);
+        });
+    };
+    const visibleItems = (key) => {
+        const result = collectionPage(filterAdminCollection(state[key], { ...filters[key], branchId: state.context.branches[0]?.id }), listPages[key]);
+        listPages[key] = result.page;
+        let nav = document.querySelector(`[data-pagination="${key}"]`);
+        if (!nav) {
+            nav = document.createElement('nav');
+            nav.className = 'admin-pagination';
+            nav.dataset.pagination = key;
+            nav.setAttribute('aria-label', key === 'products' ? 'صفحه‌بندی محصولات' : 'صفحه‌بندی رسانه');
+            document.querySelector(`[data-${key}]`).after(nav);
+        }
+        const changePage = (direction) => {
+            listPages[key] += direction;
+            render();
+            document.querySelector(`[data-${key}]`).scrollIntoView({ block: 'start' });
+            document.querySelector(`[data-pagination="${key}"] button:not(:disabled)`)?.focus({ preventScroll: true });
+        };
+        const previous = actionButton('صفحه قبل', () => changePage(-1));
+        const next = actionButton('صفحه بعد', () => changePage(1));
+        previous.disabled = result.page === 1;
+        next.disabled = result.page === result.pages;
+        const summary = document.createElement('span');
+        summary.setAttribute('role', 'status');
+        summary.textContent = `صفحه ${result.page.toLocaleString('fa-IR')} از ${result.pages.toLocaleString('fa-IR')} · ${result.total.toLocaleString('fa-IR')} نتیجه از ${state[key].length.toLocaleString('fa-IR')}`;
+        document.querySelector(`[data-${key}]`).dataset.emptyLabel = state[key].length ? 'نتیجه‌ای پیدا نشد؛ جست‌وجو یا فیلترها را تغییر دهید.' : 'هنوز موردی ثبت نشده است.';
+        nav.replaceChildren(previous, summary, next);
+        return result.items;
     };
     const translationInputs = (target, fields) => {
         target.replaceChildren();
@@ -224,7 +295,7 @@ if (dashboard) {
         if (isMediaField) {
             input.multiple = type.includes('[]');
             if (!input.multiple) input.append(new Option('بدون رسانه', ''));
-            input.append(...state.media.map((item) => new Option(localeValue(item.translations, state.context.business.default_locale, 'title') || item.public_id, item.id)));
+            input.append(...state.media.map((item) => new Option(mediaLabel(item, state.context.business.default_locale), item.id)));
         } else if (type.includes('[]')) input.placeholder = 'با ویرگول جدا کنید';
         wrapper.append(input);
         return wrapper;
@@ -270,18 +341,29 @@ if (dashboard) {
         document.querySelectorAll('[data-admin-target]').forEach((button) => button.classList.toggle('active', button.dataset.adminTarget === view));
         const active = document.querySelector(`[data-admin-target="${view}"]`);
         document.querySelector('[data-view-title]').textContent = active?.childNodes[0]?.textContent.trim() || 'پنل مدیریت';
+        document.querySelector('[data-view-description]').textContent = viewDescriptions[view] || '';
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
     const fillProductOptions = () => {
         const locale = state.context.business.default_locale;
         const form = document.querySelector('[data-product-form]');
         form.category_id.replaceChildren(...state.categories.map((category) => new Option(localeValue(category.translations, locale, 'name') || category.slug, category.public_id)));
-        form.primary_media_id.replaceChildren(new Option('بدون تصویر', ''), ...state.media.map((item) => new Option(localeValue(item.translations, locale, 'title') || item.public_id, item.public_id)));
+        form.primary_media_id.replaceChildren(new Option('بدون تصویر', ''), ...state.media.map((item) => new Option(mediaLabel(item, locale), item.public_id)));
         form.branch_id.replaceChildren(...state.context.branches.map((branch) => new Option(branch.name, branch.id)));
     };
+    const updateProductImagePreview = () => {
+        const selected = document.querySelector('[data-product-form]').primary_media_id.value;
+        const media = state.media.find((item) => item.public_id === selected);
+        const image = document.querySelector('[data-product-image-preview]');
+        image.src = media ? `/storage/${media.thumbnail_path || media.path}` : '/denardi-icon.svg';
+    };
+    document.querySelector('[data-product-image-preview]').addEventListener('error', (event) => {
+        if (!event.target.src.endsWith('/denardi-icon.svg')) event.target.src = '/denardi-icon.svg';
+    });
+    document.querySelector('[data-product-form]').primary_media_id.addEventListener('change', updateProductImagePreview);
     const fillProductBranchSetting = (form, product) => {
         const setting = product?.branch_settings.find((item) => item.branch_id === Number(form.branch_id.value));
-        form.price_amount.value = setting?.price_amount || '';
+        form.price_amount.value = setting?.price_amount ?? '';
         form.availability_state.value = setting?.availability_state || 'available';
     };
     const resetCategoryForm = () => {
@@ -305,6 +387,7 @@ if (dashboard) {
         form.branch_id.value = state.context.branches[0]?.id || '';
         fillProductBranchSetting(form, product);
         fillTranslations(form.querySelector('[data-product-translations]'), product?.translations);
+        updateProductImagePreview();
         document.querySelector('[data-product-dialog]').showModal();
     };
     const openPage = (page = null) => {
@@ -419,15 +502,15 @@ if (dashboard) {
         document.querySelector('[data-readiness-summary]').textContent = `${state.pages.filter((page) => page.readiness.ready).length} از ${state.pages.length} صفحه برای انتشار سه‌زبانه آماده است.`;
 
         const products = document.querySelector('[data-products]');
-        products.replaceChildren(...state.products.map((product, index) => {
+        products.replaceChildren(...visibleItems('products').map((product, index) => {
             const setting = product.branch_settings.find((item) => item.branch_id === state.context.branches[0]?.id);
             const row = document.createElement('article'); row.className = 'admin-row';
             const image = document.createElement('img'); image.className = 'row-thumbnail'; image.src = product.primary_media?.thumbnail_path ? `/storage/${product.primary_media.thumbnail_path}` : '/denardi-icon.svg'; image.alt = '';
-            const copy = document.createElement('div'); copy.append(Object.assign(document.createElement('strong'), { textContent: localeValue(product.translations, locale, 'name') || product.slug }), Object.assign(document.createElement('small'), { textContent: `${product.publication_state} · ${product.slug}` }));
-            const price = document.createElement('b'); price.textContent = setting ? `${Number(setting.price_amount).toLocaleString('fa-IR')} ریال · ${setting.availability_state}` : 'بدون قیمت';
+            const copy = document.createElement('div'); copy.append(Object.assign(document.createElement('strong'), { textContent: localeValue(product.translations, locale, 'name') || product.slug }), Object.assign(document.createElement('small'), { textContent: `${labels[product.publication_state] || product.publication_state} · ${product.slug}` }));
+            const price = document.createElement('b'); price.textContent = setting ? `${Number(setting.price_amount).toLocaleString('fa-IR')} ریال · ${labels[setting.availability_state] || setting.availability_state}` : 'بدون قیمت';
             const actions = document.createElement('div'); actions.className = 'row-actions';
-            actions.append(actionButton('ویرایش', () => openProduct(product)), actionButton('↑', () => run(() => reorderProducts(product, -1))), actionButton('↓', () => run(() => reorderProducts(product, 1))), actionButton('حذف', () => { if (window.confirm('محصول حذف یا آرشیو شود؟')) run(async () => { await api(`/products/${product.public_id}`, { method: 'DELETE' }); await loadProducts(); }, 'وضعیت محصول اعمال شد.'); }, 'status danger'));
-            const availability = actionButton(setting?.availability_state === 'sold_out' ? 'ناموجود' : 'موجود', () => run(async () => { await api(`/products/${product.public_id}/branches/${setting.branch_id}/settings`, { method: 'PUT', body: JSON.stringify({ price_amount: setting.price_amount, availability_state: nextAvailability(setting.availability_state), expected_version: setting.version }) }); await loadProducts(); }, 'موجودی ذخیره شد.'), setting?.availability_state === 'sold_out' ? 'status sold' : 'status'); availability.disabled = !setting; actions.append(availability);
+            actions.append(permissionAction('menu.edit', 'ویرایش', () => openProduct(product)), permissionAction('menu.edit', '↑', () => run(() => reorderProducts(product, -1))), permissionAction('menu.edit', '↓', () => run(() => reorderProducts(product, 1))), permissionAction('menu.edit', 'حذف', () => { if (window.confirm('محصول حذف یا آرشیو شود؟')) run(async () => { await api(`/products/${product.public_id}`, { method: 'DELETE' }); await loadProducts(); }, 'وضعیت محصول اعمال شد.'); }, 'status danger'));
+            const availability = permissionAction('menu.availability', setting?.availability_state === 'sold_out' ? 'ناموجود' : 'موجود', () => run(async () => { await api(`/products/${product.public_id}/branches/${setting.branch_id}/settings`, { method: 'PUT', body: JSON.stringify({ price_amount: setting.price_amount, availability_state: nextAvailability(setting.availability_state), expected_version: setting.version }) }); await loadProducts(); }, 'موجودی ذخیره شد.'), setting?.availability_state === 'sold_out' ? 'status sold' : 'status'); availability.disabled = !can('menu.availability') || !setting; actions.append(availability);
             row.append(image, copy, price, actions); return row;
         }));
 
@@ -436,9 +519,9 @@ if (dashboard) {
         const categories = document.querySelector('[data-categories]');
         categories.replaceChildren(...state.categories.map((category, index) => {
             const row = document.createElement('article'); row.className = 'admin-row';
-            const copy = document.createElement('div'); copy.append(Object.assign(document.createElement('strong'), { textContent: localeValue(category.translations, locale, 'name') || category.slug }), Object.assign(document.createElement('small'), { textContent: `${category.publication_state} · ${category.products_count} محصول · ${category.parent ? 'زیرمجموعه' : 'اصلی'}` }));
+            const copy = document.createElement('div'); copy.append(Object.assign(document.createElement('strong'), { textContent: localeValue(category.translations, locale, 'name') || category.slug }), Object.assign(document.createElement('small'), { textContent: `${labels[category.publication_state] || category.publication_state} · ${category.products_count} محصول · ${category.parent ? 'زیرمجموعه' : 'اصلی'}` }));
             const actions = document.createElement('div'); actions.className = 'row-actions';
-            actions.append(actionButton('ویرایش', () => { const form = document.querySelector('[data-category-form]'); form.public_id.value = category.public_id; form.slug.value = category.slug; form.parent_id.value = category.parent?.public_id || ''; form.is_featured.checked = category.is_featured; fillTranslations(form.querySelector('[data-category-translations]'), category.translations); window.scrollTo({ top: 0, behavior: 'smooth' }); }), actionButton('↑', () => run(() => reorderCategories(index, -1))), actionButton('↓', () => run(() => reorderCategories(index, 1))), actionButton('حذف', () => { if (window.confirm('دسته حذف یا آرشیو شود؟')) run(async () => { await api(`/categories/${category.public_id}`, { method: 'DELETE' }); state.categories = await api('/categories'); render(); }, 'وضعیت دسته اعمال شد.'); }, 'status danger'));
+            actions.append(permissionAction('menu.edit', 'ویرایش', () => { const form = document.querySelector('[data-category-form]'); form.public_id.value = category.public_id; form.slug.value = category.slug; form.parent_id.value = category.parent?.public_id || ''; form.is_featured.checked = category.is_featured; fillTranslations(form.querySelector('[data-category-translations]'), category.translations); window.scrollTo({ top: 0, behavior: 'smooth' }); }), permissionAction('menu.edit', '↑', () => run(() => reorderCategories(index, -1))), permissionAction('menu.edit', '↓', () => run(() => reorderCategories(index, 1))), permissionAction('menu.edit', 'حذف', () => { if (window.confirm('دسته حذف یا آرشیو شود؟')) run(async () => { await api(`/categories/${category.public_id}`, { method: 'DELETE' }); state.categories = await api('/categories'); render(); }, 'وضعیت دسته اعمال شد.'); }, 'status danger'));
             row.append(copy, actions); return row;
         }));
 
@@ -446,32 +529,37 @@ if (dashboard) {
         state.pages.forEach((page) => {
             const wrapper = document.createElement('article'); wrapper.className = 'page-card';
             const row = document.createElement('div'); row.className = 'admin-row';
-            const copy = document.createElement('div'); copy.append(Object.assign(document.createElement('strong'), { textContent: localeValue(page.translations, locale, 'title') || page.slug }), Object.assign(document.createElement('small'), { textContent: `${page.status} · ${page.blocks.length} بلوک · ${page.has_unpublished_changes ? 'تغییر منتشرنشده' : 'همگام با انتشار'}` }));
+            const copy = document.createElement('div'); copy.append(Object.assign(document.createElement('strong'), { textContent: localeValue(page.translations, locale, 'title') || page.slug }), Object.assign(document.createElement('small'), { textContent: `${labels[page.status] || page.status} · ${page.blocks.length} بلوک · ${page.has_unpublished_changes ? 'تغییر منتشرنشده' : 'همگام با انتشار'}` }));
             const readiness = document.createElement('b'); readiness.textContent = page.readiness.ready ? 'سه‌زبانه آماده' : Object.entries(page.readiness.locales).filter(([, value]) => !value.ready).map(([code]) => code.toUpperCase()).join('، ') + ' ناقص';
             const actions = document.createElement('div'); actions.className = 'row-actions';
-            actions.append(actionButton('ویرایش', () => openPage(page)), actionButton('بلوک جدید', () => openBlock(page)), ...state.context.locales.map((item) => actionButton(`پیش‌نمایش ${item.locale.toUpperCase()}`, () => previewPage(page, item.locale))));
-            const publish = actionButton('انتشار', () => run(async () => { await api(`/cms/pages/${page.public_id}/publish`, { method: 'POST', body: JSON.stringify({ expected_revision: page.revision }) }); await loadPages(); }, 'نسخه سه‌زبانه منتشر شد.')); publish.disabled = !page.readiness.ready; actions.append(publish);
-            if (page.slug !== 'home') actions.append(actionButton('حذف', () => { if (window.confirm('صفحه حذف یا آرشیو شود؟')) run(async () => { await api(`/cms/pages/${page.public_id}`, { method: 'DELETE' }); await loadPages(); }, 'وضعیت صفحه اعمال شد.'); }, 'status danger'));
+            actions.append(permissionAction('cms.edit', 'ویرایش', () => openPage(page)), permissionAction('cms.edit', 'بلوک جدید', () => openBlock(page)), ...state.context.locales.map((item) => permissionAction('cms.view', `پیش‌نمایش ${item.locale.toUpperCase()}`, () => previewPage(page, item.locale))));
+            const publish = permissionAction('cms.publish', 'انتشار', () => run(async () => { await api(`/cms/pages/${page.public_id}/publish`, { method: 'POST', body: JSON.stringify({ expected_revision: page.revision }) }); await loadPages(); }, 'نسخه سه‌زبانه منتشر شد.')); publish.disabled = !can('cms.publish') || !page.readiness.ready; actions.append(publish);
+            if (page.slug !== 'home') actions.append(permissionAction('cms.edit', 'حذف', () => { if (window.confirm('صفحه حذف یا آرشیو شود؟')) run(async () => { await api(`/cms/pages/${page.public_id}`, { method: 'DELETE' }); await loadPages(); }, 'وضعیت صفحه اعمال شد.'); }, 'status danger'));
             row.append(copy, readiness, actions); wrapper.append(row);
             const blockList = document.createElement('div'); blockList.className = 'block-list';
             page.blocks.forEach((block, index) => {
                 const item = document.createElement('div'); item.className = 'block-row';
                 const label = document.createElement('span'); label.textContent = `${index + 1}. ${block.type} · ${block.is_enabled ? 'فعال' : 'غیرفعال'}`;
                 const controls = document.createElement('div'); controls.className = 'row-actions';
-                controls.append(actionButton('ویرایش', () => openBlock(page, block)), actionButton(block.is_enabled ? 'غیرفعال' : 'فعال', () => run(async () => { await api(`/cms/pages/${page.public_id}/blocks/${block.public_id}`, { method: 'PUT', body: JSON.stringify({ type: block.type, is_enabled: !block.is_enabled, structure: block.structure_json, translations: Object.fromEntries(block.translations.map((translation) => [translation.locale, { content: translation.content_json, translation_state: translation.translation_state }])) }) }); await loadPages(); }, 'وضعیت بلوک ذخیره شد.')), actionButton('↑', () => run(() => reorderBlocks(page, index, -1))), actionButton('↓', () => run(() => reorderBlocks(page, index, 1))), actionButton('حذف', () => { if (window.confirm('بلوک حذف شود؟')) run(async () => { await api(`/cms/pages/${page.public_id}/blocks/${block.public_id}`, { method: 'DELETE' }); await loadPages(); }, 'بلوک حذف شد.'); }, 'status danger'));
+                controls.append(permissionAction('cms.edit', 'ویرایش', () => openBlock(page, block)), permissionAction('cms.edit', block.is_enabled ? 'غیرفعال' : 'فعال', () => run(async () => { await api(`/cms/pages/${page.public_id}/blocks/${block.public_id}`, { method: 'PUT', body: JSON.stringify({ type: block.type, is_enabled: !block.is_enabled, structure: block.structure_json, translations: Object.fromEntries(block.translations.map((translation) => [translation.locale, { content: translation.content_json, translation_state: translation.translation_state }])) }) }); await loadPages(); }, 'وضعیت بلوک ذخیره شد.')), permissionAction('cms.edit', '↑', () => run(() => reorderBlocks(page, index, -1))), permissionAction('cms.edit', '↓', () => run(() => reorderBlocks(page, index, 1))), permissionAction('cms.edit', 'حذف', () => { if (window.confirm('بلوک حذف شود؟')) run(async () => { await api(`/cms/pages/${page.public_id}/blocks/${block.public_id}`, { method: 'DELETE' }); await loadPages(); }, 'بلوک حذف شد.'); }, 'status danger'));
                 item.append(label, controls); blockList.append(item);
             });
             wrapper.append(blockList); pages.append(wrapper);
         });
 
         const media = document.querySelector('[data-media]');
-        media.replaceChildren(...state.media.map((item) => {
+        media.replaceChildren(...visibleItems('media').map((item) => {
             const card = document.createElement('article'); card.className = 'media-card';
             const image = document.createElement('img'); image.src = `/storage/${item.thumbnail_path || item.path}`; image.alt = localeValue(item.translations, locale, 'alt');
-            const copy = document.createElement('div'); copy.append(Object.assign(document.createElement('strong'), { textContent: localeValue(item.translations, locale, 'title') || item.public_id }), Object.assign(document.createElement('small'), { textContent: `${item.width || '—'}×${item.height || '—'} · ${item.usages_count + item.products_count} استفاده` }));
+            const copy = document.createElement('div'); copy.append(Object.assign(document.createElement('strong'), { textContent: mediaLabel(item, locale) }), Object.assign(document.createElement('small'), { textContent: `${item.width || '—'}×${item.height || '—'} · ${item.usages_count + item.products_count} استفاده` }));
             const references = [...item.usages.map((usage) => usage.field), ...item.products.map((product) => `محصول: ${product.slug}`)];
             if (references.length) copy.append(Object.assign(document.createElement('small'), { textContent: references.join(' · ') }));
-            const actions = document.createElement('div'); actions.className = 'row-actions'; actions.append(actionButton('ویرایش', () => openMedia(item)), actionButton('حذف', () => { if (window.confirm('رسانه حذف شود؟')) run(async () => { await api(`/media/${item.public_id}`, { method: 'DELETE' }); await loadMedia(); }, 'رسانه حذف شد.'); }, 'status danger')); copy.append(actions); card.append(image, copy); return card;
+            const actions = document.createElement('div'); actions.className = 'row-actions'; actions.append(permissionAction('media.manage', 'ویرایش', () => openMedia(item)), permissionAction('media.manage', 'حذف', () => { if (window.confirm('رسانه حذف شود؟')) run(async () => { await api(`/media/${item.public_id}`, { method: 'DELETE' }); await loadMedia(); }, 'رسانه حذف شد.'); }, 'status danger')); const deleteButton = actions.querySelector('.danger');
+            if (item.usages_count + item.products_count > 0) {
+                deleteButton.disabled = true;
+                deleteButton.title = 'این تصویر در محتوا استفاده می‌شود؛ ابتدا آن را از موارد وابسته جدا کنید.';
+            }
+            copy.append(actions); card.append(image, copy); return card;
         }));
 
         const qrList = document.querySelector('[data-qr-codes]');
@@ -481,7 +569,7 @@ if (dashboard) {
             const path = document.createElement('b'); path.className = 'qr-path'; path.textContent = `/q/${qrCode.public_id}`;
             const actions = document.createElement('div'); actions.className = 'row-actions';
             ['svg', 'png', 'pdf'].forEach((format) => actions.append(actionButton(format.toUpperCase(), () => run(() => downloadArtwork(`/qr-codes/${qrCode.public_id}/artwork/${format}`), `فایل ${format.toUpperCase()} آماده شد.`))));
-            actions.append(actionButton(qrCode.is_active ? 'فعال' : 'غیرفعال', () => run(async () => { await api(`/qr-codes/${qrCode.public_id}`, { method: 'PATCH', body: JSON.stringify({ is_active: !qrCode.is_active }) }); await loadQrAnalytics(); }, 'وضعیت QR ذخیره شد.'), qrCode.is_active ? 'status' : 'status sold'));
+            actions.append(permissionAction('qr.manage', qrCode.is_active ? 'فعال' : 'غیرفعال', () => run(async () => { await api(`/qr-codes/${qrCode.public_id}`, { method: 'PATCH', body: JSON.stringify({ is_active: !qrCode.is_active }) }); await loadQrAnalytics(); }, 'وضعیت QR ذخیره شد.'), qrCode.is_active ? 'status' : 'status sold'));
             row.append(copy, path, actions); return row;
         }));
 
@@ -511,19 +599,24 @@ if (dashboard) {
             }
             row.append(identity, contact, status, actions); return row;
         }));
+        const categoryFilter = document.querySelector('[data-product-category]');
+        const selectedCategory = categoryFilter.value;
+        categoryFilter.replaceChildren(new Option('همه دسته‌ها', ''), ...state.categories.map((category) => new Option(localeValue(category.translations, locale, 'name') || category.slug, category.public_id)));
+        categoryFilter.value = selectedCategory;
         fillProductOptions();
+        applyAccess();
     };
 
-    async function loadProducts() { const data = await api('/products'); state.products = data.data; render(); }
+    async function loadProducts() { state.products = await loadCollection(api, '/products'); render(); }
     async function loadPages() { state.pages = await api('/cms/pages'); render(); }
-    async function loadMedia() { const data = await api('/media'); state.media = data.data; render(); }
+    async function loadMedia() { state.media = await loadCollection(api, '/media'); render(); }
     async function loadQrAnalytics() { [state.qrCodes, state.analytics] = await Promise.all([api('/qr-codes'), api('/analytics/summary')]); render(); }
     async function loadUsers() { const data = await api('/users'); state.users = data.users; state.allowedRoles = data.allowed_roles; render(); }
     async function boot() {
         try {
             [state.me, state.context, state.categories, state.pages, state.blockSchemas] = await Promise.all([api('/me'), api('/business/context'), api('/categories'), api('/cms/pages'), api('/cms/block-schemas')]);
-            const [products, media, qrCodes, analytics, backups] = await Promise.all([api('/products'), api('/media'), api('/qr-codes'), api('/analytics/summary'), api('/backups').catch(() => [])]);
-            state.products = products.data; state.media = media.data; state.qrCodes = qrCodes; state.analytics = analytics; state.backups = backups;
+            const [products, media, qrCodes, analytics, backups] = await Promise.all([loadCollection(api, '/products'), loadCollection(api, '/media'), api('/qr-codes'), api('/analytics/summary'), api('/backups').catch(() => [])]);
+            state.products = products; state.media = media; state.qrCodes = qrCodes; state.analytics = analytics; state.backups = backups;
             if (state.me.permissions.includes('users.manage')) {
                 const data = await api('/users');
                 state.users = data.users;
@@ -569,7 +662,7 @@ if (dashboard) {
         event.preventDefault(); const form = event.currentTarget; const id = form.public_id.value;
         const existing = state.categories.find((item) => item.public_id === id);
         const category = await api(id ? `/categories/${id}` : '/categories', { method: id ? 'PUT' : 'POST', body: JSON.stringify({ slug: form.slug.value, parent_id: form.parent_id.value || null, position: existing?.position || state.categories.length, is_featured: form.is_featured.checked, translations: readTranslations(form) }) });
-        if (!id) await api(`/categories/${category.public_id}/publication-state`, { method: 'PATCH', body: JSON.stringify({ publication_state: 'published' }) });
+        if (!id && can('menu.publish')) await api(`/categories/${category.public_id}/publication-state`, { method: 'PATCH', body: JSON.stringify({ publication_state: 'published' }) });
         state.categories = await api('/categories'); resetCategoryForm(); render();
     }, 'دسته ذخیره شد.'));
 
@@ -577,10 +670,14 @@ if (dashboard) {
         event.preventDefault(); const form = event.currentTarget; const id = form.public_id.value;
         const existing = state.products.find((item) => item.public_id === id); const branchId = Number(form.branch_id.value); const setting = existing?.branch_settings.find((item) => item.branch_id === branchId);
         const product = await api(id ? `/products/${id}` : '/products', { method: id ? 'PUT' : 'POST', body: JSON.stringify({ category_id: form.category_id.value, primary_media_id: form.primary_media_id.value || null, slug: form.slug.value, position: existing?.position ?? state.products.filter((item) => item.category.public_id === form.category_id.value).length, translations: readTranslations(form), is_featured: form.is_featured.checked, is_new: form.is_new.checked, is_best_seller: form.is_best_seller.checked }) });
-        if (form.publication_state.value !== product.publication_state) await api(`/products/${product.public_id}/publication-state`, { method: 'PATCH', body: JSON.stringify({ publication_state: form.publication_state.value }) });
-        await api(`/products/${product.public_id}/branches/${branchId}/settings`, { method: 'PUT', body: JSON.stringify({ price_amount: Number(form.price_amount.value), availability_state: form.availability_state.value, expected_version: setting?.version || 0 }) });
+        await saveProductAccess(api, state.me, product, {
+            publication_state: form.publication_state.value,
+            branch_id: branchId,
+            price_amount: Number(form.price_amount.value),
+            availability_state: form.availability_state.value,
+        }, setting);
         document.querySelector('[data-product-dialog]').close(); await loadProducts();
-    }, 'محصول، قیمت و موجودی ذخیره شد.'));
+    }, 'تغییرات مجاز محصول ذخیره شد.'));
 
     document.querySelector('[data-page-form]').addEventListener('submit', (event) => run(async () => {
         event.preventDefault(); const form = event.currentTarget; const id = form.public_id.value;
@@ -627,5 +724,25 @@ if (dashboard) {
     const qrForm = document.querySelector('[data-qr-form]');
     qrForm.type.addEventListener('change', () => { const field = qrForm.querySelector('[data-table-key]'); field.hidden = !requiresTableKey(qrForm.type.value); qrForm.table_key.required = requiresTableKey(qrForm.type.value); if (!requiresTableKey(qrForm.type.value)) qrForm.table_key.value = ''; });
     qrForm.addEventListener('submit', (event) => run(async () => { event.preventDefault(); await api('/qr-codes', { method: 'POST', body: JSON.stringify({ branch_id: Number(qrForm.branch_id.value), type: qrForm.type.value, label: qrForm.label.value, table_key: requiresTableKey(qrForm.type.value) ? qrForm.table_key.value : null }) }); qrForm.reset(); await loadQrAnalytics(); }, 'QR ساخته شد.'));
+    for (const [selector, key, field, eventName] of [
+        ['[data-product-search]', 'products', 'query', 'input'],
+        ['[data-product-category]', 'products', 'category', 'change'],
+        ['[data-product-status]', 'products', 'status', 'change'],
+        ['[data-product-availability]', 'products', 'availability', 'change'],
+        ['[data-media-search]', 'media', 'query', 'input'],
+    ]) {
+        document.querySelector(selector).addEventListener(eventName, (event) => {
+            filters[key][field] = event.target.value;
+            listPages[key] = 1;
+            render();
+        });
+    }
+    document.querySelector('[data-clear-product-filters]').addEventListener('click', () => {
+        filters.products = {};
+        listPages.products = 1;
+        document.querySelectorAll('[data-product-filters] input, [data-product-filters] select').forEach((input) => { input.value = ''; });
+        render();
+        document.querySelector('[data-product-search]').focus();
+    });
     boot();
 }

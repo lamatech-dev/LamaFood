@@ -24,6 +24,54 @@ class MenuManagementControllerTest extends TestCase
 {
     use LazilyRefreshDatabase;
 
+    public function test_product_listing_keeps_records_beyond_first_page_accessible(): void
+    {
+        [$business, $actor] = $this->context();
+        $category = $this->category($business, $actor, 'coffee', 0);
+        for ($position = 0; $position < 51; $position++) {
+            $this->product($category, $actor, 'coffee-'.$position, 0);
+        }
+        Sanctum::actingAs($actor);
+
+        $this->getJson('/api/admin/v1/products?page=1')
+            ->assertJsonCount(50, 'data.data')
+            ->assertJsonPath('data.last_page', 2)
+            ->assertJsonPath('data.total', 51);
+        $this->getJson('/api/admin/v1/products?page=2')
+            ->assertJsonCount(1, 'data.data')
+            ->assertJsonPath('data.current_page', 2)
+            ->assertJsonPath('data.data.0.slug', 'coffee-50');
+    }
+
+    public function test_content_editor_can_update_product_but_branch_price_write_is_forbidden(): void
+    {
+        [$business, $actor] = $this->context();
+        $branch = Branch::factory()->for($business)->create();
+        $category = $this->category($business, $actor, 'coffee', 0);
+        $product = $this->product($category, $actor, 'coffee', 0);
+        $editor = User::factory()->for($business)->create();
+        app(ProvisionFoundationRbac::class)->execute($business);
+        app(PermissionRegistrar::class)->setPermissionsTeamId($business->id);
+        $editor->assignRole(FoundationRole::ContentEditor->value);
+        Sanctum::actingAs($editor);
+
+        $this->putJson("/api/admin/v1/products/{$product->public_id}", [
+            'category_id' => $category->public_id,
+            'slug' => 'edited-coffee',
+            'position' => 0,
+            'translations' => $this->translations('قهوه', 'Coffee', 'قهوة'),
+        ])->assertJsonPath('data.slug', 'edited-coffee');
+        $this->putJson("/api/admin/v1/products/{$product->public_id}/branches/{$branch->id}/settings", [
+            'price_amount' => 100,
+            'availability_state' => 'available',
+            'expected_version' => 0,
+        ])->assertForbidden();
+
+        $this->assertSame('edited-coffee', $product->fresh()->slug);
+        $this->assertDatabaseMissing('product_branch_settings', ['product_id' => $product->id]);
+        $this->assertDatabaseHas('audit_logs', ['action' => 'menu.product.updated']);
+    }
+
     public function test_updates_category_and_reorders_categories(): void
     {
         [$business, $actor] = $this->context();
