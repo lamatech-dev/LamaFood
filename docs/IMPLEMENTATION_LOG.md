@@ -4,6 +4,12 @@ This file records implementation checkpoints, verification evidence and remainin
 
 The canonical checklist is maintained in `docs/DENARDI_V1_TRACKER.md` and mirrored by the visual `docs/DENARDI_V1_TRACKER.html` dashboard; every future implementation checkpoint must update both in the same commit.
 
+## 2026-09-03 — English mobile composition amendment
+
+- Per explicit review feedback, English mobile cards now place left-aligned text on the left and square media on the right. Persian/Arabic retain their approved image-left/text-right composition; desktop behavior is unchanged.
+- CSS-only amendment. Browser checks at 320/390/430px across all three locales confirmed the intended side order, square media and no page overflow. English 390px screenshot updated in `output/design-audit/after/reference-menu-en-390.png`.
+- Production build, 10 frontend tests and diff whitespace checks passed. No data/API changes, new images or change to completion estimates.
+
 ## 2026-09-03 — Reference-led premium menu checkpoint
 
 - Implemented the supplied concept in the existing Blade application: image-left horizontal mobile cards, large square media, adjacent title/price/copy, reserved crop dimensions, minimal state chips, featured/new ribbons and readable sold-out states. FA retains `تومان`; EN/AR use `T`.
